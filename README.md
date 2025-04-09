@@ -13,12 +13,9 @@ This repository contains the **user-facing interface** for **Sephcocco Lounge**,
 ## ⚙️ Tech Stack
 
 ### 💻 Frontend
-- **Next.js** – Server-side rendering and routing
-- **TypeScript** – Type safety across the project
-- **Tailwind CSS** – Utility-first styling
-- **ShadCN UI** – Reusable and accessible UI components
-- **Lucide React** – Beautiful icon set
-- **Context API** – For managing user authentication state
+- **React** – To build and manage components
+- **CSS** - To handle styling
+
 
 ### 📦 Tooling & Configuration
 - **ESLint & Prettier** – Code formatting and linting
