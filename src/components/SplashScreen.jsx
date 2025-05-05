@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import {  AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+
 import '../styles/SplashScreen.css'
 import Logo from '../assets/logo.png'
 const SplashScreen = () => {
@@ -12,7 +13,7 @@ const rotationSpeed = 5
     const timer = setTimeout(() => {
       setIsLoading(false);
   
-    }, 30000);
+    }, 3000);
 
     return () => clearTimeout(timer);
   }, []);
