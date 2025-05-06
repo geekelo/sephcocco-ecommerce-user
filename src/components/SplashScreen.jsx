@@ -85,4 +85,4 @@ useEffect(() => {
   );
 };
 
-export default SplashScreen;
+export { SplashScreen};
