@@ -5,7 +5,9 @@ import { ArrowRight } from 'lucide-react';
 import '../styles/Outlet.css';
 import Logo from '../assets/logo.png';
 import OutletImage from '../assets/outlet.png';
-
+import Icon1 from '../assets/2.svg';
+import Icon2 from '../assets/3.svg';
+import Icon3 from '../assets/1.svg';
 const OutletPage = () => {
   // Animation variants
   const containerVariants = {
@@ -90,6 +92,11 @@ const OutletPage = () => {
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
               >
+                 <img 
+              src={Icon1}
+              alt="Icon" 
+              className="icon"
+            />
                 Our Restuarant 
                 <ArrowRight className="arrow-icon" />
               </motion.button>
@@ -99,6 +106,11 @@ const OutletPage = () => {
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
               >
+                    <img 
+              src={Icon2}
+              alt="Icon" 
+              className="icon"
+            />
                 Our Lounge
                 <ArrowRight className="arrow-icon" />
               </motion.button>
@@ -108,6 +120,11 @@ const OutletPage = () => {
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
               >
+                    <img 
+              src={Icon3}
+              alt="Icon" 
+              className="icon"
+            />
                 Our Pharmacy 
                 <ArrowRight className="arrow-icon" />
               </motion.button>

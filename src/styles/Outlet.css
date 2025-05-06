@@ -105,7 +105,10 @@
     cursor: pointer;
     transition: all 0.3s ease;
   }
-  
+  .icon {
+    width: 30px;
+    height: 30px;
+  }
   .nav-button:hover {
     background-color: #ffead1;
   }
