@@ -5,9 +5,9 @@ import { ArrowRight } from 'lucide-react';
 import '../styles/Outlet.css';
 import Logo from '../assets/logo.png';
 import OutletImage from '../assets/outlet.png';
-import Icon1 from '../assets/2.svg';
-import Icon2 from '../assets/3.svg';
-import Icon3 from '../assets/1.svg';
+import Icon1 from '../assets/restur.svg';
+import Icon2 from '../assets/louge.svg';
+import Icon3 from '../assets/phar.svg';
 const OutletPage = () => {
   // Animation variants
   const containerVariants = {
