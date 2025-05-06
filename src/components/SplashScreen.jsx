@@ -4,19 +4,24 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 import '../styles/SplashScreen.css'
 import Logo from '../assets/logo.png'
-const SplashScreen = () => {
+const SplashScreen = ({ onComplete }) => {
   const [isLoading, setIsLoading] = useState(true);
 
 const rotationSpeed = 5
-  useEffect(() => {
-    // Simulate loading time
-    const timer = setTimeout(() => {
-      setIsLoading(false);
+useEffect(() => {
+  // Simulate loading time
+  const timer = setTimeout(() => {
+    setIsLoading(false);
+    
+    // Give time for exit animation to complete
+    setTimeout(() => {
+      if (onComplete) onComplete();
+    }, 500);
+  }, 4000); 
   
-    }, 4000);
+  return () => clearTimeout(timer);
+}, [onComplete]);
 
-    return () => clearTimeout(timer);
-  }, []);
 
 
 
