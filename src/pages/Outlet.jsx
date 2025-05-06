@@ -8,7 +8,19 @@ import OutletImage from '../assets/outlet.png';
 import Icon1 from '../assets/restur.svg';
 import Icon2 from '../assets/louge.svg';
 import Icon3 from '../assets/phar.svg';
+import { useNavigate } from 'react-router-dom';
 const OutletPage = () => {
+
+  const navigate = useNavigate();
+  const handleRestuarantClick = () => {
+navigate('/products')
+  }
+  const handleLougeClick = () => {
+    navigate('/products')
+      }
+      const handlePharmacyClick = () => {
+        navigate('/products')
+          }
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -91,6 +103,7 @@ const OutletPage = () => {
                 className="nav-button"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
+                onClick={handleRestuarantClick}
               >
                  <img 
               src={Icon1}
@@ -105,6 +118,7 @@ const OutletPage = () => {
                 className="nav-button"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
+                onClick={handleLougeClick}
               >
                     <img 
               src={Icon2}
@@ -119,6 +133,7 @@ const OutletPage = () => {
                 className="nav-button"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
+                onClick={handlePharmacyClick}
               >
                     <img 
               src={Icon3}
