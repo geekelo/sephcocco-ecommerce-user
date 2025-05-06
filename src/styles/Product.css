@@ -1,0 +1,17 @@
+.mobile-product-only {
+    display: none;
+}
+.product-showcases-container {
+padding: 30px 60px;
+background-color: #fff;
+}
+
+@media (max-width: 768px) {
+    .mobile-product-only {
+        display: flex; 
+        padding: 24px 12px;
+    }
+    .product-showcases-container {
+        padding: 15px 15px;
+    }
+}

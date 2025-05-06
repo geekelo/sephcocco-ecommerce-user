@@ -1,6 +1,6 @@
-/* styles/Header.css */
+
 .header {
-    background-color: #fef7f5;
+    background-color: #ffead1;
     padding: 0.75rem 2rem;
     width: 100%;
     position: sticky;
@@ -10,9 +10,6 @@
     transition: border-bottom 0.3s ease;
   }
   
-  .header:hover {
-    border-bottom: 1px solid #ff4500;
-  }
   
   .header-wrapper {
     max-width: 1440px;
