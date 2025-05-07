@@ -60,7 +60,7 @@ export const ProductCard = ({
         whileTap={{ scale: 0.98 }}
         disabled={!inStock}
       >
-        Add Now
+        Place Order
       </motion.button>
     </motion.div>
   );
