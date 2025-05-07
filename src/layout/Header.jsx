@@ -28,7 +28,7 @@ const Header = () => {
   ];
 
   const storeOptions = ['Pharmacy', 'Lounge', 'Restaurant'];
-  const filterOptions = ['Price: Low to High', 'Price: High to Low', 'Newest First', 'Popularity', 'Rating'];
+  const filterOptions = ['Price: Low to High', 'Price: High to Low', 'Newest First', 'Categories', 'Rating'];
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const toggleStoreDropdown = (e) => {

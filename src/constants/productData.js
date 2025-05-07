@@ -10,77 +10,85 @@ export const topSellersData = [
       inStock: true,
       stockCount: 42,
       isFavorite: false,
-      category: "pain-relief"
+      category: "pain-relief",
+      likes: 387
     },
     {
       id: 4,
       name: "Panadol Extra",
       price: 129.00,
-        image: Image, 
+      image: Image, 
       inStock: true,
       stockCount: 17,
       isFavorite: true,
-      category: "pain-relief"
+      category: "pain-relief",
+      likes: 246
     },
     {
       id: 6,
       name: "Panadol Extra",
       price: 129.00,
-        image: Image, 
+      image: Image, 
       inStock: true, 
       stockCount: 31,
       isFavorite: false,
-      category: "pain-relief"
+      category: "pain-relief",
+      likes: 153
     },
     {
       id: 8,
       name: "Panadol Extra",
       price: 129.00,
-        image: Image, 
+      image: Image, 
       inStock: true,
       stockCount: 25,
       isFavorite: true,
-      category: "pain-relief"
+      category: "pain-relief",
+      likes: 456
     },
     {
       id: 10,
       name: "Panadol Extra",
       price: 129.00,
-        image: Image, 
+      image: Image, 
       inStock: true,
       stockCount: 39,
       isFavorite: false,
-      category: "pain-relief"
+      category: "pain-relief",
+      likes: 298
     },
     {
       id: 12,
       name: "Panadol Extra",
       price: 129.00,
-        image: Image, 
+      image: Image, 
       inStock: true,
       stockCount: 21,
       isFavorite: true,
-      category: "pain-relief"
+      category: "pain-relief",
+      likes: 327
     },
     {
       id: 14,
       name: "Panadol Extra",
       price: 129.00,
-        image: Image, 
+      image: Image, 
       inStock: false,
       stockCount: 0,
       isFavorite: false,
-      category: "pain-relief"
+      category: "pain-relief",
+      likes: 112
     },
     {
       id: 16,
       name: "Panadol Extra",
       price: 129.00,
-        image: Image, 
+      image: Image, 
       inStock: true,
       stockCount: 15,
       isFavorite: true,
-      category: "pain-relief"
+      category: "pain-relief",
+      likes: 289
     }
   ];
   
@@ -94,7 +102,8 @@ export const topSellersData = [
       inStock: true,
       stockCount: 36,
       isFavorite: false,
-      category: "vitamins"
+      category: "vitamins",
+      likes: 87
     },
     {
       id: 3,
@@ -104,7 +113,8 @@ export const topSellersData = [
       inStock: true,
       stockCount: 19,
       isFavorite: true,
-      category: "supplements"
+      category: "supplements",
+      likes: 124
     },
     {
       id: 5,
@@ -114,7 +124,8 @@ export const topSellersData = [
       inStock: true,
       stockCount: 28,
       isFavorite: false,
-      category: "supplements"
+      category: "supplements",
+      likes: 162
     },
     {
       id: 7,
@@ -124,7 +135,8 @@ export const topSellersData = [
       inStock: false,
       stockCount: 0,
       isFavorite: true,
-      category: "vitamins"
+      category: "vitamins",
+      likes: 95
     },
     {
       id: 9,
@@ -134,7 +146,8 @@ export const topSellersData = [
       inStock: true,
       stockCount: 42,
       isFavorite: false,
-      category: "digestive-health"
+      category: "digestive-health",
+      likes: 178
     },
     {
       id: 11,
@@ -144,7 +157,8 @@ export const topSellersData = [
       inStock: true,
       stockCount: 33,
       isFavorite: true,
-      category: "sleep-aids"
+      category: "sleep-aids",
+      likes: 143
     },
     {
       id: 13,
@@ -154,7 +168,8 @@ export const topSellersData = [
       inStock: true,
       stockCount: 17,
       isFavorite: false,
-      category: "beauty-supplements"
+      category: "beauty-supplements",
+      likes: 197
     },
     {
       id: 15,
@@ -164,7 +179,8 @@ export const topSellersData = [
       inStock: true,
       stockCount: 24,
       isFavorite: true,
-      category: "fitness-supplements"
+      category: "fitness-supplements",
+      likes: 215
     }
   ];
   

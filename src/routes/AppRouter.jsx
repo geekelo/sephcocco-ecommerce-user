@@ -18,7 +18,7 @@ const AppRouter = () => {
     
     return (
       <BrowserRouter>
-        <ErrorBoundary>
+        <ErrorBoundary showError={true}>
           {loading ? (
             <SplashScreen onComplete={handleSplashComplete} />
           ) : (

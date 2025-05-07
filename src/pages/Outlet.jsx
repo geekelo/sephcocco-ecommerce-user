@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 const OutletPage = () => {
 
   const navigate = useNavigate();
-  const handleRestuarantClick = () => {
+  const handleRestaurantClick = () => {
 navigate('/products')
   }
   const handleLougeClick = () => {
@@ -103,7 +103,7 @@ navigate('/products')
                 className="nav-button"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                onClick={handleRestuarantClick}
+                onClick={handleRestaurantClick}
               >
                  <img 
               src={Icon1}

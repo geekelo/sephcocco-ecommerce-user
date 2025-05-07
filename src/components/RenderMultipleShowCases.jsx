@@ -2,7 +2,7 @@ import { useState } from "react";
 import {  newArrivalsData, topSellersData } from "../constants/productData";
 import { ProductShowcase } from "./ProductShowcase";
 
-export const renderMultipleShowcases = () => {
+export const RenderMultipleShowcases = () => {
 
     const [products, setProducts] = useState({
         topSellers: topSellersData,
