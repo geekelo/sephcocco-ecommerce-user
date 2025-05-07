@@ -1,0 +1,67 @@
+.product-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    z-index: 50;
+    overflow-y: auto;
+  }
+  
+  .product-modal-content {
+    flex: 1;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 5rem 2rem 2rem; /* Added top padding to make room for the close button */
+    position: relative;
+  }
+  
+  .close-button {
+    position: fixed;
+    top: 90px;
+    right: 20px;
+    background-color: #f2f2f2;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    transition: all 0.2s ease;
+  }
+  
+  .close-button:hover {
+    background-color: #e0e0e0;
+    transform: scale(1.05);
+  }
+  
+  .close-button:active {
+    transform: scale(0.95);
+  }
+  
+  /* Add this to make the X icon more visible */
+  .close-button svg {
+    color: #333;
+    stroke-width: 2.5px;
+  }
+  
+  @media (max-width: 768px) {
+    .product-modal-content {
+      padding: 4.5rem 1rem 2rem; /* Adjusted top padding for mobile */
+    }
+    
+    .close-button {
+      top: 90px;
+      right: 15px;
+      width: 36px;
+      height: 36px;
+    }
+  }

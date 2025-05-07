@@ -1,44 +1,40 @@
-import '../styles/ProductCard.css'
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Heart, ThumbsUp } from 'lucide-react';
+import '../styles/ProductCard.css';
 
 export const ProductCard = ({
   product,
-  onAddToCart = () => {},
-  onFavorite = () => {}
+  onFavorite = () => {},
+  onButtonClick = () => {},
+  buttonText,
 }) => {
   const {
     id,
-    image,
+    images,
     name,
     price,
     inStock,
     stockCount,
     isFavorite = false,
-    likes = 0 
+    likes = 0,
   } = product;
-    
+
   return (
-    <motion.div
-      className="product-card"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      whileHover={{ y: -5 }}
-    >
+    <div className="product-card">
       <div className="product-image-container">
-        <img src={image} alt={name} className="product-image" />
-        <motion.button
+        <img src={images[0]} alt={name} className="product-image" />
+        <button
           className={`favorite-button ${isFavorite ? 'active' : ''}`}
           onClick={() => onFavorite(id)}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
         >
-          <Heart size={16} fill={isFavorite ? "#ff6b6b" : "none"} color={isFavorite ? "#ff6b6b" : "#888"} />
-        </motion.button>
+          <Heart
+            size={16}
+            fill={isFavorite ? '#ff6b6b' : 'none'}
+            color={isFavorite ? '#ff6b6b' : '#888'}
+          />
+        </button>
       </div>
-        
+
       <div className="product-info">
         <h3 className="product-name">{name}</h3>
         <div className="product-price">${price.toFixed(2)}</div>
@@ -52,16 +48,14 @@ export const ProductCard = ({
           <ThumbsUp size={14} /> <span>{likes} likes</span>
         </div>
       </div>
-        
-      <motion.button
+
+      <button
         className="add-to-cart-button"
-        onClick={() => onAddToCart(id)}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
+        onClick={() => onButtonClick(product)}
         disabled={!inStock}
       >
-        Place Order
-      </motion.button>
-    </motion.div>
+        {buttonText}
+      </button>
+    </div>
   );
 };

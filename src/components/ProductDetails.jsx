@@ -1,0 +1,79 @@
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import ImageGallery from './ImageGallery';
+import LikeButton from './LikeButton';
+import ActionButtons from './ActionButtons';
+import ExpandableDescription from './ExpandableDescription';
+import '../styles/ProductDetails.css';
+
+const ProductDetails = ({ product }) => {
+  const [selectedImage, setSelectedImage] = useState(product?.images?.[0] || "/api/placeholder/400/400");
+
+  
+  const shortDescription = product?.description || "No description available";
+  const getLongDescription = (product) => {
+    // Only some products will have long descriptions
+    if (product.id % 2 === 0) {
+      return `This extended information provides additional details about the product's benefits, usage instructions, and specific formulation. The active ingredients work together to provide fast and effective relief. Always read the label and use only as directed. Consult your healthcare professional if symptoms persist or you have any questions about this medication.`;
+    }
+    return null;
+  };
+  
+  const longDescription = getLongDescription(product);
+
+  if (!product) {
+    return <div className="product-loading">Loading product details...</div>;
+  }
+
+  const handleLike = (isLiked) => {
+    // Here you would typically update this on the backend
+    console.log(`Product ${product.id} like status changed to: ${isLiked}`);
+  };
+
+  return (
+    <div className="product-details-container">
+      <motion.div 
+        className="product-main"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <ImageGallery
+          images={product.images || ["/api/placeholder/400/400"]}
+          selectedImage={selectedImage}
+          onSelect={setSelectedImage}
+        />
+        <div className="product-details-info">
+          <div className="product-header">
+            <h1 className="product-name">{product.name}</h1>
+            <LikeButton 
+              initialLikes={product.likes} 
+              isLiked={product.isFavorite}
+              onLike={handleLike}
+            />
+          </div>
+          
+          <p className="stock-status">
+            {product.inStock 
+              ? `In stock : ${product.stockCount} Items` 
+              : 'Out of stock'}
+          </p>
+          
+          <div className="product-price">${product.price.toFixed(2)}</div>
+
+          <div className="product-description">
+            <h3>Product Description</h3>
+            <ExpandableDescription 
+              shortDescription={shortDescription}
+              longDescription={longDescription}
+            />
+          </div>
+          
+          <ActionButtons />
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+export default ProductDetails;

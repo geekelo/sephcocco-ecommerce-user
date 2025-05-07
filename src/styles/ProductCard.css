@@ -7,15 +7,17 @@
   flex-direction: column;
   position: relative;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+ 
 }
    
 .product-card:hover {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px);
 }
    
 .product-image-container {
   position: relative;
-  padding-top: 100%; /* 1:1 Aspect Ratio */
+  padding-top: 60%; /* Aspect Ratio */
   overflow: hidden;
 }
    
@@ -129,4 +131,13 @@
 .add-to-cart-button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+ .product-card {
+  height: 320px;
+ }
+ .product-name {
+  font-size: 1.2rem !important;
+ }
 }

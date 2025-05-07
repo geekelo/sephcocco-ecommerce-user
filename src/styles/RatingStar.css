@@ -1,0 +1,11 @@
+.rating {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 1rem;
+  }
+  
+  .rating-count {
+    margin-left: 4px;
+    color: #6b7280;
+  }

@@ -1,0 +1,103 @@
+.similar-discounts {
+    margin-top: 2.5rem;
+    padding-bottom: 4rem;
+  }
+  
+  .similar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .similar-header h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+    color: #111827;
+  }
+  
+  .nav-buttons {
+    display: flex;
+    gap: 0.75rem;
+    z-index: 1;
+  }
+  
+  .nav-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background-color: white;
+    border: 1px solid #e5e7eb;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  .nav-button:hover {
+    background-color: #f9fafb;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .nav-button:active {
+    transform: translateY(0);
+  }
+  
+  .nav-button.swiper-button-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  
+  .discount-swiper {
+    width: 100%;
+    height: 100%;
+    padding: 0.5rem 0.25rem;
+  }
+  
+  /* Hide default Swiper navigation buttons */
+  .discount-swiper .swiper-button-next,
+  .discount-swiper .swiper-button-prev {
+    display: none;
+  }
+  
+  /* Swiper slide styling */
+  .discount-swiper .swiper-slide {
+    height: auto;
+  }
+  
+  .no-products {
+    padding: 3rem;
+    text-align: center;
+    background-color: #f9fafb;
+    border-radius: 0.5rem;
+    color: #6b7280;
+    font-size: 1rem;
+  }
+  
+  @media (max-width: 768px) {
+    .similar-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    
+    .similar-header h2 {
+      font-size: 1.25rem;
+    }
+    
+    .nav-buttons {
+      align-self: flex-end;
+    }
+    
+    .nav-button {
+      width: 2rem;
+      height: 2rem;
+    }
+  }
