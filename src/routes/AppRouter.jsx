@@ -18,7 +18,7 @@ const AppRouter = () => {
     
     return (
       <BrowserRouter>
-        <ErrorBoundary>
+        <ErrorBoundary showError={true}>
           {loading ? (
             <SplashScreen onComplete={handleSplashComplete} />
           ) : (
@@ -26,7 +26,7 @@ const AppRouter = () => {
               <Routes>
                 <Route path="/" element={<OutletPage />} />
                 <Route element={<HomeLayout />}>
-                  <Route path="/product" element={<ProductPage />} />
+                  <Route path="products" element={<ProductPage />} />
                 </Route>
                 {/* Redirect unknown routes to home */}
                 <Route path="*" element={<Navigate to="/" replace />} />

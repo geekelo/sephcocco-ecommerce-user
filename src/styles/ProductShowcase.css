@@ -1,0 +1,32 @@
+
+.product-showcase {
+    width: 100%;
+    padding: 1rem 0;
+  }
+  
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.5rem;
+  }
+  
+
+  @media (max-width: 768px) {
+    .product-grid {
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1rem;
+    }
+    
+    .product-name {
+      font-size: 0.85rem;
+    }
+    
+    .product-price {
+      font-size: 1rem;
+    }
+    
+    .add-to-cart-button {
+      padding: 0.6rem 0;
+      font-size: 0.8rem;
+    }
+  }

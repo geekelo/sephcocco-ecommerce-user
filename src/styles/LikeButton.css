@@ -1,0 +1,43 @@
+.like-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .like-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+  }
+  
+  .like-button:hover {
+    background-color: rgba(231, 76, 60, 0.1);
+  }
+  
+  .like-button.active {
+    animation: pulse 0.4s ease;
+  }
+  
+  .like-count {
+    font-size: 0.875rem;
+    color: #666;
+    font-weight: 500;
+  }
+  
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.2);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
