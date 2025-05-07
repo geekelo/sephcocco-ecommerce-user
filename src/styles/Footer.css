@@ -1,0 +1,122 @@
+
+.footer {
+    background-color: #000;
+    color: white;
+    padding: 3rem 0;
+  }
+  
+  .footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  
+  .footer-logo-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 2rem;
+  }
+  
+  .footer-logo {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 1rem;
+  }
+  
+  .logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  
+  .company-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  .footer-columns {
+    display: flex;
+    flex-wrap: wrap;
+    flex: 1;
+    justify-content: space-around;
+    gap: 2rem;
+  }
+  
+  .footer-column {
+    min-width: 150px;
+  }
+  
+  .footer-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1.2rem;
+  }
+  
+  .footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .footer-links li {
+    margin-bottom: 0.8rem;
+  }
+  
+  .footer-links a {
+    color: #999;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    font-size: 0.9rem;
+  }
+  
+  .footer-links a:hover {
+    color: #ff4500;
+  }
+  
+  .footer-social-section {
+    margin-top: 1rem;
+  }
+  
+  .social-links {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background-color: #333;
+    color: white;
+    transition: all 0.3s ease;
+  }
+  
+  .social-link:hover {
+    background-color: #ff4500;
+  }
+  
+  @media (max-width: 768px) {
+    .footer-container {
+      flex-direction: column;
+      gap: 2rem;
+    }
+    
+    .footer-logo-section {
+      margin-right: 0;
+      margin-bottom: 2rem;
+    }
+    
+    .footer-columns {
+      justify-content: flex-start;
+      gap: 1rem;
+    }
+  }

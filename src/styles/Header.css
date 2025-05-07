@@ -1,0 +1,471 @@
+
+.header {
+    background-color: #ffead1;
+    padding: 0.75rem 2rem;
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid transparent;
+    transition: border-bottom 0.3s ease;
+  }
+  
+  
+  .header-wrapper {
+    max-width: 1440px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  /* Logo Section */
+  .logo-section {
+    flex: 0 0 auto;
+  }
+  
+  .logo-container-header {
+    width: 54px;
+    height: 54px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    background-color: #000;
+  }
+  
+  .logo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  /* Navigation Section */
+  .nav-section {
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+  }
+  
+  .nav-link {
+    color: #333;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0.25rem 0;
+    position: relative;
+    transition: color 0.2s ease;
+  }
+  
+  /* Slide-in bottom border effect for desktop */
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: #ff4500;
+    transition: width 0.3s ease;
+  }
+  
+  .nav-link:hover {
+    color: #ff4500;
+  }
+  
+  .nav-link:hover::after {
+    width: 100%;
+  }
+  
+  .nav-link.active-link {
+    color: #ff4500;
+  }
+  
+  .nav-link.active-link::after {
+    width: 100%;
+    background-color: #ff4500;
+  }
+  
+  .dropdown {
+    position: relative;
+  }
+  
+  .dropdown-toggle {
+    cursor: pointer;
+  }
+  
+  .dropdown-icon-wrapper {
+    display: inline-flex;
+    transition: transform 0.3s ease;
+  }
+  
+  .dropdown:hover .dropdown-icon-wrapper {
+    transform: rotate(180deg);
+  }
+  
+  .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 180px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 0;
+    margin-top: 0.5rem;
+    z-index: 100;
+    
+    /* Hide by default */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+  }
+  
+  .dropdown:hover .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  
+  .dropdown-item {
+    display: block;
+    padding: 0.7rem 1rem;
+    color: #333;
+    text-decoration: none;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  
+  .dropdown-item:hover {
+    background-color: #f8f8f8;
+    color: #ff4500;
+  }
+  
+  /* Actions Section */
+  .actions-section {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  
+  .desktop-search-filter {
+    height: 40px;
+  }
+  
+  .header-icons {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .icon-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+  }
+  
+  .icon-button:hover {
+    color: #ff4500;
+  }
+  
+  .user-profile {
+    width: 34px;
+    height: 34px;
+    overflow: hidden;
+    padding: 0;
+    border-radius: 50%;
+  }
+  
+  .user-profile-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  /* Mobile Menu Button */
+  .mobile-menu-icon {
+    display: none;
+  }
+  
+  .menu-toggle-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f8f8;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .menu-toggle-button:hover {
+    background-color: #ff45001a;
+  }
+  
+  /* Slide-in Mobile Menu */
+  .mobile-slide-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 80%;
+    height: 90vh; /* Fixed height instead of 100vh */
+    max-height: 600px; /* Maximum height */
+    background-color: #fff;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    z-index: 150;
+    display: flex;
+    flex-direction: column;
+    border-radius: 0 0 8px 0;
+  }
+  
+  /* Mobile Menu Header */
+  .mobile-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #f0f0f0;
+    flex-shrink: 0; /* Don't allow header to shrink */
+  }
+  
+  /* Container for scrollable content */
+  .mobile-nav-links-container {
+    flex: 1;
+    overflow-y: auto; /* Enable vertical scrolling */
+    padding: 0.5rem 0;
+    /* Styling for scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: #e0e0e0 transparent;
+  }
+  
+  /* For Webkit browsers (Chrome, Safari) */
+  .mobile-nav-links-container::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  .mobile-nav-links-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .mobile-nav-links-container::-webkit-scrollbar-thumb {
+    background-color: #e0e0e0;
+    border-radius: 4px;
+  }
+  
+  /* Mobile Navigation Links */
+  .mobile-nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0 1.5rem;
+  }
+  
+  .mobile-nav-link {
+    color: #333;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1.1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .mobile-dropdown {
+    width: 100%;
+    min-height: fit-content;
+  }
+  
+  .chevron-rotated {
+    transform: rotate(180deg);
+    transition: transform 0.3s ease;
+  }
+  
+  .mobile-dropdown-menu {
+    overflow: hidden auto; /* Enable both overflow hiding for animation and scrolling */
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    max-height: 200px; /* Limit dropdown height */
+  }
+  
+  .store-dropdown {
+    background-color: #fff0eb;
+    border: 1px solid #ffdbcc;
+  }
+  
+  .mobile-dropdown-item {
+    display: block;
+    padding: 0.8rem 1rem;
+    color: #555;
+    text-decoration: none;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s ease;
+    font-size: 1rem;
+  }
+  
+  .store-dropdown .mobile-dropdown-item {
+    border-bottom: 1px solid #ffdbcc;
+  }
+  
+  .store-dropdown .mobile-dropdown-item:hover {
+    background-color: #ffece4;
+  }
+  
+  .mobile-nav-link.store-link {
+    color: #ff4500;
+  }
+  
+  .mobile-dropdown-item:last-child {
+    border-bottom: none;
+  }
+  
+  .mobile-dropdown-item:hover {
+    background-color: #f0f0f0;
+  }
+  
+  /* Custom scrollbar for dropdown menu */
+  .mobile-dropdown-menu::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  .mobile-dropdown-menu::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .mobile-dropdown-menu::-webkit-scrollbar-thumb {
+    background-color: #ffdbcc;
+    border-radius: 4px;
+  }
+  
+  /* Mobile User Actions */
+  .mobile-user-actions {
+    display: flex;
+    justify-content: flex-start;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #f0f0f0;
+    flex-shrink: 0;
+    background-color: #fff; 
+    border-bottom-right-radius: 15px;
+  }
+  
+  .mobile-icon-button {
+    background: none;
+    border: none;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: color 0.2s ease;
+  }
+  
+  .mobile-icon-button:hover {
+    color: #ff4500;
+  }
+  
+  /* Mobile Search & Filter */
+  .mobile-search-filter-container {
+    padding: 0.75rem 1rem;
+    background-color: #fff;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    margin-top: 0.5rem;
+  }
+  
+  .mobile-search-filter {
+    width: 100%;
+  }
+  
+  /* Responsive Visibility */
+  .desktop-only {
+    display: flex;
+  }
+  
+  .mobile-only {
+    display: none;
+  }
+  
+  /* Media queries for responsiveness */
+  @media (max-width: 1200px) {
+    .nav-links {
+      gap: 1.5rem;
+    }
+    
+    .header {
+      padding: 0.75rem 1.5rem;
+    }
+  }
+  
+  @media (max-width: 992px) {
+    .header-wrapper {
+      flex-wrap: wrap;
+    }
+    
+    .nav-section {
+      order: 3;
+      width: 100%;
+      margin-top: 1rem;
+    }
+    
+    .nav-links {
+      justify-content: space-between;
+      width: 100%;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .desktop-only {
+      display: none !important;
+    }
+    
+    .mobile-only {
+      display: flex;
+    }
+    
+    .mobile-menu-icon {
+      display: block;
+    }
+    
+    .header-wrapper {
+      justify-content: space-between;
+    }
+    
+    .header {
+      padding: 0.75rem 1rem;
+    }
+    
+    .mobile-slide-menu {
+      width: 85%;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .mobile-slide-menu {
+      width: 80%;
+      border-top-right-radius: 15px;
+      border-bottom-left-radius: 15px;
+      border-bottom-right-radius: 15px;
+    }
+  }
