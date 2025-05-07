@@ -4,17 +4,24 @@ import Hero from '../components/Hero';
 import '../styles/Product.css';
 import { RenderMultipleShowcases } from '../components/RenderMultipleShowCases';
 import ProductModal from '../components/ProductModal';
-import { allProducts } from '../constants/productData';
+import OrderModal from '../components/OrderModal';
 
 export default function Product() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   const filterOptions = ['Price: Low to High', 'Price: High to Low', 'Newest First', 'Categories', 'Rating'];
 
   const handleProductClick = (product) => {
     setSelectedProduct(product);
-    setIsModalOpen(true);
+    setIsProductModalOpen(true);
+  };
+
+  const handleBuyNow = () => {
+    // Close product modal and open order modal
+    setIsProductModalOpen(false);
+    setIsOrderModalOpen(true);
   };
 
   return (
@@ -24,10 +31,19 @@ export default function Product() {
       <section className="product-showcases-container">
         <RenderMultipleShowcases onProductClick={handleProductClick} />
       </section>
-      {isModalOpen && 
+      
+      {isProductModalOpen && 
         <ProductModal 
           product={selectedProduct} 
-          onClose={() => setIsModalOpen(false)} 
+          onClose={() => setIsProductModalOpen(false)}
+          onBuyNow={handleBuyNow}
+        />
+      }
+      
+      {isOrderModalOpen && 
+        <OrderModal 
+          product={selectedProduct} 
+          onClose={() => setIsOrderModalOpen(false)}
         />
       }
     </>

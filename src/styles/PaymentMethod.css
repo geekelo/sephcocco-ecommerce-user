@@ -1,0 +1,144 @@
+/* PaymentMethod.css */
+
+.order-right-column {
+    width: 400px;
+    padding: 24px;
+    background-color: white;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .checkout-section.payment-section {
+    box-shadow: none;
+    padding: 0;
+    margin-bottom: 32px;
+  }
+  
+  .order-total-section {
+    margin-top: auto;
+    margin-bottom: 32px;
+    box-shadow: none;
+    padding: 0;
+  }
+  
+  .payment-options {
+    display: flex;
+    flex-direction: column;
+    color: #000;
+    gap: 16px;
+  }
+  
+  .payment-option {
+    border: 1px solid #e1e4e8;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    overflow: hidden;
+  }
+  
+  .payment-option:hover {
+    border-color: #a0aec0;
+    background-color: #f9fafb;
+  }
+  
+  .payment-option.selected {
+    border-color: #4299e1;
+    background-color: #ebf8ff;
+  }
+  
+  .payment-option-inner {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    position: relative;
+  }
+  
+  .payment-option-icon {
+    margin-right: 16px;
+    color: #4a5568;
+  }
+  
+  .payment-option-label {
+    font-weight: 500;
+    flex: 1;
+  }
+  
+  .payment-selected {
+    color: #4299e1;
+  }
+  
+  .order-total-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: 1rem;
+    color: #4a5568;
+  }
+  
+  .order-total-row.grand-total {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e1e4e8;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2d3748;
+  }
+  
+  .checkout-button {
+    background-color: #3182ce;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .checkout-button:hover:not(:disabled) {
+    background-color: #2c5282;
+  }
+  
+  .checkout-button.disabled,
+  .checkout-button:disabled {
+    background-color: #a0aec0;
+    cursor: not-allowed;
+  }
+  
+  /* Responsive styles */
+  @media (max-width: 768px) {
+    .order-right-column {
+      width: 100%;
+      padding: 16px;
+    }
+    
+    .checkout-section.payment-section,
+    .order-total-section {
+      margin-bottom: 24px;
+    }
+    
+    .payment-option-inner {
+      padding: 12px;
+    }
+    
+    .checkout-button {
+      padding: 14px;
+      font-size: 1rem;
+      margin-top: 16px;
+    }
+    
+    /* Make payment options more compact on small screens */
+    @media (max-width: 480px) {
+      .payment-options {
+        gap: 12px;
+        color: #000;
+      }
+      .order-right-column {
+        display: none;
+      }
+    }
+  }

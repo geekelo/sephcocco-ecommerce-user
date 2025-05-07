@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Heart } from 'lucide-react';
+import { Heart, ThumbsUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import '../styles/LikeButton.css';
 
@@ -40,7 +40,8 @@ const LikeButton = ({ initialLikes = 0, isLiked = false, onLike = () => {} }) =>
           strokeWidth={liked ? 2 : 1.5}
         />
       </motion.button>
-      <span className="like-count">{likes}</span>
+ 
+      <span className="like-count">   <ThumbsUp size={14} /> {likes}</span>
     </div>
   );
 };

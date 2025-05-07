@@ -6,7 +6,7 @@ import ActionButtons from './ActionButtons';
 import ExpandableDescription from './ExpandableDescription';
 import '../styles/ProductDetails.css';
 
-const ProductDetails = ({ product }) => {
+const ProductDetails = ({ product, onCloseModal, onBuyNow }) => {
   const [selectedImage, setSelectedImage] = useState(product?.images?.[0]);
   
   const shortDescription = product?.shortDescription || "No description available";
@@ -60,7 +60,11 @@ const ProductDetails = ({ product }) => {
             />
           </div>
           
-          <ActionButtons />
+          <ActionButtons 
+            product={product} 
+            closeProductModal={onCloseModal}
+            onBuyNow={onBuyNow}
+          />
         </div>
       </motion.div>
     </div>
