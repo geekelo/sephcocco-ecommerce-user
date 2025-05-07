@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ChevronDown,
   User,
@@ -17,6 +17,7 @@ const Header = () => {
   const [storeDropdownOpen, setStoreDropdownOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [isMobile, setIsMobile] = useState(false);
 
   const navLinks = [
     { name: 'Products', href: '/products' },
@@ -30,7 +31,35 @@ const Header = () => {
   const storeOptions = ['Pharmacy', 'Lounge', 'Restaurant'];
   const filterOptions = ['Price: Low to High', 'Price: High to Low', 'Newest First', 'Categories', 'Rating'];
 
+  // Check if mobile on initial load
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    // Set initial state
+    checkIfMobile();
+    
+    // Add event listener for window resize
+    window.addEventListener('resize', handleResize);
+    
+    // Clean up
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
+  // Handle window resize
+  const handleResize = () => {
+    const isMobileView = window.innerWidth <= 768;
+    setIsMobile(isMobileView);
+    
+    // Close mobile menu when switching to desktop
+    if (!isMobileView && isMenuOpen) {
+      setIsMenuOpen(false);
+    }
+  };
+
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  
   const toggleStoreDropdown = (e) => {
     e.preventDefault();
     setStoreDropdownOpen(prev => !prev);
@@ -112,9 +141,9 @@ const Header = () => {
           </div>
         </div>
 
-        {/* Mobile Slide-in Menu */}
+        {/* Mobile Slide-in Menu - Only render when actually in mobile mode */}
         <AnimatePresence>
-          {isMenuOpen && (
+          {isMenuOpen && isMobile && (
             <motion.div
               className="mobile-slide-menu"
               initial={{ x: '-100%' }}
