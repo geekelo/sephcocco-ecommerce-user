@@ -31,6 +31,17 @@ const Header = () => {
   const storeOptions = ['Pharmacy', 'Lounge', 'Restaurant'];
   const filterOptions = ['Price: Low to High', 'Price: High to Low', 'Newest First', 'Categories', 'Rating'];
 
+  // Define handleResize before using it in useEffect
+  const handleResize = () => {
+    const isMobileView = window.innerWidth <= 768;
+    setIsMobile(isMobileView);
+    
+    // Close mobile menu when switching to desktop
+    if (!isMobileView && isMenuOpen) {
+      setIsMenuOpen(false);
+    }
+  };
+
   // Check if mobile on initial load
   useEffect(() => {
     const checkIfMobile = () => {
@@ -46,17 +57,6 @@ const Header = () => {
     // Clean up
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-  
-  // Handle window resize
-  const handleResize = () => {
-    const isMobileView = window.innerWidth <= 768;
-    setIsMobile(isMobileView);
-    
-    // Close mobile menu when switching to desktop
-    if (!isMobileView && isMenuOpen) {
-      setIsMenuOpen(false);
-    }
-  };
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   
