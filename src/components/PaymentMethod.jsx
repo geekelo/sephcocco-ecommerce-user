@@ -1,13 +1,12 @@
 import { CheckCircle, CreditCard, Landmark } from 'lucide-react'
 import React, { useState } from 'react'
 import BankDetails from './BankDetails'
-import { DELIVERY_FEE } from '../constants/DeliveryFee';
 import '../styles/PaymentMethod.css'
 
 export default function PaymentMethod({address, product, quantity}) {
       // Calculate costs
       const itemTotal = product.price * quantity;
-      const totalCost = itemTotal + DELIVERY_FEE;
+      const totalCost = itemTotal
     const [paymentMethod, setPaymentMethod] = useState(null);
     const [showBankDetails, setShowBankDetails] = useState(false);
     const handleBankTransfer = () => {
@@ -66,10 +65,7 @@ export default function PaymentMethod({address, product, quantity}) {
         <span>Subtotal</span>
         <span>${itemTotal.toFixed(2)}</span>
       </div>
-      <div className="order-total-row">
-        <span>Delivery Fee</span>
-        <span>${DELIVERY_FEE.toFixed(2)}</span>
-      </div>
+   
       <div className="order-total-row grand-total">
         <span>Total</span>
         <span>${totalCost.toFixed(2)}</span>
