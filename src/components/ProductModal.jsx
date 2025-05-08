@@ -6,7 +6,7 @@ import ProductDetails from './ProductDetails';
 import SimilarDiscounts from './SimilarDiscounts';
 import { allProducts } from '../constants/productData';
 
-const ProductModal = ({ product, onClose }) => {
+const ProductModal = ({ product, onClose, onBuyNow }) => {
   const [currentProduct, setCurrentProduct] = useState(product);
 
   // Prevent scrolling of the body when the modal is open
@@ -35,7 +35,7 @@ const ProductModal = ({ product, onClose }) => {
     if (!currentProduct || !currentProduct.category) return [];
     
     return allProducts.filter(p => 
-      p.category === currentProduct.category && 
+      p.category === currentProduct.category &&
       p.id !== currentProduct.id
     );
   };
@@ -49,9 +49,9 @@ const ProductModal = ({ product, onClose }) => {
         exit={{ opacity: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <motion.button 
-          className="close-button" 
-          onClick={onClose} 
+        <motion.button
+          className="close-button"
+          onClick={onClose}
           aria-label="Close"
           whileHover={{ scale: 1.1, backgroundColor: '#e0e0e0' }}
           whileTap={{ scale: 0.95 }}
@@ -59,13 +59,17 @@ const ProductModal = ({ product, onClose }) => {
           <X size={24} strokeWidth={2.5} />
         </motion.button>
         
-        <motion.div 
+        <motion.div
           className="product-modal-content"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <ProductDetails product={currentProduct} />
+          <ProductDetails 
+            product={currentProduct} 
+            onCloseModal={onClose}
+            onBuyNow={onBuyNow}
+          />
           
           <SimilarDiscounts
             products={getSimilarProducts()}
