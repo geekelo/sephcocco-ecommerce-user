@@ -3,7 +3,7 @@ import { Heart, ThumbsUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../styles/LikeButton.css';
 
-const LikeButton = ({ initialLikes = 0, isLiked = false, onLike = () => {} }) => {
+const LikeButton = ({ initialLikes = 0, isLiked = false, onLike = () => {}, disabled = false }) => {
   const [liked, setLiked] = useState(isLiked);
   const [likes, setLikes] = useState(initialLikes);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -57,6 +57,7 @@ const LikeButton = ({ initialLikes = 0, isLiked = false, onLike = () => {} }) =>
             {[...Array(5)].map((_, i) => (
               <motion.div
                 key={i}
+                disabled={disabled}
                 className="floating-heart"
                 initial={{ 
                   scale: 0,

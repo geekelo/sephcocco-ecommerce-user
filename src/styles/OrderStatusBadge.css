@@ -1,0 +1,37 @@
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    max-width: fit-content;
+  }
+  
+  .status-badge-delivering {
+    background-color: #9333ea;
+  }
+  
+  .status-badge-processing-order {
+    background-color: #3b82f6;
+  }
+  
+  .status-badge-processing-payment {
+    background-color: #f59e0b;
+  }
+  
+  .status-badge-arrived {
+    background-color: #16a34a;
+  }
+  
+  .status-badge-awaiting-payment {
+    background-color: #6b7280;
+  }
+  
+  .status-badge-completed {
+    background-color: #059669;
+  }
+  
+  .status-badge-default {
+    background-color: #6b7280;
+  }
