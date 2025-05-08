@@ -1,0 +1,15 @@
+.chat-interface {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+    background-color: #fff;
+  }
+  
+  /* Ensure the content is shown on the right side as in the image */
+  .chat-interface > div {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+  }

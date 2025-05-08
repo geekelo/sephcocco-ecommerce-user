@@ -82,7 +82,7 @@
     color: #fab561;
   }
   
-  .navigation-buttons {
+  .navigation-outlet-buttons {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -90,7 +90,7 @@
     gap: 16px;
   }
   
-  .nav-button {
+  .nav-outlet-button {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -174,11 +174,11 @@
       text-align: center;
     }
     
-    .navigation-buttons {
+    .navigation-outlet-buttons {
       gap: 12px;
     }
     
-    .nav-button {
+    .nav-outlet-button {
       padding: 14px 20px;
       width: 80%;
     }
