@@ -135,7 +135,7 @@
 
 @media (max-width: 480px) {
  .product-card {
-  height: 320px;
+  height: 350px
  }
  .product-name {
   font-size: 1.2rem !important;

@@ -11,8 +11,12 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import '../styles/Header.css';
 import SearchFilter from '../components/SearchFilter';
+import { Link, useLocation } from 'react-router-dom';
 
 const Header = () => {
+  const location = useLocation(); // Get current location from react-router
+  const currentPath = location.pathname;
+  
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [storeDropdownOpen, setStoreDropdownOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('');
@@ -21,8 +25,8 @@ const Header = () => {
 
   const navLinks = [
     { name: 'Products', href: '/products' },
-    { name: 'Pending', href: '/pending' },
-    { name: 'Completed', href: '/completed' },
+    { name: 'Pending', href: '/pending-orders' },
+    { name: 'Completed', href: '/completed-orders' },
     { name: 'Messages', href: '/messages' },
     { name: 'Stores', href: '#', isDropdown: true },
     { name: 'Payment History', href: '/payment-history' },
@@ -30,6 +34,23 @@ const Header = () => {
 
   const storeOptions = ['Pharmacy', 'Lounge', 'Restaurant'];
   const filterOptions = ['Price: Low to High', 'Price: High to Low', 'Newest First', 'Categories', 'Rating'];
+
+  // Check if a link is active based on current path
+  const isLinkActive = (linkHref) => {
+    if (linkHref === '#') return false; // Don't mark dropdown toggle as active
+    
+    // Exact match
+    if (currentPath === linkHref) return true;
+    
+    // Special case for home page
+    if (linkHref === '/' && currentPath === '/') return true;
+    
+    // Check if current path starts with link path (for nested routes)
+    // But only if the linkHref is not just '/'
+    if (linkHref !== '/' && currentPath.startsWith(linkHref)) return true;
+    
+    return false;
+  };
 
   // Define handleResize before using it in useEffect
   const handleResize = () => {
@@ -100,21 +121,31 @@ const Header = () => {
               if (link.isDropdown) {
                 return (
                   <div key={index} className="dropdown">
-                    <a href="#" className="nav-link dropdown-toggle">
+                    <Link to='#' className="nav-link dropdown-toggle">
                       {link.name} <span className="dropdown-icon-wrapper"><ChevronDown size={16} className="dropdown-chevron" /></span>
-                    </a>
+                    </Link>
                     <div className="dropdown-menu">
                       {storeOptions.map((store, idx) => (
-                        <a key={idx} href={`/stores/${store.toLowerCase()}`} className="dropdown-item">{store}</a>
+                        <Link 
+                          key={idx} 
+                          to={`/stores/${store.toLowerCase()}`} 
+                          className={`dropdown-item ${isLinkActive(`/stores/${store.toLowerCase()}`) ? 'active-link' : ''}`}
+                        >
+                          {store}
+                        </Link>
                       ))}
                     </div>
                   </div>
                 );
               } else {
                 return (
-                  <a key={index} href={link.href} className={`nav-link ${link.href === '/products' ? 'active-link' : ''}`}>
+                  <Link 
+                    key={index} 
+                    to={link.href} 
+                    className={`nav-link ${isLinkActive(link.href) ? 'active-link' : ''}`}
+                  >
                     {link.name}
-                  </a>
+                  </Link>
                 );
               }
             })}
@@ -178,7 +209,13 @@ const Header = () => {
                                 transition={{ duration: 0.3 }}
                               >
                                 {storeOptions.map((store, idx) => (
-                                  <a key={idx} href={`/stores/${store.toLowerCase()}`} className="mobile-dropdown-item">{store}</a>
+                                  <Link 
+                                    key={idx} 
+                                    to={`/stores/${store.toLowerCase()}`} 
+                                    className={`mobile-dropdown-item ${isLinkActive(`/stores/${store.toLowerCase()}`) ? 'active-link' : ''}`}
+                                  >
+                                    {store}
+                                  </Link>
                                 ))}
                               </motion.div>
                             )}
@@ -187,9 +224,13 @@ const Header = () => {
                       );
                     } else {
                       return (
-                        <a key={index} href={link.href} className="mobile-nav-link">
+                        <Link 
+                          key={index} 
+                          to={link.href} 
+                          className={`mobile-nav-link ${isLinkActive(link.href) ? 'active-link' : ''}`}
+                        >
                           {link.name}
-                        </a>
+                        </Link>
                       );
                     }
                   })}
