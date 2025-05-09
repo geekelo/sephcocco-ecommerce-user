@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Send, MessageCircle } from 'lucide-react';
@@ -31,38 +30,49 @@ const ChatTab = () => {
 
   return (
     <div className="chat-tab">
-      <div className="chat-support-action">
-        <button className="support-button">
-          <MessageCircle size={16} />
-          <span>Chat with support now</span>
-        </button>
+      {/* Left side - Chat support and input */}
+      <div className="chat-left-panel">
+        <div className="chat-support-action">
+          <button className="support-button">
+            <MessageCircle size={16} />
+            <span>Chat with support now</span>
+          </button>
+        </div>
+        
+        {/* Empty space in the middle */}
+        <div className="chat-left-empty-space"></div>
+        
+        {/* User avatar and message input at the bottom */}
+        <form className="chat-input" onSubmit={handleSendMessage}>
+          <input
+            type="text"
+            placeholder="Type your message here..."
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+          />
+          <button type="submit" className="send-button">
+            <Send size={18} />
+          </button>
+        </form>
       </div>
       
-      <div className="chat-messages">
-        {messages.map((message) => (
-          <motion.div
-            key={message.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <ChatBubble message={message} />
-          </motion.div>
-        ))}
-        <div ref={messagesEndRef} />
+      {/* Right side - Chat messages display */}
+      <div className="chat-right-panel">
+        <div className="chat-messages">
+          {messages.map((message) => (
+            <motion.div
+              key={message.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="message-container"
+            >
+              <ChatBubble message={message} />
+            </motion.div>
+          ))}
+          <div ref={messagesEndRef} />
+        </div>
       </div>
-      
-      <form className="chat-input" onSubmit={handleSendMessage}>
-        <input
-          type="text"
-          placeholder="Type your message here..."
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-        />
-        <button type="submit" className="send-button">
-          <Send size={18} />
-        </button>
-      </form>
     </div>
   );
 };

@@ -31,46 +31,34 @@ const FAQsTab = () => {
   ];
 
   const toggleExpand = (index) => {
-    setExpandedIndex(expandedIndex === index ? -1 : index);
+    setExpandedIndex(index);
   };
 
   return (
     <div className="faqs-tab">
-      <div className="faq-content-wrapper">
+      <div className="faq-content-split-view">
+        {/* Left side - FAQ Questions list */}
         <div className="faq-questions-list">
           {faqs.map((faq, index) => (
-            <div key={index} className="faq-item">
-              <div 
-                className="faq-question"
-                onClick={() => toggleExpand(index)}
-              >
+            <div 
+              key={index} 
+              className={`faq-item ${expandedIndex === index ? 'active' : ''}`}
+              onClick={() => toggleExpand(index)}
+            >
+              <div className="faq-question">
                 <div className="plus-icon">
-                  <Plus size={16} />
+                  <Plus size={16} stroke="#000" />
                 </div>
                 <h3>{faq.question}</h3>
               </div>
-              
-              <AnimatePresence>
-                {expandedIndex === index && (
-                  <motion.div 
-                    className="faq-answer"
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <p>{faq.answer}</p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
             </div>
           ))}
         </div>
         
-        {/* Right side content area to match the image */}
-        <div className="faq-answer-content">
+        {/* Right side - FAQ Answer display */}
+        <div className="faq-answer-display">
           {expandedIndex >= 0 && expandedIndex < faqs.length && (
-            <div className="expanded-content">
+            <div className="faq-answer-content">
               <p>{faqs[expandedIndex].answer}</p>
             </div>
           )}

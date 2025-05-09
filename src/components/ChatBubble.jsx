@@ -1,27 +1,27 @@
-
 import React from 'react';
 import '../styles/ChatBubble.css';
-import { formatTime } from '../utils/Date';
-
+import Image from '../assets/image.png'
 const ChatBubble = ({ message }) => {
-    const { type, text, sender, timestamp } = message;
+  const isUser = message.sender === 'user';
   
-    return (
-      <div className={`chat-bubble ${type === 'user' ? 'user' : 'agent'}`}>
-        {type === 'user' && (
-          <div className="avatar">
-            <img src="/api/placeholder/30/30" alt={sender} />
-          </div>
-        )}
-        <div className="message-content">
-          {type === 'user' && <div className="sender">{sender}</div>}
-          <div className="message-bubble">
-            <p>{text}</p>
-            <span className="timestamp">{formatTime(timestamp)}</span>
-          </div>
+  return (
+    <div className={`chat-bubble ${isUser ? 'user' : 'agent'}`}>
+      {!isUser && (
+        <div className="avatar">
+          <img src={message.avatar || Image} alt="Agent" />
         </div>
+      )}
+      <div className="message-content">
+        {!isUser && <div className="sender-name">{message.senderName || 'Agent'}</div>}
+        <div className="message-text">{message.text}</div>
       </div>
-    );
-  };
+      {isUser && (
+        <div className="avatar">
+          <img src={message.avatar || '/user-avatar.png'} alt="User" />
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default ChatBubble;
