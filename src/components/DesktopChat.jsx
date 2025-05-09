@@ -78,7 +78,7 @@ const DesktopChat = () => {
                 </div>
               )}
               <div className="message-desktop-bubble">
-                <div className="message-deskop-text">{msg.text}</div>
+                <div className="message-desktop-text">{msg.text}</div>
                 <div className="message-desktop-time">{msg.time}</div>
               </div>
             </div>
