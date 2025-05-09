@@ -66,20 +66,20 @@ const DesktopChat = () => {
 
       {/* Right Panel - Chat History */}
       <div className="desktop-chat-detail">
-        <div className="chat-messages">
+        <div className="chat-desktop-messages">
           {chatMessages.map(msg => (
             <div
               key={msg.id}
-              className={`chat-message ${msg.sender} ${msg.highlighted ? 'highlighted' : ''}`}
+              className={`chat-desktop-message ${msg.sender} ${msg.highlighted ? 'highlighted' : ''}`}
             >
               {msg.sender === 'agent' && (
-                <div className="message-avatar">
+                <div className="message-desktop-avatar">
                   <img src={Image} alt="Agent" />
                 </div>
               )}
-              <div className="message-bubble">
-                <div className="message-text">{msg.text}</div>
-                <div className="message-time">{msg.time}</div>
+              <div className="message-desktop-bubble">
+                <div className="message-deskop-text">{msg.text}</div>
+                <div className="message-desktop-time">{msg.time}</div>
               </div>
             </div>
           ))}
