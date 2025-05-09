@@ -73,7 +73,7 @@ const navigate = useNavigate()
           <div className="order" onClick={handleClick}>
             
             <ArrowLeft size={20} />
-            <span>Orders</span>
+            <span>Messages</span>
           
          
           </div>
