@@ -96,11 +96,11 @@ navigate('/products')
             </motion.p>
             
             <motion.div 
-              className="navigation-buttons"
+              className="navigation-outlet-buttons"
               variants={itemVariants}
             >
               <motion.button
-                className="nav-button"
+                className="nav-outlet-button"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={handleRestaurantClick}
@@ -115,7 +115,7 @@ navigate('/products')
               </motion.button>
               
               <motion.button
-                className="nav-button"
+                className="nav-outlet-button"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={handleLougeClick}
@@ -130,7 +130,7 @@ navigate('/products')
               </motion.button>
               
               <motion.button
-                className="nav-button"
+                className="nav-outlet-button"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={handlePharmacyClick}
