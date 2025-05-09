@@ -36,7 +36,7 @@
   
   .chat-message {
     display: flex;
-    max-width: 85%;
+    width: 100%;
     margin-bottom: 8px;
   }
   
@@ -69,6 +69,7 @@
     border-radius: 16px;
     padding: 12px;
     position: relative;
+    width: 100%;
   }
   
   .chat-message.user .message-bubble {
