@@ -1,0 +1,9 @@
+.payment-history {
+    background-color: #fff;
+    min-height: 100vh;
+}
+.payment-history-title {
+    text-align: center;
+    color: #000;
+    margin: 20px 0;
+}
