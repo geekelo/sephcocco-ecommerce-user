@@ -1,0 +1,112 @@
+.mobile-payment-filter-container {
+    width: 100%;
+    margin: 16px 0;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+  
+  .filter-header-mobile {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background-color: #f8f8f8;
+    cursor: pointer;
+    user-select: none;
+  }
+  
+  .filter-title-mobile {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .filter-toggle-icon {
+    font-size: 12px;
+    color: #666;
+    transition: transform 0.3s ease;
+  }
+  
+  .filter-toggle-icon.expanded {
+    transform: rotate(180deg);
+  }
+  
+  .filter-content-mobile {
+    padding: 16px;
+    border-top: 1px solid #eee;
+    overflow: hidden;
+  }
+  
+  .filter-field-mobile {
+    margin-bottom: 16px;
+  }
+  
+  .filter-field-mobile label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #555;
+  }
+  
+  .date-input-mobile,
+  .status-select-mobile {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #333;
+    background-color: #fff;
+    transition: border-color 0.3s ease;
+    -webkit-appearance: none;
+  }
+  
+  .date-input-mobile:focus,
+  .status-select-mobile:focus {
+    border-color: #2196F3;
+    outline: none;
+  }
+  
+  .status-select-mobile {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='5' viewBox='0 0 10 5'%3E%3Cpath fill='%23666' d='M0 0l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 30px;
+  }
+  
+  .filter-mobile-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 8px;
+  }
+  
+  .clear-filters-btn-mobile {
+    width: 100%;
+    padding: 12px;
+    background-color: transparent;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+  }
+  
+  .clear-filters-btn-mobile:hover {
+    background-color: #f5f5f5;
+    color: #333;
+  }
+  
+  /* Only display on mobile */
+  @media screen and (min-width: 769px) {
+    .mobile-payment-filter-container {
+      display: none;
+    }
+  }

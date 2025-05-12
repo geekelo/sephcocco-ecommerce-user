@@ -8,7 +8,24 @@
     margin: 0 auto;
     padding: 20px;
   }
+  .no-results-message {
+    width: 100%;
+    padding: 24px 16px;
+    text-align: center;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    color: #666;
+    font-size: 15px;
+    margin: 16px 0;
+  }
   
+  /* Hide mobile components on desktop */
+  @media screen and (min-width: 769px) {
+    .payment-history-card-container {
+      display: none;
+    }
+  }
   .payment-history-card {
     background-color: white;
     border-radius: 10px;
