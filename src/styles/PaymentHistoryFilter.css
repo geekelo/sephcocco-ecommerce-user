@@ -48,7 +48,10 @@
     font-weight: 500;
     color: #555;
   }
-  
+  .date-input {
+    color: #000;
+    background-color: #fff;
+  }
   .date-input,
   .status-select {
     padding: 10px 12px;
