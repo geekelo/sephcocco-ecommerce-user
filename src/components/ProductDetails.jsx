@@ -8,6 +8,7 @@ import '../styles/ProductDetails.css';
 
 const ProductDetails = ({ product, onCloseModal, onBuyNow }) => {
   const [selectedImage, setSelectedImage] = useState(product?.images?.[0]);
+  const [isPending, setIsPending] = useState(false);
   
   const shortDescription = product?.shortDescription || "No description available";
   const longDescription = product?.longDescription || null;
@@ -19,6 +20,12 @@ const ProductDetails = ({ product, onCloseModal, onBuyNow }) => {
   const handleLike = (isLiked) => {
     // Here you would typically update this on the backend
     console.log(`Product ${product.id} like status changed to: ${isLiked}`);
+  };
+
+  const handlePendingOrder = () => {
+    setIsPending(true);
+    // Here you would typically update this on the backend
+    console.log(`Product ${product.id} added to pending orders`);
   };
 
   return (
@@ -60,8 +67,23 @@ const ProductDetails = ({ product, onCloseModal, onBuyNow }) => {
             />
           </div>
           
+          <div className="pending-order-container">
+            <button 
+              className={`pending-order-button ${isPending ? 'pending-active' : ''}`}
+              onClick={handlePendingOrder}
+              disabled={isPending}
+            >
+              <span className="pending-icon">
+                {isPending ? '✓' : '⏱'}
+              </span>
+              <span className="pending-text">
+                {isPending ? 'Added to pending orders' : 'Add to pending orders'}
+              </span>
+            </button>
+          </div>
+          
           <ActionButtons 
-            product={product} 
+            product={product}
             closeProductModal={onCloseModal}
             onBuyNow={onBuyNow}
           />

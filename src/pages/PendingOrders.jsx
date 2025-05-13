@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
-import { OrderItem } from "../components/OrderItem";
+import { ArrowLeft, ShoppingCart, CheckCircle } from 'lucide-react';
+import { DeliveryOrderItem } from "../components/DeliveryOrderItem";
+import { PendingOrderItem } from "../components/PendingOrderItem";
 import { orders, getSimilarOrderProducts } from "../constants/orders";
 import '../styles/PendingOrders.css';
 import SimilarDiscounts from "../components/SimilarDiscounts";
 import ProductModal from "../components/ProductModal";
 import { useNavigate } from "react-router-dom";
 import OrderModal from "../components/OrderModal";
+import PaymentModal from "../components/PaymentModal";
+import PaymentSuccessModal from "../components/PaymentSuccessModal";
 
 const PendingOrders = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -15,6 +18,11 @@ const PendingOrders = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isPaymentSuccessful, setIsPaymentSuccessful] = useState(false);
+  const [activeTab, setActiveTab] = useState('pending'); // 'pending' or 'delivering'
+  const [orderQuantities, setOrderQuantities] = useState({});
+  const [checkedOrders, setCheckedOrders] = useState({});
   const navigate = useNavigate();
   
   // Check for mobile device on mount and resize
@@ -28,17 +36,31 @@ const PendingOrders = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Filter only pending orders
-  const pendingOrders = orders.filter(order => 
-    ['Delivering', 'Processing Order', 'Processing Payment', 'Awaiting Payment Confirmation'].includes(order.status)
+  // Filter orders based on their status
+  const pendingApprovalOrders = orders.filter(order => 
+    ['Processing Order', 'Processing Payment', 'Awaiting Payment Confirmation'].includes(order.status)
   );
 
-  // Set current order for similar discounts - default to first order
+  const deliveringOrders = orders.filter(order => 
+    ['Delivering'].includes(order.status)
+  );
+
+  // Initialize quantities for pending orders
   useEffect(() => {
-    if (pendingOrders.length > 0 && !currentOrder) {
-      setCurrentOrder(pendingOrders[0]);
+    const initialQuantities = {};
+    pendingApprovalOrders.forEach(order => {
+      initialQuantities[order.id] = order.items ? order.items.length : 1;
+    });
+    setOrderQuantities(initialQuantities);
+  }, []);
+
+  // Set current order for similar discounts - default to first order of active tab
+  useEffect(() => {
+    const activeOrders = activeTab === 'pending' ? pendingApprovalOrders : deliveringOrders;
+    if (activeOrders.length > 0 && (!currentOrder || !activeOrders.some(order => order.id === currentOrder.id))) {
+      setCurrentOrder(activeOrders[0]);
     }
-  }, [pendingOrders, currentOrder]);
+  }, [activeTab, pendingApprovalOrders, deliveringOrders, currentOrder]);
 
   // Animation variants
   const containerVariants = {
@@ -63,6 +85,71 @@ const PendingOrders = () => {
   const handleProductClick = (product) => {
     setSelectedProduct(product);
     setShowModal(true);
+  };
+
+  // Increase quantity for a pending order
+  const increaseQuantity = (orderId) => {
+    setOrderQuantities(prev => ({
+      ...prev,
+      [orderId]: (prev[orderId] || 1) + 1
+    }));
+  };
+
+  // Decrease quantity for a pending order
+  const decreaseQuantity = (orderId) => {
+    setOrderQuantities(prev => ({
+      ...prev,
+      [orderId]: Math.max(1, (prev[orderId] || 1) - 1)
+    }));
+  };
+
+  // Toggle checked state of an order
+  const toggleOrderCheck = (orderId) => {
+    setCheckedOrders(prev => ({
+      ...prev,
+      [orderId]: !prev[orderId]
+    }));
+  };
+
+  // Calculate total selected items
+  const calculateSelectedItems = () => {
+    let totalItems = 0;
+
+    pendingApprovalOrders.forEach(order => {
+      if (checkedOrders[order.id]) {
+        const quantity = orderQuantities[order.id] || 1;
+        totalItems += quantity;
+      }
+    });
+
+    return totalItems;
+  };
+
+  const selectedItemsCount = calculateSelectedItems();
+  const hasSelectedItems = selectedItemsCount > 0;
+
+  // Get selected orders data for the payment modal
+  const getSelectedOrdersData = () => {
+    return pendingApprovalOrders
+      .filter(order => checkedOrders[order.id])
+      .map(order => ({
+        ...order,
+        quantity: orderQuantities[order.id] || 1,
+        total: (orderQuantities[order.id] || 1) * order.price
+      }));
+  };
+
+  // Handle make payment button click
+  const handleMakePayment = () => {
+    setIsPaymentModalOpen(true);
+  };
+
+  // Handle payment completion
+  const handlePaymentComplete = () => {
+ 
+    
+    setIsPaymentModalOpen(false);  // Close the payment modal
+    setIsPaymentSuccessful(true);  // Show success message
   };
 
   // Calculate discount percentage for display
@@ -90,7 +177,6 @@ const PendingOrders = () => {
   return (
     <div className="orders-container full-width">
       <div className="centered-content">
-
         <div className="orders-header">
           {isMobile && (
             <motion.button 
@@ -101,43 +187,111 @@ const PendingOrders = () => {
               <ArrowLeft size={20} />
             </motion.button>
           )}
-          <h1 className="header-title">Pending Orders</h1>
+          <h1 className="header-title">Orders</h1>
         </div>
         
-        {/* Order List - No scroll for cards */}
-        <div className="orders-static-section">
+        {/* Tab Navigation - Centered */}
+        <div className="order-tabs">
+          <button 
+            className={`tab-button ${activeTab === 'pending' ? 'active' : ''}`}
+            onClick={() => setActiveTab('pending')}
+          >
+            Pending Approval ({pendingApprovalOrders.length})
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'delivering' ? 'active' : ''}`}
+            onClick={() => setActiveTab('delivering')}
+          >
+            In Delivery ({deliveringOrders.length})
+          </button>
+        </div>
+        
+        {/* Payment Success Message */}
+
+        {isPaymentSuccessful && (
+  <>
+    <div className="payment-success-backdrop" />
+    <PaymentSuccessModal onClose={() => setIsPaymentSuccessful(false)} />
+  </>
+)}
+        {/* Selected Items Indicator */}
+       
+        
+        {/* Order List */}
+        <div className="orders-content">
           <AnimatePresence mode="wait">
             <motion.div 
-              className="order-list-no-scroll"
+              className="order-list"
               variants={containerVariants}
               initial="hidden"
               animate="show"
               exit="exit"
+              key={activeTab} // Force re-render of animation when tab changes
             >
-              {pendingOrders.length > 0 ? (
-                pendingOrders.map((order, index) => (
-                  <OrderItem 
-                    key={order.id} 
-                    order={order} 
-                    index={index} 
-                    onClick={() => handleOrderClick(order)}
-                    isSelected={currentOrder && currentOrder.id === order.id}
-                  />
-                ))
+              {activeTab === 'pending' ? (
+                pendingApprovalOrders.length > 0 ? (
+                  pendingApprovalOrders.map((order, index) => (
+                    <PendingOrderItem 
+                      key={order.id}
+                      order={order}
+                      index={index}
+                      quantity={orderQuantities[order.id] || 1}
+                      onIncrease={() => increaseQuantity(order.id)}
+                      onDecrease={() => decreaseQuantity(order.id)}
+                      onClick={() => handleOrderClick(order)}
+                      isSelected={currentOrder && currentOrder.id === order.id}
+                      isChecked={!!checkedOrders[order.id]}
+                      onToggleCheck={toggleOrderCheck}
+                    />
+                  ))
+                ) : (
+                  <div className="no-orders-message">
+                    No pending orders to approve.
+                  </div>
+                )
               ) : (
-                <div className="no-orders-message">
-                  No pending orders found.
-                </div>
+                deliveringOrders.length > 0 ? (
+                  deliveringOrders.map((order, index) => (
+                    <DeliveryOrderItem 
+                      key={order.id}
+                      order={order}
+                      index={index}
+                      onClick={() => handleOrderClick(order)}
+                      isSelected={currentOrder && currentOrder.id === order.id}
+                    />
+                  ))
+                ) : (
+                  <div className="no-orders-message">
+                    No orders in delivery.
+                  </div>
+                )
               )}
             </motion.div>
           </AnimatePresence>
         </div>
+        {activeTab === 'pending' && hasSelectedItems && !isPaymentSuccessful && (
+          <div className="selected-items-indicator">
+            <span className="selected-items-text">
+              <em>{selectedItemsCount} item{selectedItemsCount !== 1 ? 's' : ''} selected</em>
+            </span>
+          </div>
+        )}
+        {/* Make Payment Button (only show in pending tab) */}
+        {activeTab === 'pending' && pendingApprovalOrders.length > 0 && (
+          <div className="make-payment-container">
+            <button 
+              className="make-payment-button"
+              disabled={!hasSelectedItems}
+              onClick={handleMakePayment}
+            >
+              <ShoppingCart size={18} style={{ marginRight: '8px' }} />
+              Make Payment
+            </button>
+          </div>
+        )}
         
-  
         {currentOrder && (
           <div className="similar-discounts-container">
-         
-            
             <motion.div 
               className="similar-order"
               initial={{ opacity: 0 }}
@@ -160,10 +314,8 @@ const PendingOrders = () => {
           product={selectedProduct}
           onClose={() => setShowModal(false)}
           onBuyNow={() => {
-        
             setShowModal(false);
             setIsOrderModalOpen(true);
-       
           }}
         />
       )}
@@ -174,10 +326,17 @@ const PendingOrders = () => {
           onClose={() => setIsOrderModalOpen(false)}
         />
       }
+      
+      {/* Payment Modal */}
+      {isPaymentModalOpen && (
+        <PaymentModal
+          selectedOrders={getSelectedOrdersData()}
+          onClose={() => setIsPaymentModalOpen(false)}
+          onPaymentComplete={handlePaymentComplete}
+        />
+      )}
     </div>
   );
 };
-     
-    
 
 export default PendingOrders;
