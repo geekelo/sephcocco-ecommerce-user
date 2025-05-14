@@ -5,6 +5,7 @@ import LikeButton from './LikeButton';
 import ActionButtons from './ActionButtons';
 import ExpandableDescription from './ExpandableDescription';
 import '../styles/ProductDetails.css';
+import { HelpCircle } from 'lucide-react';
 
 const ProductDetails = ({ product, onCloseModal, onBuyNow }) => {
   const [selectedImage, setSelectedImage] = useState(product?.images?.[0]);
@@ -68,24 +69,18 @@ const ProductDetails = ({ product, onCloseModal, onBuyNow }) => {
           </div>
           
           <div className="pending-order-container">
-            <button 
-              className={`pending-order-button ${isPending ? 'pending-active' : ''}`}
-              onClick={handlePendingOrder}
-              disabled={isPending}
-            >
-              <span className="pending-icon">
-                {isPending ? '✓' : '⏱'}
-              </span>
-              <span className="pending-text">
-                {isPending ? 'Added to pending orders' : 'Add to pending orders'}
-              </span>
-            </button>
+          <div className="enquiry-help">
+    <HelpCircle size={18} strokeWidth={1.5} className="help-icon" />
+    <span className="help-text">Make enquiries</span>
+  </div>
           </div>
           
           <ActionButtons 
+          onPending={handlePendingOrder}
             product={product}
             closeProductModal={onCloseModal}
             onBuyNow={onBuyNow}
+            isPending={isPending}
           />
         </div>
       </motion.div>
