@@ -105,6 +105,7 @@
   .pending-icon {
     font-size: 18px;
     margin-right: 8px;
+    color: #000
   }
   
   .pending-active {
@@ -115,6 +116,7 @@
   
   .pending-text {
     font-weight: 500;
+    color: #000
   }
   @media (max-width: 768px) {
     .product-main {

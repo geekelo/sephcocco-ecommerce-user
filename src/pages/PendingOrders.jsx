@@ -196,7 +196,7 @@ const PendingOrders = () => {
             className={`tab-button ${activeTab === 'pending' ? 'active' : ''}`}
             onClick={() => setActiveTab('pending')}
           >
-            Pending Approval ({pendingApprovalOrders.length})
+           Unpaid ({pendingApprovalOrders.length})
           </button>
           <button 
             className={`tab-button ${activeTab === 'delivering' ? 'active' : ''}`}

@@ -114,7 +114,7 @@ const SimilarDiscounts = ({ products, currentProduct, onProductChange }) => {
                     >
                       <ProductCard
                         product={product}
-                        buttonText="See More"
+                        buttonText="More details"
                         onButtonClick={() => handleProductClick(product)}
                       />
                     </motion.div>

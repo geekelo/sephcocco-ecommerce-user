@@ -158,7 +158,7 @@
   
   .quantity-decrease:hover {
     background-color: #fff1f0;
-    border-color: #ff4d4f;
+
   }
   
   .quantity-increase {
@@ -167,7 +167,7 @@
   
   .quantity-increase:hover {
     background-color: #f6ffed;
-    border-color: #52c41a;
+   
   }
   
   .quantity-value {
