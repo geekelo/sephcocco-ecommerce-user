@@ -78,6 +78,29 @@
     color: #6b7280;
   }
   
+  .pending-order-container {
+    margin: 15px 0;
+  }
+  .enquiry-help {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #555;
+    font-size: 0.9rem;
+    margin-top: 1rem;
+    cursor: pointer;
+    transition: color 0.3s;
+  }
+  
+  .enquiry-help:hover {
+    color: #000;
+  }
+  
+  .help-icon {
+    stroke: currentColor;
+  }
+  
+  
   @media (max-width: 768px) {
     .product-main {
       flex-direction: column;

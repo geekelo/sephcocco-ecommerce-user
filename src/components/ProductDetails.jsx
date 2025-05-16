@@ -5,9 +5,11 @@ import LikeButton from './LikeButton';
 import ActionButtons from './ActionButtons';
 import ExpandableDescription from './ExpandableDescription';
 import '../styles/ProductDetails.css';
+import { HelpCircle } from 'lucide-react';
 
 const ProductDetails = ({ product, onCloseModal, onBuyNow }) => {
   const [selectedImage, setSelectedImage] = useState(product?.images?.[0]);
+  const [isPending, setIsPending] = useState(false);
   
   const shortDescription = product?.shortDescription || "No description available";
   const longDescription = product?.longDescription || null;
@@ -19,6 +21,12 @@ const ProductDetails = ({ product, onCloseModal, onBuyNow }) => {
   const handleLike = (isLiked) => {
     // Here you would typically update this on the backend
     console.log(`Product ${product.id} like status changed to: ${isLiked}`);
+  };
+
+  const handlePendingOrder = () => {
+    setIsPending(true);
+    // Here you would typically update this on the backend
+    console.log(`Product ${product.id} added to pending orders`);
   };
 
   return (
@@ -60,10 +68,19 @@ const ProductDetails = ({ product, onCloseModal, onBuyNow }) => {
             />
           </div>
           
+          <div className="pending-order-container">
+          <div className="enquiry-help">
+    <HelpCircle size={18} strokeWidth={1.5} className="help-icon" />
+    <span className="help-text">Make enquiries</span>
+  </div>
+          </div>
+          
           <ActionButtons 
-            product={product} 
+          onPending={handlePendingOrder}
+            product={product}
             closeProductModal={onCloseModal}
             onBuyNow={onBuyNow}
+            isPending={isPending}
           />
         </div>
       </motion.div>

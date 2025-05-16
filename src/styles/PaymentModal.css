@@ -1,0 +1,209 @@
+
+.payment-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 12px;
+  }
+  
+  .payment-modal-content {
+    background-color: #f8f9fa;
+    width: 90%;
+    max-width: 1200px;
+    height: 90vh;
+    max-height: 800px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  
+  .payment-modal-header {
+    background-color: white;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e1e4e8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+  
+  .payment-modal-header h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0;
+    text-align: center;
+    width: 100%;
+  }
+  
+  .payment-close-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: rgba(0, 0, 0, 0.3);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    z-index: 1001;
+    color: white;
+  }
+  
+  .payment-close-button:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  
+  /* Tab Navigation */
+  .payment-modal-tabs {
+    display: none; /* Hidden by default on desktop */
+    background-color: white;
+    border-bottom: 1px solid #e1e4e8;
+  }
+  
+  .payment-tab-button {
+    padding: 16px;
+    background: none;
+    border: none;
+    font-size: 16px;
+    font-weight: 500;
+    color: #4a5568;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex: 1;
+    text-align: center;
+    position: relative;
+  }
+  
+  .payment-tab-button.active {
+    color: #3182ce;
+    font-weight: 600;
+  }
+  
+  .payment-tab-button.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background-color: #3182ce;
+  }
+  
+  /* Order Modal Body */
+  .payment-modal-body {
+    flex: 1;
+    overflow: hidden;
+  }
+  
+  /* Desktop View */
+  .payment-desktop-view {
+    display: flex;
+    height: 100%;
+  }
+  
+  /* Mobile View */
+  .payment-mobile-view {
+    display: none;
+    height: 100%;
+    overflow-y: auto;
+  }
+  
+  /* Responsive styles for mobile */
+  @media (max-width: 768px) {
+    .payment-modal-header h2 {
+      font-size: 1.5rem;
+    }
+  
+    .payment-modal-tabs {
+      display: flex;
+    }
+    
+    .payment-desktop-view {
+      display: none;
+    }
+    
+    .payment-mobile-view {
+      display: block;
+    }
+  }
+  
+  /* For very small screens */
+  @media (max-width: 400px) {
+    .payment-modal-overlay {
+      padding: 0;
+    }
+    
+    .payment-modal-content {
+      width: 100%;
+      height: 100vh;
+      max-height: none;
+      border-radius: 0;
+    }
+    
+    .payment-modal-header h2 {
+      font-size: 1.3rem;
+    }
+    
+    .payment-tab-button {
+      padding: 12px;
+      font-size: 14px;
+    }
+  }
+  
+  /* Improve scrolling on mobile */
+  @media (max-height: 700px) {
+    .payment-modal-content {
+      height: 95vh;
+    }
+    
+    .payment-modal-header {
+      padding: 15px;
+    }
+    
+    .payment-tab-button {
+      padding: 12px;
+    }
+  }
+  
+  /* Fix for landscape orientation on mobile */
+  @media (max-height: 500px) {
+    .payment-modal-content {
+      height: 98vh;
+    }
+    
+    .payment-modal-header {
+      padding: 10px;
+    }
+    
+    .payment-modal-tabs {
+      padding: 0;
+    }
+    
+    .payment-tab-button {
+      padding: 10px;
+    }
+  }
+  
+  /* Fix for iPhone X and newer with bottom navigation bar */
+  @supports (padding: max(0px)) {
+    .payment-modal-overlay {
+      padding-left: max(12px, env(safe-area-inset-left));
+      padding-right: max(12px, env(safe-area-inset-right));
+      padding-bottom: max(12px, env(safe-area-inset-bottom));
+    }
+  }
