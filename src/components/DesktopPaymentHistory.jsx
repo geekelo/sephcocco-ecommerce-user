@@ -77,7 +77,7 @@ export const DesktopPaymentHistoryTable = ({ payments: allPayments }) => {
               filteredPayments.map((payment, index) => (
                 <tr key={index}>
                   <td>{payment.date}</td>
-                  <td>${payment.amount.toFixed(2)}</td>
+                  <td>₦{payment.amount.toFixed(2)}</td>
                   <td>
                     <span className={`status-badge ${payment.status.toLowerCase()}`}>
                       {payment.status}

@@ -26,7 +26,7 @@ export const DeliveryOrderItem = ({ order, index, onClick, isSelected }) => {
       </div>
       
       <div className="delivery-order-actions">
-        <div className="delivery-price">${order.price.toFixed(2)}</div>
+        <div className="delivery-price">₦{order.price.toFixed(2)}</div>
         <Link to={`/order/${order.id}`} className="delivery-see-more">
           See More Details <ChevronRight size={16} />
         </Link>

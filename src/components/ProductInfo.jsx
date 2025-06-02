@@ -48,7 +48,7 @@ const ProductInfo = ({ name, image, price, rating, ratingCount, status,likes,isF
           <span className="rating-count">({ratingCount || 0})</span>
         </div>
         
-        <div className="product-price">${price.toFixed(2)}</div>
+        <div className="product-price">₦{price.toFixed(2)}</div>
       </div>
       <div className="order-primary-actions">
           <button className="discard-button" onClick={handleDiscardOrder}>
