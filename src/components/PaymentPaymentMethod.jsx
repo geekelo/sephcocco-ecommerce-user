@@ -89,12 +89,12 @@ export default function PaymentPaymentMethod({
       <div className="payment-checkout-section payment-total-section">
         <div className="payment-total-row">
           <span>Subtotal</span>
-          <span>${itemTotal.toFixed(2)}</span>
+          <span>₦{itemTotal.toFixed(2)}</span>
         </div>
         
         <div className="payment-total-row payment-grand-total">
           <span>Total</span>
-          <span>${totalCost.toFixed(2)}</span>
+          <span>₦{totalCost.toFixed(2)}</span>
         </div>
       </div>
 
