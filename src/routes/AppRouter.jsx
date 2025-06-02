@@ -1,6 +1,6 @@
 import { Suspense, useState, } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { CompletedOrders, Messages, OrderDetails, OutletPage, PaymentHistory, PendingOrders, ProductPage } from "./LazyLoader";
+import { CompletedOrders, ForgotPasswordPage, LoginPage, Messages, OrderDetails, OutletPage, PaymentHistory, PendingOrders, ProductPage, RegisterPage, ResetPasswordPage } from "./LazyLoader";
 import HomeLayout from "../layout/homeLayout";
 import {ErrorBoundary} from '../components/ErrorBoundary'
 import { SplashScreen } from "../components/SplashScreen";
@@ -25,6 +25,10 @@ const AppRouter = () => {
             <Suspense fallback={<SplashScreen />}>
               <Routes>
                 <Route path="/" element={<OutletPage />} />
+                  <Route path="sign-in" element={<LoginPage />} />
+                    <Route path="sign-up" element={<RegisterPage />} />
+                      <Route path="forgot-password" element={<ForgotPasswordPage />} />
+                        <Route path="reset-password" element={<ResetPasswordPage />} />
                 <Route element={<HomeLayout />}>
                   <Route path="products" element={<ProductPage />} />
                   <Route path="pending-orders" element={<PendingOrders />} />
