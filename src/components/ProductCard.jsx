@@ -41,7 +41,7 @@ export const ProductCard = ({
         
       <div className="product-info">
         <h3 className="product-name">{name}</h3>
-        <div className="product-price">${price.toFixed(2)}</div>
+        <div className="product-price">₦ {price.toFixed(2)}</div>
         <div className="product-stock">
           <span className={inStock ? 'in-stock' : 'out-of-stock'}>
             {inStock ? 'In Stock' : 'Out of Stock'}
