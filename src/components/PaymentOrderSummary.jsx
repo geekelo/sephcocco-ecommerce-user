@@ -46,7 +46,7 @@ export default function PaymentOrderSummary({
                   <h4>{order.name}</h4>
                   
                   <div className="item-price-row">
-                    <p className="item-price">${order.price.toFixed(2)}</p>
+                    <p className="item-price">₦{order.price.toFixed(2)}</p>
                     <div>
                       <p className="quantity-label">Quantity: <span className="quantity-value">{order.quantity}</span></p>
                     </div>

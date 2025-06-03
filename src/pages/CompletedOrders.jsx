@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 
+// import { OrderItem } from "../components/OrderItem";
 import { orders, getSimilarOrderProducts } from "../constants/orders";
 import '../styles/PendingOrders.css';
 import SimilarDiscounts from "../components/SimilarDiscounts";
@@ -104,8 +105,8 @@ const CompletedOrders = () => {
           <h1 className="header-title">Completed Orders</h1>
         </div>
         
-     
-        <div className="orders-static-section">
+     {/* I commented this out because there is no OrderItem File */}
+        {/* <div className="orders-static-section">
           <AnimatePresence mode="wait">
             <motion.div 
               className="order-list-no-scroll"
@@ -131,7 +132,7 @@ const CompletedOrders = () => {
               )}
             </motion.div>
           </AnimatePresence>
-        </div>
+        </div> */}
         
         {/* Similar Discounts Section - Using actual similar products from same category */}
         {currentOrder && (

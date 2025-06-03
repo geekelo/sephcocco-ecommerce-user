@@ -79,11 +79,11 @@ export const PendingOrderItem = ({
           <div className="pending-order-price">
             <div className="price-row">
               <span className="price-label">Unit Price:</span>
-              <span className="price-value">${order.price.toFixed(2)}</span>
+              <span className="price-value">₦{order.price.toFixed(2)}</span>
             </div>
             <div className="price-row total-price">
               <span className="price-label">Total:</span>
-              <span className="price-value total-value">${totalPrice.toFixed(2)}</span>
+              <span className="price-value total-value">₦{totalPrice.toFixed(2)}</span>
             </div>
           </div>
         </div>

@@ -40,7 +40,7 @@ export default function OrderSummary({
             <h4>{product.name}</h4>
             
             <div className="item-price-row">
-              <p className="item-price">${product.price.toFixed(2)}</p>
+              <p className="item-price">₦{product.price.toFixed(2)}</p>
               <div>
                 <p className="quantity-label">Total Quantity: <span className="quantity-value">{quantity}</span></p>
               </div>
