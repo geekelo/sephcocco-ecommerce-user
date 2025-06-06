@@ -25,6 +25,8 @@ const AppRouter = () => {
             <Suspense fallback={<SplashScreen />}>
               <Routes>
                 <Route path="/" element={<OutletPage />} />
+                
+       
                 <Route element={<HomeLayout />}>
                   <Route path="products" element={<ProductPage />} />
                   <Route path="pending-orders" element={<PendingOrders />} />

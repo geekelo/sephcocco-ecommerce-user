@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
+
 // import { OrderItem } from "../components/OrderItem";
 import { orders, getSimilarOrderProducts } from "../constants/orders";
 import '../styles/PendingOrders.css';
@@ -8,6 +9,7 @@ import SimilarDiscounts from "../components/SimilarDiscounts";
 import ProductModal from "../components/ProductModal";
 import { useNavigate } from "react-router-dom";
 import OrderModal from "../components/OrderModal";
+import { OrderItem } from "../components/OrderItem";
 
 const CompletedOrders = () => {
   const [isMobile, setIsMobile] = useState(false);
