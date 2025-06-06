@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import AppRouter from './routes/AppRouter';
-
+import {  QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "./services/lib";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -10,8 +11,10 @@ function App() {
 
 
 return (
-  
-   <AppRouter />
+
+     <QueryClientProvider client={queryClient}>
+           <AppRouter />;
+         </QueryClientProvider>
 
 
 

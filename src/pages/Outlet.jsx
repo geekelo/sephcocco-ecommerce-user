@@ -13,13 +13,13 @@ const OutletPage = () => {
 
   const navigate = useNavigate();
   const handleRestaurantClick = () => {
-navigate('/sign-in')
+navigate('/products')
   }
   const handleLougeClick = () => {
-    navigate('/sign-in')
+    navigate('/products')
       }
       const handlePharmacyClick = () => {
-        navigate('/sign-in')
+        navigate('/products')
           }
   // Animation variants
   const containerVariants = {

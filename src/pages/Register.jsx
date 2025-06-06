@@ -48,74 +48,41 @@ const RegisterPage = () => {
     }
   };
 
-  const handlePasswordChange = (e) => {
-    const value = e.target.value;
-    setPassword(value);
 
-    // Real-time password validation
-    if (value.trim() === "") {
-      setPasswordError("Password is required");
-    } else if (!validatePassword(value)) {
-      setPasswordError("Password must be at least 8 characters with uppercase, lowercase, number, and special character");
-    } else {
-      setPasswordError("");
-    }
-    
-    // Also validate confirm password if it exists
-    if (confirmPassword && value !== confirmPassword) {
-      setConfirmPasswordError("Passwords do not match");
-    } else if (confirmPassword && value === confirmPassword) {
-      setConfirmPasswordError("");
-    }
-  };
+ const handleSubmit = async () => {
+    try {
+      // Merge firstName and lastName into full name
+      const fullName = `${formValues.firstName || ''} ${formValues.lastName || ''}`.trim();
+      
+      const payload = {
+        user: {
+      name: fullName,
+        address: formValues.address || '',
+        email: formValues.email || '',
+        phone_number: formValues.phone_number || '',
+        whatsapp_number: formValues.whatsapp_number || '',
+        password:  '',
+        password_confirmation:  '',
+        role: "user",
+        outlet: ''
+        }
+  
+      };
+console.log(payload);
 
-  const handleConfirmPasswordChange = (e) => {
-    const value = e.target.value;
-    setConfirmPassword(value);
-
-    // Real-time validation for password matching
-    if (value.trim() === "") {
-      setConfirmPasswordError("Please confirm your password");
-    } else if (!validatePasswordMatch(password, value)) {
-      setConfirmPasswordError("Passwords do not match");
-    } else {
-      setConfirmPasswordError("");
-    }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    // Final validation before submit
-    let isValid = true;
-
-    if (!fullName.trim() || !validateName(fullName)) {
-      isValid = false;
-    }
-
-    if (!email.trim() || !validateEmail(email)) {
-      isValid = false;
-    }
-
-    if (!password.trim() || !validatePassword(password)) {
-      isValid = false;
-    }
-
-    if (!confirmPassword.trim() || !validatePasswordMatch(password, confirmPassword)) {
-      isValid = false;
-    }
-
-    if (isValid) {
-      // Set submitting state for animation
-      setIsSubmitting(true);
-
-      // Here you would typically make an API call to register the user
-      // For now, we'll just navigate to the store
-      setTimeout(() => {
-        navigate("/store");
-      }, 1500); // Simulate API call delay
+   const response =   await register(payload);
+   console.log(response);
+   if (response?.message) {
+closeAllModals(); 
+   }
+     
+    } catch (error) {
+      console.error('Registration failed:', error);
+      // Handle error appropriately
     }
   };
+
+
 
   // Get password strength for display
   const passwordStrength = getPasswordStrength(password);
@@ -165,97 +132,56 @@ const RegisterPage = () => {
             />
             {emailError && <p className="error-message">{emailError}</p>}
           </div>
-
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <div className="password-input-container">
-              <motion.input
-                whileFocus={{ scale: 1.01 }}
-                transition={{ type: "spring", stiffness: 300 }}
-                type={showPassword ? "text" : "password"}
-                id="password"
-                placeholder="Create a strong password"
-                value={password}
-                onChange={handlePasswordChange}
-                className={passwordError ? "error" : ""}
+   <div className="form-group">
+              <label  htmlFor="address">Address</label>
+              <input
+                id="address"
+                name="address"
+                type="text"
+                value={formValues.address || ''}
+                onChange={handleInputChange}
+                onBlur={handleBlur}
+                className={`form-input-form ${validationErrors.address || formErrors.address ? 'error' : ''}`}
+                placeholder="Enter address"
               />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setShowPassword(!showPassword)}
-                tabIndex="-1"
-              >
-                {showPassword ? (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-                    <line x1="1" y1="1" x2="23" y2="23"/>
-                  </svg>
-                ) : (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                    <circle cx="12" cy="12" r="3"/>
-                  </svg>
-                )}
-              </button>
+              {(validationErrors.address || formErrors.address) && (
+                <div className="form-error-form">{validationErrors.address || formErrors.address}</div>
+              )}
             </div>
-            
-            {/* Password Strength Indicator */}
-            {password && (
-              <div className="password-strength-container">
-                <div className="password-strength-bar">
-                  <div 
-                    className={`password-strength-fill ${passwordStrength.level}`}
-                    style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
-                  ></div>
-                </div>
-                <div className="password-strength-text">
-                  <span className={`strength-level ${passwordStrength.level}`}>
-                    {passwordStrength.text}
-                  </span>
-                  <span className="strength-feedback">
-                    {passwordStrength.feedback}
-                  </span>
-                </div>
-              </div>
-            )}
-            
-            {passwordError && <p className="error-message">{passwordError}</p>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
-            <div className="password-input-container">
-              <motion.input
-                whileFocus={{ scale: 1.01 }}
-                transition={{ type: "spring", stiffness: 300 }}
-                type={showConfirmPassword ? "text" : "password"}
-                id="confirmPassword"
-                placeholder="Confirm your password"
-                value={confirmPassword}
-                onChange={handleConfirmPasswordChange}
-                className={confirmPasswordError ? "error" : ""}
+            <div className="form-group">
+              <label  htmlFor="phone_number">Phone Number</label>
+              <input
+                id="phone_number"
+                name="phone_number"
+                type="tel"
+                value={formValues.phone_number || ''}
+                onChange={handleInputChange}
+                className={`form-input-form ${validationErrors.phone_number || formErrors.phone_number ? 'error' : ''}`}
+                placeholder="Enter phone number"
               />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                tabIndex="-1"
-              >
-                {showConfirmPassword ? (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-                    <line x1="1" y1="1" x2="23" y2="23"/>
-                  </svg>
-                ) : (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                    <circle cx="12" cy="12" r="3"/>
-                  </svg>
-                )}
-              </button>
+              {(validationErrors.phone_number || formErrors.phone_number) && (
+                <div className="form-error-form">{validationErrors.phone_number || formErrors.phone_number}</div>
+              )}
             </div>
-            {confirmPasswordError && <p className="error-message">{confirmPasswordError}</p>}
-          </div>
+
+            <div className="form-field-form">
+              <label className="form-label-form" htmlFor="whatsapp_number">WhatsApp Number</label>
+              <input
+                id="whatsapp_number"
+                name="whatsapp_number"
+                type="tel"
+                value={formValues.whatsapp_number || ''}
+                onChange={handleInputChange}
+                className={`form-input-form ${validationErrors.whatsapp_number || formErrors.whatsapp_number ? 'error' : ''}`}
+                placeholder="Enter WhatsApp number"
+              />
+              {(validationErrors.whatsapp_number || formErrors.whatsapp_number) && (
+                <div className="form-error-form">{validationErrors.whatsapp_number || formErrors.whatsapp_number}</div>
+              )}
+            </div>
+
+
+          
 
           <motion.button
             type="submit"
