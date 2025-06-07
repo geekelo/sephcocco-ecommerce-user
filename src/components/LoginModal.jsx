@@ -42,7 +42,7 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister, onSuccess }) =
 
     try {
       const payload = {
-        user: { email, password: '' } // Empty password as requested
+        user: { email} 
       };
       
       const response = await login(payload);
