@@ -85,8 +85,6 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin, onSuccess }) =
           email: formValues.email || '',
           phone_number: formValues.phone_number || '',
           whatsapp_number: formValues.whatsapp_number || '',
-          password: '', // Empty password as requested
-          password_confirmation: '',
           role: "user",
           outlet: ''
         }
