@@ -1,10 +1,10 @@
 
 import Cookies from 'js-cookie';
 export const getActiveUser = () => {
-    const selectedUser = Cookies.get('userId');
+    const selectedUser = localStorage.getItem('userId');
     
     if (!selectedUser) {
-      console.warn('No active user found in cookies');
+      console.warn('No active user');
       return null;
     }
     

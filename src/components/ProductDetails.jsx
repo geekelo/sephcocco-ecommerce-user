@@ -36,18 +36,14 @@ const ProductDetails = ({ product, onCloseModal, onBuyNow, onProductUpdate }) =>
     if (!isLoggedIn) return;
 
     try {
-      console.log('🚀 LIKE API CALL STARTING');
-      console.log('Liking product:', product.id);
-      console.log('Active outlet:', activeOutlet);
-      console.log('Using likeProductMutation hook');
+    
       
-      const result = await likeProductMutation.mutateAsync({
+       await likeProductMutation.mutateAsync({
         active_outlet: activeOutlet,
         productId: product.id
       });
       
-      console.log('✅ LIKE API CALL SUCCESSFUL');
-      console.log('Like result:', result);
+  
       
       // Notify parent to refetch/update data
       onProductUpdate?.();
@@ -63,25 +59,20 @@ const ProductDetails = ({ product, onCloseModal, onBuyNow, onProductUpdate }) =>
     if (!isLoggedIn) return;
 
     try {
-      console.log('🚀 UNLIKE API CALL STARTING');
-      console.log('Unliking product:', product.id);
-      console.log('Active outlet:', activeOutlet);
-      console.log('Using unlikeProductMutation hook');
+  
       
-      const result = await unlikeProductMutation.mutateAsync({
+       await unlikeProductMutation.mutateAsync({
         active_outlet: activeOutlet,
         productId: product.id
       });
       
-      console.log('✅ UNLIKE API CALL SUCCESSFUL');
-      console.log('Unlike result:', result);
+   
       
       // Notify parent to refetch/update data
       onProductUpdate?.();
       console.log('Product unliked successfully');
     } catch (error) {
-      console.error('❌ UNLIKE API CALL FAILED');
-      console.error('Failed to unlike product:', error);
+
     }
   };
 
@@ -89,10 +80,6 @@ const ProductDetails = ({ product, onCloseModal, onBuyNow, onProductUpdate }) =>
   const handleLikeToggle = async () => {
     if (!isLoggedIn) return;
 
-    console.log('=== LIKE TOGGLE DEBUG ===');
-    console.log('Product ID:', product.id);
-    console.log('Current liked_by_user status:', product.liked_by_user);
-    console.log('Active outlet:', activeOutlet);
 
     if (product.liked_by_user) {
       // If already liked, unlike it
