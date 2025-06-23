@@ -2,7 +2,7 @@
 import React from 'react';
 import '../styles/ProductSkeleton.css';
 
-const ProductSkeleton = () => {
+export const ProductSkeleton = () => {
   return (
     <div className="product-skeleton">
       <div className="skeleton-image"></div>

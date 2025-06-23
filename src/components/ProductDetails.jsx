@@ -8,11 +8,11 @@ import '../styles/ProductDetails.css';
 import { HelpCircle } from 'lucide-react';
 
 const ProductDetails = ({ product, onCloseModal, onBuyNow }) => {
-  const [selectedImage, setSelectedImage] = useState(product?.images?.[0]);
+  const [selectedImage, setSelectedImage] = useState(product?.main_image_url);
   const [isPending, setIsPending] = useState(false);
   
-  const shortDescription = product?.shortDescription || "No description available";
-  const longDescription = product?.longDescription || null;
+  const shortDescription = product?.short_description || "No description available";
+  const longDescription = product?.long_description || null;
 
   if (!product) {
     return <div className="product-loading">Loading product details...</div>;
@@ -38,7 +38,7 @@ const ProductDetails = ({ product, onCloseModal, onBuyNow }) => {
         transition={{ duration: 0.5 }}
       >
         <ImageGallery
-          images={product.images}
+          images={product.other_image_urls}
           selectedImage={selectedImage}
           onSelect={setSelectedImage}
         />
@@ -47,18 +47,18 @@ const ProductDetails = ({ product, onCloseModal, onBuyNow }) => {
             <h1 className="product-name">{product.name}</h1>
             <LikeButton 
               initialLikes={product.likes}
-              isLiked={product.isFavorite}
+              isLiked={product.liked_by_user}
               onLike={handleLike}
             />
           </div>
           
           <p className="stock-status">
-            {product.inStock
-              ? `In stock : ${product.stockCount} Items`
+            {!product?.out_of_stock_status
+              ? `In stock : ${product.amount_in_stock} Items`
               : 'Out of stock'}
           </p>
           
-          <div className="product-price">₦{product.price.toFixed(2)}</div>
+          <div className="product-price">₦{parseFloat(product?.price || 0).toFixed(2)}</div>
 
           <div className="product-description">
             <h3>Product Description</h3>

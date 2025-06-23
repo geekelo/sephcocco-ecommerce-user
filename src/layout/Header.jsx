@@ -13,16 +13,28 @@ import '../styles/Header.css';
 import SearchFilter from '../components/SearchFilter';
 import { Link, useLocation } from 'react-router-dom';
 
+import { useViewProductCategories } from '../hooks/useGetProductCategories';
+import { getActiveOutlet } from '../utils/getActiveOutlets';
+import { useSearch } from '../components/SearchContext';
+
 const Header = () => {
-  const location = useLocation(); // Get current location from react-router
+  const location = useLocation();
   const currentPath = location.pathname;
+  const activeOutlet = getActiveOutlet();
+  
+  // Get search context
+  const { updateSearch, updateSort, updateCategory } = useSearch();
+  
+  // Fetch categories for the dropdown
+  const { data: categories = [] } = useViewProductCategories(activeOutlet);
   
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [storeDropdownOpen, setStoreDropdownOpen] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
   const [isMobile, setIsMobile] = useState(false);
+  const handleStoreChange = (store) => {
+    console.log('Selected store:', store);
 
+  };
   const navLinks = [
     { name: 'Products', href: '/products' },
     { name: 'Pending', href: '/pending-orders' },
@@ -33,49 +45,34 @@ const Header = () => {
   ];
 
   const storeOptions = ['Pharmacy', 'Lounge', 'Restaurant'];
-  const filterOptions = ['Price: Low to High', 'Price: High to Low', 'Newest First', 'Categories', 'Rating'];
+  const filterOptions = ['Price: Low to High', 'Price: High to Low', 'Newest First', 'Rating']; // Removed 'Categories'
 
   // Check if a link is active based on current path
   const isLinkActive = (linkHref) => {
-    if (linkHref === '#') return false; // Don't mark dropdown toggle as active
-    
-    // Exact match
+    if (linkHref === '#') return false;
     if (currentPath === linkHref) return true;
-    
-    // Special case for home page
     if (linkHref === '/' && currentPath === '/') return true;
-    
-    // Check if current path starts with link path (for nested routes)
-    // But only if the linkHref is not just '/'
     if (linkHref !== '/' && currentPath.startsWith(linkHref)) return true;
-    
     return false;
   };
 
-  // Define handleResize before using it in useEffect
   const handleResize = () => {
     const isMobileView = window.innerWidth <= 768;
     setIsMobile(isMobileView);
     
-    // Close mobile menu when switching to desktop
     if (!isMobileView && isMenuOpen) {
       setIsMenuOpen(false);
     }
   };
 
-  // Check if mobile on initial load
   useEffect(() => {
     const checkIfMobile = () => {
       setIsMobile(window.innerWidth <= 768);
     };
     
-    // Set initial state
     checkIfMobile();
-    
-    // Add event listener for window resize
     window.addEventListener('resize', handleResize);
     
-    // Clean up
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
@@ -86,15 +83,24 @@ const Header = () => {
     setStoreDropdownOpen(prev => !prev);
   };
 
+  // Updated handlers to use global state
   const handleSearch = (term) => {
-    setSearchTerm(term);
-    console.log('Searching for:', term);
+    console.log('Header: Searching for:', term);
+    updateSearch(term); // Update global search state
   };
 
   const handleFilterChange = (filter) => {
-    setSelectedFilter(filter);
-    console.log('Filter changed to:', filter);
+    console.log('Header: Filter changed to:', filter);
+    updateSort(filter); // Update global sort state
   };
+
+  const handleCategoryChange = (category) => {
+    console.log('Header: Category changed to:', category);
+    updateCategory(category); // Update global category state
+  };
+
+  // Only show SearchFilter on Product page for desktop
+  const showDesktopSearch = currentPath === '/products' || currentPath.startsWith('/products');
 
   return (
     <header className="header">
@@ -126,13 +132,13 @@ const Header = () => {
                     </Link>
                     <div className="dropdown-menu">
                       {storeOptions.map((store, idx) => (
-                        <Link 
+                        <button 
                           key={idx} 
-                          to={`/stores/${store.toLowerCase()}`} 
+                          onClick={() => handleStoreChange(store)}
                           className={`dropdown-item ${isLinkActive(`/stores/${store.toLowerCase()}`) ? 'active-link' : ''}`}
                         >
                           {store}
-                        </Link>
+                        </button>
                       ))}
                     </div>
                   </div>
@@ -154,14 +160,19 @@ const Header = () => {
 
         {/* Desktop Actions */}
         <div className="actions-section desktop-only">
-          <SearchFilter
-            placeholder="Search here..."
-            filterOptions={filterOptions}
-            defaultFilter={selectedFilter}
-            onSearch={handleSearch}
-            onFilterChange={handleFilterChange}
-            className="desktop-search-filter"
-          />
+          {/* Only show SearchFilter on Products page */}
+          {showDesktopSearch && (
+            <SearchFilter
+              placeholder="Search products..."
+              filterOptions={filterOptions}
+              categories={categories} // Pass categories data
+              onSearch={handleSearch}
+              onFilterChange={handleFilterChange}
+              onSortChange={handleFilterChange} // Support both prop names
+              onCategoryChange={handleCategoryChange} // Add category handler
+              className="desktop-search-filter"
+            />
+          )}
           <div className="header-icons">
             <button className="mobile-icon-button" aria-label="Help" title="Help">
               <CircleHelp size={24} />
@@ -172,7 +183,7 @@ const Header = () => {
           </div>
         </div>
 
-        {/* Mobile Slide-in Menu - Only render when actually in mobile mode */}
+        {/* Mobile Slide-in Menu */}
         <AnimatePresence>
           {isMenuOpen && isMobile && (
             <motion.div
@@ -209,13 +220,13 @@ const Header = () => {
                                 transition={{ duration: 0.3 }}
                               >
                                 {storeOptions.map((store, idx) => (
-                                  <Link 
+                                  <button 
                                     key={idx} 
-                                    to={`/stores/${store.toLowerCase()}`} 
+                                    onClick={() => handleStoreChange(store)}
                                     className={`mobile-dropdown-item ${isLinkActive(`/stores/${store.toLowerCase()}`) ? 'active-link' : ''}`}
                                   >
                                     {store}
-                                  </Link>
+                                  </button>
                                 ))}
                               </motion.div>
                             )}

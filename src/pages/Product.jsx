@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import SearchFilter from '../components/SearchFilter';
 import Hero from '../components/Hero';
 import '../styles/Product.css';
@@ -6,71 +6,154 @@ import { RenderMultipleShowcases } from '../components/RenderMultipleShowCases';
 import ProductModal from '../components/ProductModal';
 import OrderModal from '../components/OrderModal';
 import { AuthModals } from '../components/AuthModal';
-import ProductSkeleton from '../components/ProductSkeleton';
+import {ProductSkeleton} from '../components/ProductSkeleton';
 import { ErrorState } from '../components/ErrorState';
 import { EmptyState } from '../components/EmptyState';
 import { useViewAllProduct } from '../hooks/useGetAllProduct';
 import { getActiveOutlet } from '../utils/getActiveOutlets';
+import { useViewProductCategories } from '../hooks/useGetProductCategories';
+import { useSearch } from '../components/SearchContext';
 
 
 export default function Product() {
-  const activeOutlet = getActiveOutlet();
+  const [activeOutlet, setActiveOutlet] = useState(getActiveOutlet());
   
+  // Get global search state
+  const { 
+    searchTerm, 
+    sortOption, 
+    selectedCategory, 
+    updateSearch, 
+    updateSort, 
+    updateCategory,
+    clearAllFilters 
+  } = useSearch();
+  
+  // Modal states
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [sortOption, setSortOption] = useState('Newest First');
      
   // Auth modal states
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [pendingOrderProduct, setPendingOrderProduct] = useState(null);
 
-  // Fetch products using the hook
-  const { data: products = [], isLoading, error, refetch } = useViewAllProduct(activeOutlet);
+  // Fetch data
+  const { data: productsData, isLoading: productsLoading, error: productsError, refetch } = useViewAllProduct(activeOutlet);
+  const { data: categories = [], isLoading: categoriesLoading, error: categoriesError,refetch: refetchCategories } = useViewProductCategories(activeOutlet);
+console.log('prod',productsData);
 
-  const filterOptions = ['Price: Low to High', 'Price: High to Low', 'Newest First', 'Categories', 'Rating'];
+  const products = productsData?.products || [];
+  const filterOptions = ['Price: Low to High', 'Price: High to Low', 'Newest First', 'Rating'];
+  const isLoading = productsLoading || categoriesLoading;
+  const error = productsError || categoriesError;
 
-  // Sort and filter products
-  const sortedAndFilteredProducts = useMemo(() => {
-    if (!products || products.length === 0) return [];
+
+
+
+  // Watch for changes in the actual outlet (in case it changes elsewhere)
+  useEffect(() => {
+    const currentOutlet = getActiveOutlet();
+    if (currentOutlet !== activeOutlet) {
+      setActiveOutlet(currentOutlet);
+      refetch();
+    refetchCategories();
+    }
+  }, [activeOutlet, refetch, refetchCategories]);
+
+  // Simple filtering and sorting using global state
+  const filteredAndSortedProducts = useMemo(() => {
+
+    if (!products || products.length === 0) {
     
-    let sortedProducts = [...products];
-    
-    // Apply sorting based on selected option
-    switch (sortOption) {
-      case 'Price: Low to High':
-        sortedProducts.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
-        break;
-      case 'Price: High to Low':
-        sortedProducts.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
-        break;
-      case 'Newest First':
-        sortedProducts.sort((a, b) => {
-          const dateA = new Date(a.created_at);
-          const dateB = new Date(b.created_at);
-          return dateB - dateA; // Descending order (newest first)
-        });
-        break;
-      case 'Rating':
-        sortedProducts.sort((a, b) => (b.likes || 0) - (a.likes || 0));
-        break;
-      default:
-        // Default to newest first
-        sortedProducts.sort((a, b) => {
-          const dateA = new Date(a.created_at);
-          const dateB = new Date(b.created_at);
-          return dateB - dateA;
-        });
+      return [];
     }
     
-    // Return top 15 products
-    return sortedProducts.slice(0, 15);
-  }, [products, sortOption]);
+    let result = [...products];
+    
+    // 1. Apply search (if search term exists)
+    if (searchTerm && searchTerm.trim()) {
+      console.log('🔍 APPLYING SEARCH for:', searchTerm);
+      const search = searchTerm.toLowerCase().trim();
+      
+      result = result.filter(product => {
+        const name = (product?.name || '').toLowerCase();
+        const shortDesc = (product?.short_description || '').toLowerCase();
+        const longDesc = (product?.long_description || '').toLowerCase();
+        const categoryNames = product?.categories?.map(cat => (cat?.name || '').toLowerCase()).join(' ') || '';
+        
+        const matches = name.includes(search) || 
+               shortDesc.includes(search) || 
+               longDesc.includes(search) || 
+               categoryNames.includes(search);
+        
+        if (matches) {
+          console.log(`✅ Product "${product?.name}" matches search`);
+        }
+        
+        return matches;
+      });
+      
+      console.log(`Search filtered: ${products.length} → ${result.length}`);
+    }
+    
+    // 2. Apply category filter (if category is selected)
+    if (selectedCategory && selectedCategory.trim()) {
+      console.log('📁 APPLYING CATEGORY FILTER for:', selectedCategory);
+      
+      result = result.filter(product => {
+        const hasCategory = product?.categories?.some(cat => cat?.name === selectedCategory);
+        if (hasCategory) {
+          console.log(`✅ Product "${product?.name}" has category "${selectedCategory}"`);
+        }
+        return hasCategory;
+      });
+      
+      console.log(`Category filtered: result length now: ${result.length}`);
+    }
+    
+    // 3. Apply sorting (if sort option is selected)
+    if (sortOption && sortOption.trim()) {
+      console.log('🔽 APPLYING SORT:', sortOption);
+      
+      switch (sortOption) {
+        case 'Price: Low to High':
+          result.sort((a, b) => parseFloat(a?.price || 0) - parseFloat(b?.price || 0));
+          break;
+        case 'Price: High to Low':
+          result.sort((a, b) => parseFloat(b?.price || 0) - parseFloat(a?.price || 0));
+          break;
+        case 'Newest First':
+          result.sort((a, b) => new Date(b?.created_at || 0) - new Date(a?.created_at || 0));
+          break;
+        case 'Rating':
+          result.sort((a, b) => (b?.likes || 0) - (a?.likes || 0));
+          break;
+      }
+    }
+    
+    const finalResult = result.slice(0, 15);
+    console.log('Final result length:', finalResult.length);
+    console.log('=== END FILTERING DEBUG ===');
+    
+    return finalResult;
+  }, [products, searchTerm, selectedCategory, sortOption]);
 
-  // Check if user is logged in
-  const isUserLoggedIn = () => {
-    return localStorage.getItem('token') !== null;
+  // Mobile-only event handlers (for the mobile SearchFilter)
+  const handleMobileSearch = (term) => {
+    console.log('📱 Mobile search:', term);
+    updateSearch(term);
+  };
+
+  const handleMobileSortChange = (option) => {
+    console.log('📱 Mobile sort:', option);
+    updateSort(option);
+  };
+
+  const handleMobileCategoryChange = (category) => {
+    console.log('📱 Mobile category:', category);
+    updateCategory(category);
   };
 
   const handleProductClick = (product) => {
@@ -78,29 +161,22 @@ export default function Product() {
     setIsProductModalOpen(true);
   };
 
-  const handleSortChange = (option) => {
-    setSortOption(option);
-  };
-
   const handleBuyNow = () => {
-    // Check if user is logged in
-    if (!isUserLoggedIn()) {
-      // Store the product for later and show login modal
+    const isLoggedIn = localStorage.getItem('token') !== null;
+    
+    if (!isLoggedIn) {
       setPendingOrderProduct(selectedProduct);
       setIsProductModalOpen(false);
       setShowLoginModal(true);
       return;
     }
 
-    // User is logged in, proceed with order
     setIsProductModalOpen(false);
     setIsOrderModalOpen(true);
   };
 
   const handleAuthSuccess = () => {
-    // User successfully logged in/registered
     if (pendingOrderProduct) {
-      // Continue with the order process
       setSelectedProduct(pendingOrderProduct);
       setIsOrderModalOpen(true);
       setPendingOrderProduct(null);
@@ -110,35 +186,24 @@ export default function Product() {
   const handleCloseAuthModals = () => {
     setShowLoginModal(false);
     setShowRegisterModal(false);
-    // Clear pending order if user cancels auth
     setPendingOrderProduct(null);
-  };
-
-  const handleOrderModalClose = () => {
-    setIsOrderModalClose(false);
-    // Clear selected product when order modal is closed
-    setSelectedProduct(null);
-  };
-
-  const handleProductModalClose = () => {
-    setIsProductModalOpen(false);
-    // Clear selected product when product modal is closed
-    setSelectedProduct(null);
   };
 
   const handleRetry = () => {
     refetch();
   };
 
-  // Render loading state
+  // Loading state
   if (isLoading) {
     return (
       <>
         <SearchFilter 
           className='mobile-product-only' 
           filterOptions={filterOptions}
-          onSortChange={handleSortChange}
-          currentSort={sortOption}
+          categories={categories}
+          onSearch={handleMobileSearch}
+          onSortChange={handleMobileSortChange}
+          onCategoryChange={handleMobileCategoryChange}
         />
         <Hero/>
         <section className="product-showcases-container">
@@ -156,15 +221,17 @@ export default function Product() {
     );
   }
 
-  // Render error state
+  // Error state
   if (error) {
     return (
       <>
         <SearchFilter 
           className='mobile-product-only' 
           filterOptions={filterOptions}
-          onSortChange={handleSortChange}
-          currentSort={sortOption}
+          categories={categories}
+          onSearch={handleMobileSearch}
+          onSortChange={handleMobileSortChange}
+          onCategoryChange={handleMobileCategoryChange}
         />
         <Hero/>
         <section className="product-showcases-container">
@@ -177,15 +244,17 @@ export default function Product() {
     );
   }
 
-  // Render empty state
-  if (!isLoading && (!products || products.length === 0)) {
+  // Empty state
+  if (!products || products.length === 0) {
     return (
       <>
         <SearchFilter 
           className='mobile-product-only' 
           filterOptions={filterOptions}
-          onSortChange={handleSortChange}
-          currentSort={sortOption}
+          categories={categories}
+          onSearch={handleMobileSearch}
+          onSortChange={handleMobileSortChange}
+          onCategoryChange={handleMobileCategoryChange}
         />
         <Hero/>
         <section className="product-showcases-container">
@@ -201,42 +270,58 @@ export default function Product() {
 
   return (
     <>
+      {/* Mobile-only SearchFilter */}
       <SearchFilter 
         className='mobile-product-only' 
         filterOptions={filterOptions}
-        onSortChange={handleSortChange}
-        currentSort={sortOption}
+        categories={categories}
+        onSearch={handleMobileSearch}
+        onSortChange={handleMobileSortChange}
+        onCategoryChange={handleMobileCategoryChange}
       />
       <Hero/>
       <section className="product-showcases-container">
-        <div className="products-section-header">
-          <h2>Top {sortedAndFilteredProducts.length} Products</h2>
-          <p>Showing the best products sorted by {sortOption.toLowerCase()}</p>
-        </div>
-        <RenderMultipleShowcases 
-          products={sortedAndFilteredProducts}
-          onProductClick={handleProductClick} 
-        />
+        
+        
+        {filteredAndSortedProducts.length > 0 ? (
+          <RenderMultipleShowcases 
+            products={filteredAndSortedProducts}
+            onProductClick={handleProductClick} 
+          />
+        ) : (
+          <EmptyState 
+            message="No products match your current filters." 
+            btnText="Clear Filters"
+            handleAddCategory={() => {
+              console.log('Clearing all filters from Product page');
+              clearAllFilters();
+            }}
+          />
+        )}
       </section>
            
-      {/* Product Modal */}
+      {/* Modals */}
       {isProductModalOpen && (
         <ProductModal
           product={selectedProduct}
-          onClose={handleProductModalClose}
+          onClose={() => {
+            setIsProductModalOpen(false);
+            setSelectedProduct(null);
+          }}
           onBuyNow={handleBuyNow}
         />
       )}
            
-      {/* Order Modal - only shown when user is authenticated */}
       {isOrderModalOpen && (
         <OrderModal
           product={selectedProduct}
-          onClose={handleOrderModalClose}
+          onClose={() => {
+            setIsOrderModalOpen(false);
+            setSelectedProduct(null);
+          }}
         />
       )}
 
-      {/* Authentication Modals */}
       <AuthModals
         showLogin={showLoginModal}
         showRegister={showRegisterModal}

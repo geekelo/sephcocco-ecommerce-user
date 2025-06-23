@@ -112,12 +112,13 @@
     transform: rotate(180deg);
   }
   
-  .dropdown-menu {
+  .dropdown-menu{
     position: absolute;
     top: 100%;
     left: 0;
     min-width: 180px;
     background-color: white;
+   
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     padding: 0.5rem 0;
@@ -129,6 +130,13 @@
     visibility: hidden;
     transform: translateY(-10px);
     transition: all 0.3s ease;
+  }
+  .dropdown-menu > button {
+    text-align: left;
+    cursor: pointer;
+    width: 100%;
+    background-color: transparent;
+    border: none;
   }
   
   .dropdown:hover .dropdown-menu {
