@@ -2,6 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
+import Cookies from 'js-cookie'; // Make sure to import Cookies
 import '../styles/Outlet.css';
 import Logo from '../assets/logo.png';
 import OutletImage from '../assets/outlet.png';
@@ -9,18 +10,25 @@ import Icon1 from '../assets/restur.svg';
 import Icon2 from '../assets/louge.svg';
 import Icon3 from '../assets/phar.svg';
 import { useNavigate } from 'react-router-dom';
-const OutletPage = () => {
 
+const OutletPage = () => {
   const navigate = useNavigate();
+  
   const handleRestaurantClick = () => {
-navigate('/products')
+    Cookies.set('userActiveOutlet', 'restaurant', { expires: 1 }); 
+    navigate('/products');
   }
+  
   const handleLougeClick = () => {
-    navigate('/products')
-      }
-      const handlePharmacyClick = () => {
-        navigate('/products')
-          }
+    Cookies.set('userActiveOutlet', 'lounge', { expires: 1 });
+    navigate('/products');
+  }
+  
+  const handlePharmacyClick = () => {
+    Cookies.set('userActiveOutlet', 'pharmacy', { expires: 1 });
+    navigate('/products');
+  }
+
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -110,7 +118,7 @@ navigate('/products')
               alt="Icon" 
               className="icon"
             />
-                Our Restuarant 
+                Our Restaurant 
                 <ArrowRight className="arrow-icon" />
               </motion.button>
               

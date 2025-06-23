@@ -17,7 +17,7 @@ export const ProductShowcase = ({
 
   return (
     <div className="product-showcase">
-      <SectionTitle title={title} seeAllLink={seeAllLink} />
+      <SectionTitle title={title}  />
       
       <motion.div 
         className="product-grid"

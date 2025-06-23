@@ -7,7 +7,7 @@ const ImageGallery = ({ images, selectedImage, onSelect }) => {
     <div className="image-gallery">
       <img src={selectedImage} alt="Selected" className="main-image" />
       <div className="thumbnail-list">
-        {images.map((img, index) => (
+        {images?.map((img, index) => (
           <div
             key={index}
             className={`thumbnail ${selectedImage === img ? 'active' : ''}`}

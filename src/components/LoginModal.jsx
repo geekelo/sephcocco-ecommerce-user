@@ -46,9 +46,12 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister, onSuccess }) =
       };
       
       const response = await login(payload);
+      console.log(response);
       
       if (response?.message) {
         localStorage.setItem('token', response?.token);
+        localStorage.setItem('userId', response?.user?.id);
+        // Cookies.set('userId', response?.user?.id, { expires: 1 });
         onSuccess && onSuccess();
         onClose();
       }

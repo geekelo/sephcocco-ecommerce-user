@@ -1,4 +1,4 @@
-/* OrderSummary.css */
+
   
 .order-left-column {
   flex: 1;
@@ -96,7 +96,7 @@
   gap: 12px;
 }
 
-.quantity-btn {
+.order-quantity-btn {
   background-color: #2d3748;
   border: 1px solid #2d3748;
   width: 34px;
@@ -110,11 +110,11 @@
   color: #fff;
 }
 
-.quantity-btn:hover:not(:disabled) {
+.order-quantity-btn:hover:not(:disabled) {
   background-color: #2d3748;
 }
 
-.quantity-btn:disabled {
+.order-quantity-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -156,7 +156,7 @@
   font-style: italic;
 }
 
-/* Next button for mobile navigation - only visible on small screens */
+
 .next-button-mobile {
   display: none;
   width: 100%;

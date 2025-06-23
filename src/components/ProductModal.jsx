@@ -5,10 +5,13 @@ import '../styles/ProductModal.css';
 import ProductDetails from './ProductDetails';
 import SimilarDiscounts from './SimilarDiscounts';
 import { allProducts } from '../constants/productData';
+import { useViewAllProduct } from '../hooks/useGetAllProduct';
+import { getActiveOutlet } from '../utils/getActiveOutlets';
 
-const ProductModal = ({ product, onClose, onBuyNow }) => {
+const ProductModal = ({ product, onClose, onBuyNow,onProductUpdate }) => {
+  const [activeOutlet, setActiveOutlet] = useState(getActiveOutlet());
   const [currentProduct, setCurrentProduct] = useState(product);
-
+  // const { data: productsData } = useViewAllProduct(activeOutlet);
   // Prevent scrolling of the body when the modal is open
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -29,17 +32,22 @@ const ProductModal = ({ product, onClose, onBuyNow }) => {
       window.removeEventListener('keydown', handleEsc);
     };
   }, [onClose]);
+console.log(currentProduct);
 
   // Find products in the same category for similar discounts
-  const getSimilarProducts = () => {
-    if (!currentProduct || !currentProduct.category) return [];
+  // const getSimilarProducts = () => {
+  //   if (!currentProduct || !currentProduct.categories || currentProduct.discount_price == null) return [];
+  
+  //   // Define acceptable range for "similar" discount
+  //   const discountThreshold = 5; // for ±5% tolerance (adjust as needed)
+  
+  //   return productsData?.products?.filter(p => 
     
-    return allProducts.filter(p => 
-      p.category === currentProduct.category &&
-      p.id !== currentProduct.id
-    );
-  };
-
+  //     Math.abs(p.discount_price - currentProduct.discount_price) <= discountThreshold
+  //   );
+  // };
+  // console.log('okk',getSimilarProducts());
+  
   return (
     <AnimatePresence>
       <motion.div 
@@ -69,9 +77,10 @@ const ProductModal = ({ product, onClose, onBuyNow }) => {
             product={currentProduct} 
             onCloseModal={onClose}
             onBuyNow={onBuyNow}
+            onProductUpdate={onProductUpdate}
           />
           
-          <SimilarDiscounts
+          {/* <SimilarDiscounts
             products={getSimilarProducts()}
             currentProduct={currentProduct}
             onProductChange={(product) => {
@@ -84,7 +93,7 @@ const ProductModal = ({ product, onClose, onBuyNow }) => {
                 behavior: 'smooth'
               });
             }}
-          />
+          /> */}
         </motion.div>
       </motion.div>
     </AnimatePresence>
