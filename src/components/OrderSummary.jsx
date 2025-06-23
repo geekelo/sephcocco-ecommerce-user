@@ -48,7 +48,7 @@ export default function OrderSummary({
             
             <div className="quantity-selector">
               <button
-                className="quantity-btn"
+                className="order-quantity-btn"
                 onClick={decreaseQuantity}
                 disabled={quantity <= 1}
               >
@@ -56,7 +56,7 @@ export default function OrderSummary({
               </button>
               
               <button
-                className="quantity-btn"
+                className="order-quantity-btn"
                 onClick={increaseQuantity}
                 disabled={quantity >= product.stockCount}
               >
