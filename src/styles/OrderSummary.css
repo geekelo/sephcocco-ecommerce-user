@@ -1,4 +1,4 @@
-/* OrderSummary.css */
+
   
 .order-left-column {
   flex: 1;
@@ -156,7 +156,7 @@
   font-style: italic;
 }
 
-/* Next button for mobile navigation - only visible on small screens */
+
 .next-button-mobile {
   display: none;
   width: 100%;
