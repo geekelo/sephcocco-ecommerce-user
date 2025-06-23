@@ -16,9 +16,11 @@ import { useViewProductCategories } from '../hooks/useGetProductCategories';
 import { useSearch } from '../components/SearchContext';
 import { useLikedProduct } from '../hooks/useLikedProduct';
 import { useUnlikedProduct } from '../hooks/useUnlikedProduct';
+import { getActiveUser } from '../utils/getActiveUser';
 
 export default function Product() {
   const [activeOutlet, setActiveOutlet] = useState(getActiveOutlet());
+  const activeUser = getActiveUser();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(20);
   
@@ -43,6 +45,7 @@ export default function Product() {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [pendingOrderProduct, setPendingOrderProduct] = useState(null);
 
+
   // Fetch data with pagination
   const { 
     data: productsData, 
@@ -50,7 +53,7 @@ export default function Product() {
     error: productsError, 
     refetch,
     isPreviousData 
-  } = useViewAllProduct(activeOutlet, currentPage, itemsPerPage);
+  } = useViewAllProduct(activeOutlet, currentPage, itemsPerPage, activeUser);
   
   const { 
     data: categories = [], 
