@@ -32,7 +32,7 @@ export default function OrderSummary({
         <div className="order-item">
           <div className="order-item-image">
             <img
-              src={product.images[0]}
+              src={product.main_image_url}
               alt={product.name}
             />
           </div>
@@ -40,7 +40,7 @@ export default function OrderSummary({
             <h4>{product.name}</h4>
             
             <div className="item-price-row">
-              <p className="item-price">₦{product.price.toFixed(2)}</p>
+              <p className="item-price">₦{parseFloat(product.price || 0).toFixed(2)}</p>
               <div>
                 <p className="quantity-label">Total Quantity: <span className="quantity-value">{quantity}</span></p>
               </div>

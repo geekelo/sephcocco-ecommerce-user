@@ -17,29 +17,40 @@ export const ProductCard = ({
     likes,
     liked_by_user = false,
     main_image_url,
-    other_image_urls = [],
+   
   } = product;
 
-  // Get the first available image
-  const productImage = main_image_url 
+  // Check if user is logged in
+  const isLoggedIn = localStorage.getItem('token') !== null;
 
+  // Get the first available image
+  const productImage = main_image_url
+  
   // Determine if product is in stock
   const inStock = !out_of_stock_status && amount_in_stock > 0;
+
+  const handleFavoriteClick = (e) => {
+    e.stopPropagation(); // Prevent triggering product click when clicking favorite
+    onFavorite(id); // Pass the product ID to the favorite handler
+  };
 
   return (
     <div className="product-card">
       <div className="product-image-container">
         <img src={productImage} alt={name} className="product-image" />
-        <button
-          className={`favorite-button ${liked_by_user ? 'active' : ''}`}
-          onClick={() => onFavorite(id)}
-        >
-          <Heart
-            size={16}
-            fill={liked_by_user ? '#ff6b6b' : 'none'}
-            color={liked_by_user ? '#ff6b6b' : '#888'}
-          />
-        </button>
+        {/* Only show favorite button if user is logged in */}
+        {isLoggedIn && (
+          <button
+            className={`favorite-button ${liked_by_user ? 'active' : ''}`}
+            onClick={handleFavoriteClick}
+          >
+            <Heart
+              size={16}
+              fill={liked_by_user ? '#ff6b6b' : 'none'}
+              color={liked_by_user ? '#ff6b6b' : '#888'}
+            />
+          </button>
+        )}
       </div>
 
       <div className="product-info">

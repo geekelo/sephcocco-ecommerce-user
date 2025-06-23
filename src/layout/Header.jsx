@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import '../styles/Header.css';
 import SearchFilter from '../components/SearchFilter';
 import { Link, useLocation } from 'react-router-dom';
+import Cookies from 'js-cookie'; // Add this import
 
 import { useViewProductCategories } from '../hooks/useGetProductCategories';
 import { getActiveOutlet } from '../utils/getActiveOutlets';
@@ -20,21 +21,55 @@ import { useSearch } from '../components/SearchContext';
 const Header = () => {
   const location = useLocation();
   const currentPath = location.pathname;
-  const activeOutlet = getActiveOutlet();
+  const [activeOutlet, setActiveOutlet] = useState(getActiveOutlet());
   
   // Get search context
-  const { updateSearch, updateSort, updateCategory } = useSearch();
+  const { updateSearch, updateSort, updateCategory, clearAllFilters } = useSearch();
   
   // Fetch categories for the dropdown
-  const { data: categories = [] } = useViewProductCategories(activeOutlet);
+  const { data: categories = [], refetch: refetchCategories } = useViewProductCategories(activeOutlet);
   
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [storeDropdownOpen, setStoreDropdownOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+
+  // Updated handleStoreChange function
   const handleStoreChange = (store) => {
     console.log('Selected store:', store);
-
+    
+    // Map store names to outlet values
+    const storeToOutletMap = {
+      'Pharmacy': 'pharmacy',
+      'Lounge': 'lounge', 
+      'Restaurant': 'restaurant'
+    };
+    
+    const outletValue = storeToOutletMap[store];
+    
+    if (outletValue) {
+      // Update the cookie
+      Cookies.set('userActiveOutlet', outletValue, { expires: 1 });
+      
+      // Update local state
+      setActiveOutlet(outletValue);
+      
+      // Clear all search filters when switching outlets
+      clearAllFilters();
+      
+      // Refetch categories for the new outlet
+      refetchCategories();
+      
+      // Close mobile menu if open
+      setIsMenuOpen(false);
+      setStoreDropdownOpen(false);
+      
+      // Trigger a custom event that the Product component can listen to
+      window.dispatchEvent(new CustomEvent('outletChanged', { 
+        detail: { newOutlet: outletValue } 
+      }));
+    }
   };
+
   const navLinks = [
     { name: 'Products', href: '/products' },
     { name: 'Pending', href: '/pending-orders' },
@@ -45,7 +80,7 @@ const Header = () => {
   ];
 
   const storeOptions = ['Pharmacy', 'Lounge', 'Restaurant'];
-  const filterOptions = ['Price: Low to High', 'Price: High to Low', 'Newest First', 'Rating']; // Removed 'Categories'
+  const filterOptions = ['Price: Low to High', 'Price: High to Low', 'Newest First','Categories', 'Rating'];
 
   // Check if a link is active based on current path
   const isLinkActive = (linkHref) => {
@@ -54,6 +89,16 @@ const Header = () => {
     if (linkHref === '/' && currentPath === '/') return true;
     if (linkHref !== '/' && currentPath.startsWith(linkHref)) return true;
     return false;
+  };
+
+  // Helper function to check if a store is currently active
+  const isStoreActive = (store) => {
+    const storeToOutletMap = {
+      'Pharmacy': 'pharmacy',
+      'Lounge': 'lounge', 
+      'Restaurant': 'restaurant'
+    };
+    return storeToOutletMap[store] === activeOutlet;
   };
 
   const handleResize = () => {
@@ -76,6 +121,20 @@ const Header = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Listen for outlet changes from other components
+  useEffect(() => {
+    const handleOutletChange = () => {
+      const currentOutlet = getActiveOutlet();
+      if (currentOutlet !== activeOutlet) {
+        setActiveOutlet(currentOutlet);
+        refetchCategories();
+      }
+    };
+
+    window.addEventListener('outletChanged', handleOutletChange);
+    return () => window.removeEventListener('outletChanged', handleOutletChange);
+  }, [activeOutlet, refetchCategories]);
+
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   
   const toggleStoreDropdown = (e) => {
@@ -86,17 +145,17 @@ const Header = () => {
   // Updated handlers to use global state
   const handleSearch = (term) => {
     console.log('Header: Searching for:', term);
-    updateSearch(term); // Update global search state
+    updateSearch(term);
   };
 
   const handleFilterChange = (filter) => {
     console.log('Header: Filter changed to:', filter);
-    updateSort(filter); // Update global sort state
+    updateSort(filter);
   };
 
   const handleCategoryChange = (category) => {
     console.log('Header: Category changed to:', category);
-    updateCategory(category); // Update global category state
+    updateCategory(category);
   };
 
   // Only show SearchFilter on Product page for desktop
@@ -131,13 +190,22 @@ const Header = () => {
                       {link.name} <span className="dropdown-icon-wrapper"><ChevronDown size={16} className="dropdown-chevron" /></span>
                     </Link>
                     <div className="dropdown-menu">
-                      {storeOptions.map((store, idx) => (
+                      {/* Show current selection first */}
+                      {storeOptions
+                        .sort((a, b) => {
+                          const aActive = isStoreActive(a);
+                          const bActive = isStoreActive(b);
+                          if (aActive && !bActive) return -1;
+                          if (!aActive && bActive) return 1;
+                          return 0;
+                        })
+                        .map((store, idx) => (
                         <button 
                           key={idx} 
                           onClick={() => handleStoreChange(store)}
-                          className={`dropdown-item ${isLinkActive(`/stores/${store.toLowerCase()}`) ? 'active-link' : ''}`}
+                          className={`dropdown-item ${isStoreActive(store) ? 'active-link' : ''}`}
                         >
-                          {store}
+                          {store} {isStoreActive(store) && <span className="current-selection">✓</span>}
                         </button>
                       ))}
                     </div>
@@ -165,11 +233,11 @@ const Header = () => {
             <SearchFilter
               placeholder="Search products..."
               filterOptions={filterOptions}
-              categories={categories} // Pass categories data
+              categories={categories}
               onSearch={handleSearch}
               onFilterChange={handleFilterChange}
-              onSortChange={handleFilterChange} // Support both prop names
-              onCategoryChange={handleCategoryChange} // Add category handler
+              onSortChange={handleFilterChange}
+              onCategoryChange={handleCategoryChange}
               className="desktop-search-filter"
             />
           )}
@@ -219,13 +287,21 @@ const Header = () => {
                                 exit={{ height: 0, opacity: 0 }}
                                 transition={{ duration: 0.3 }}
                               >
-                                {storeOptions.map((store, idx) => (
+                                {storeOptions
+                                  .sort((a, b) => {
+                                    const aActive = isStoreActive(a);
+                                    const bActive = isStoreActive(b);
+                                    if (aActive && !bActive) return -1;
+                                    if (!aActive && bActive) return 1;
+                                    return 0;
+                                  })
+                                  .map((store, idx) => (
                                   <button 
                                     key={idx} 
                                     onClick={() => handleStoreChange(store)}
-                                    className={`mobile-dropdown-item ${isLinkActive(`/stores/${store.toLowerCase()}`) ? 'active-link' : ''}`}
+                                    className={`mobile-dropdown-item ${isStoreActive(store) ? 'active-link' : ''}`}
                                   >
-                                    {store}
+                                    {store} {isStoreActive(store) && <span className="current-selection">✓</span>}
                                   </button>
                                 ))}
                               </motion.div>
