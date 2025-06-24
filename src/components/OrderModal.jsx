@@ -77,14 +77,20 @@ const OrderModal = ({ product, onClose }) => {
     }
 
     try {
+      const dynamicOrderKey = `sephcocco_${active_outlet}_order`;
+
       const payload = {
-        sephcocco_user_id,
-        [`sephcocco_${active_outlet}_product_id`]: product.id,
-        quantity,
-        address,
-        phone_number: phoneNumbers,
-        additional_notes: notes,
+        [dynamicOrderKey]: {
+          sephcocco_user_id,
+          [`sephcocco_${active_outlet}_product_id`]: product.id,
+          quantity,
+          address,
+          phone_number: phoneNumbers,
+          additional_notes: notes,
+        }
       };
+      
+      console.log(payload);
 
       const response = await createOrderMutation.mutateAsync({
         active_outlet,
@@ -183,6 +189,7 @@ const OrderModal = ({ product, onClose }) => {
           {errorMessage && (
             <motion.div 
               className="error-message"
+             
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
