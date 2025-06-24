@@ -266,3 +266,216 @@
   .order-right-column {
     -webkit-overflow-scrolling: touch; /* For smoother scrolling on iOS */
   }
+
+  /* Additional styles to add to your existing OrderModal.css */
+
+/* Order created notice */
+.order-created-notice {
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 16px 24px;
+  color: #155724;
+}
+
+.order-created-notice p {
+  margin: 4px 0;
+}
+
+.order-created-notice small {
+  color: #6c757d;
+}
+
+/* Order status info in payment method */
+.order-status-info {
+  background-color: #e8f5e8;
+  border: 1px solid #d1f2d1;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.order-status-info p {
+  margin: 4px 0;
+  font-size: 0.9rem;
+}
+
+.order-status-info small {
+  color: #28a745;
+  font-weight: 500;
+}
+
+/* Payment notice */
+.payment-notice {
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 16px;
+}
+
+.payment-notice p {
+  margin: 0;
+  color: #856404;
+}
+
+/* Disabled form elements */
+textarea:disabled {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+button:disabled .order-quantity-btn {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Loading animation for spinner */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Button loading state */
+.next-button-mobile:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.next-button-mobile .animate-spin {
+  margin-right: 8px;
+}
+
+/* Create order button - visible on both mobile and desktop */
+.create-order-button {
+  width: 100%;
+  padding: 16px;
+  background-color: #3182ce;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.create-order-button:hover:not(:disabled) {
+  background-color: #2c5282;
+}
+
+.create-order-button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.create-order-button.disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Keep the mobile-specific button for the existing mobile flow */
+.next-button-mobile {
+  display: none; /* Hide by default, only show on mobile if needed */
+  width: 100%;
+  padding: 16px;
+  background-color: #3182ce;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-bottom: 24px;
+}
+
+.next-button-mobile:hover {
+  background-color: #2c5282;
+}
+
+/* Mobile responsive updates */
+@media (max-width: 768px) {
+  .create-order-button {
+    padding: 14px;
+    font-size: 1rem;
+    margin-bottom: 20px;
+  }
+  
+  .order-created-notice {
+    margin: 12px 16px;
+    padding: 10px 12px;
+  }
+  
+  .order-status-info {
+    padding: 10px;
+    margin-bottom: 12px;
+  }
+  
+  .payment-notice {
+    padding: 10px;
+    margin-top: 12px;
+  }
+}
+
+/* Error Message Styles */
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  color: #dc2626;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.error-message svg {
+  flex-shrink: 0;
+  color: #dc2626;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .error-message {
+    background-color: #7f1d1d;
+    border-color: #991b1b;
+    color: #fca5a5;
+  }
+  
+  .error-message svg {
+    color: #fca5a5;
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .error-message {
+    margin: 0 16px 16px 16px;
+    font-size: 13px;
+  }
+}

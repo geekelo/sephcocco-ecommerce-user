@@ -1,30 +1,45 @@
-import { Minus, Plus } from 'lucide-react'
-import React, { useState } from 'react'
+import { Minus, Plus, Loader2 } from 'lucide-react'
+import React from 'react'
 import '../styles/OrderSummary.css'
 
 export default function OrderSummary({
   product,
   setAddress,
+  setPhoneNumbers,
+  setNotes,
   quantity,
   setQuantity,
   address,
-  showPaymentOnMobile
+  phoneNumbers,
+  notes,
+  showPaymentOnMobile,
+  onProceedToPayment,
+  orderCreated,
+  isCreatingOrder
 }) {
-  const [notes, setNotes] = useState('');
-  const [phoneNumbers, setPhoneNumbers] = useState('');
   
   const decreaseQuantity = () => {
-    if (quantity > 1) {
+    if (quantity > 1 && !orderCreated) {
       setQuantity(quantity - 1);
     }
   };
-  
+
   const increaseQuantity = () => {
-    if (quantity < product.stockCount) {
+    if (quantity < product.stockCount && !orderCreated) {
       setQuantity(quantity + 1);
     }
   };
-  
+
+  const isFormValid = address.trim() && phoneNumbers.trim();
+
+  const handleContinueClick = () => {
+    if (orderCreated) {
+      showPaymentOnMobile();
+    } else {
+      onProceedToPayment();
+    }
+  };
+
   return (
     <div className="order-left-column">
       <div className="checkout-section">
@@ -50,7 +65,7 @@ export default function OrderSummary({
               <button
                 className="order-quantity-btn"
                 onClick={decreaseQuantity}
-                disabled={quantity <= 1}
+                disabled={quantity <= 1 || orderCreated}
               >
                 <Minus size={16} />
               </button>
@@ -58,7 +73,7 @@ export default function OrderSummary({
               <button
                 className="order-quantity-btn"
                 onClick={increaseQuantity}
-                disabled={quantity >= product.stockCount}
+                disabled={quantity >= product.stockCount || orderCreated}
               >
                 <Plus size={16} />
               </button>
@@ -78,6 +93,7 @@ export default function OrderSummary({
             placeholder="Enter your complete delivery address"
             rows={3}
             required
+            disabled={orderCreated}
           />
         </div>
         
@@ -90,6 +106,7 @@ export default function OrderSummary({
             placeholder="Enter phone numbers separated by commas"
             rows={2}
             required
+            disabled={orderCreated}
           />
           <small className="phone-note">You may receive a call to discuss delivery fees if needed.</small>
         </div>
@@ -102,16 +119,27 @@ export default function OrderSummary({
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Any special instructions for delivery"
             rows={2}
+            disabled={orderCreated}
           />
         </div>
       </div>
       
-      {/* Next button for mobile */}
+      {/* Action button for both mobile and desktop */}
       <button
-        className="next-button-mobile"
-        onClick={showPaymentOnMobile}
+        className={`create-order-button ${!isFormValid && !orderCreated ? 'disabled' : ''}`}
+        onClick={handleContinueClick}
+        disabled={(!isFormValid && !orderCreated) || isCreatingOrder}
       >
-        Continue to Payment
+        {isCreatingOrder ? (
+          <>
+            <Loader2 size={20} className="animate-spin" />
+            Creating Order...
+          </>
+        ) : orderCreated ? (
+          'Continue to Payment'
+        ) : (
+          'Create Order'
+        )}
       </button>
     </div>
   )

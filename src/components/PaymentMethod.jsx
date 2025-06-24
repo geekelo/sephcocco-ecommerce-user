@@ -3,85 +3,112 @@ import React, { useState } from 'react'
 import BankDetails from './BankDetails'
 import '../styles/PaymentMethod.css'
 
-export default function PaymentMethod({address, product, quantity}) {
-      // Calculate costs
-      const itemTotal = product.price * quantity;
-      const totalCost = itemTotal
-    const [paymentMethod, setPaymentMethod] = useState(null);
-    const [showBankDetails, setShowBankDetails] = useState(false);
-    const handleBankTransfer = () => {
-        setPaymentMethod('bank');
-        setShowBankDetails(true);
-      };
-    
-      const handleOnlinePayment = () => {
-        setPaymentMethod('online');
-        setShowBankDetails(false);
-      };
+export default function PaymentMethod({address, product, quantity, orderId, onPaymentComplete}) {
+  
+  // Calculate costs
+  const itemTotal = product.price * quantity;
+  const totalCost = itemTotal;
+  
+  const [paymentMethod, setPaymentMethod] = useState(null);
+  const [showBankDetails, setShowBankDetails] = useState(false);
+  
+  const handleBankTransfer = () => {
+    setPaymentMethod('bank');
+    setShowBankDetails(true);
+  };
+  
+  const handleOnlinePayment = () => {
+    setPaymentMethod('online');
+    setShowBankDetails(false);
+  };
+
+  const handlePaymentAction = () => {
+    if (paymentMethod === 'bank') {
+      // Handle bank transfer completion
+      // You might want to call an API to mark as pending payment
+      alert('Bank transfer details provided. Your order is now pending payment verification.');
+      onPaymentComplete();
+    } else if (paymentMethod === 'online') {
+      // Proceed with online payment integration
+      // This would typically integrate with your payment gateway
+      console.log('Proceeding with online payment for order:', orderId);
+      // Implement your online payment logic here
+    }
+  };
 
   return (
     <div className="order-right-column">
-    <div className="checkout-section payment-section">
-      <h3 className="section-title">Payment Method</h3>
-      <div className="payment-options">
-        <div 
-          className={`payment-option ${paymentMethod === 'bank' ? 'selected' : ''}`}
-          onClick={handleBankTransfer}
-        >
-          <div className="payment-option-inner">
-            <div className="payment-option-icon">
-              <Landmark size={24} />
-            </div>
-            <div className="payment-option-label">Bank Transfer</div>
-            {paymentMethod === 'bank' && (
-              <div className="payment-selected">
-                <CheckCircle size={20} />
-              </div>
-            )}
-          </div>
+      <div className="checkout-section payment-section">
+        <h3 className="section-title">Payment Method</h3>
+        
+        <div className="order-status-info">
+          <p><strong>Order ID:</strong> {orderId}</p>
+          <p><small>✅ Order created successfully</small></p>
         </div>
         
-        <div 
-          className={`payment-option ${paymentMethod === 'online' ? 'selected' : ''}`}
-          onClick={handleOnlinePayment}
-        >
-          <div className="payment-option-inner">
-            <div className="payment-option-icon">
-              <CreditCard size={24} />
-            </div>
-            <div className="payment-option-label">Online Payment</div>
-            {paymentMethod === 'online' && (
-              <div className="payment-selected">
-                <CheckCircle size={20} />
+        <div className="payment-options">
+          <div 
+            className={`payment-option ${paymentMethod === 'bank' ? 'selected' : ''}`}
+            onClick={handleBankTransfer}
+          >
+            <div className="payment-option-inner">
+              <div className="payment-option-icon">
+                <Landmark size={24} />
               </div>
-            )}
+              <div className="payment-option-label">Bank Transfer</div>
+              {paymentMethod === 'bank' && (
+                <div className="payment-selected">
+                  <CheckCircle size={20} />
+                </div>
+              )}
+            </div>
+          </div>
+          
+          <div 
+            className={`payment-option ${paymentMethod === 'online' ? 'selected' : ''}`}
+            onClick={handleOnlinePayment}
+          >
+            <div className="payment-option-inner">
+              <div className="payment-option-icon">
+                <CreditCard size={24} />
+              </div>
+              <div className="payment-option-label">Online Payment</div>
+              {paymentMethod === 'online' && (
+                <div className="payment-selected">
+                  <CheckCircle size={20} />
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div className="checkout-section order-total-section">
-      <div className="order-total-row">
-        <span>Subtotal</span>
-        <span>₦{itemTotal.toFixed(2)}</span>
+      <div className="checkout-section order-total-section">
+        <div className="order-total-row">
+          <span>Subtotal</span>
+          <span>₦{itemTotal.toFixed(2)}</span>
+        </div>
+        <div className="order-total-row grand-total">
+          <span>Total</span>
+          <span>₦{totalCost.toFixed(2)}</span>
+        </div>
       </div>
-   
-      <div className="order-total-row grand-total">
-        <span>Total</span>
-        <span>₦{totalCost.toFixed(2)}</span>
+
+      {paymentMethod === 'bank' && showBankDetails && (
+        <BankDetails orderId={orderId} />
+      )}
+
+      <button 
+        className={`checkout-button ${!paymentMethod ? 'disabled' : ''}`}
+        disabled={!paymentMethod}
+        onClick={handlePaymentAction}
+      >
+        {paymentMethod === 'bank' ? 'Confirm Bank Transfer' : 'Pay Now'}
+      </button>
+      
+      <div className="payment-notice">
+        <p><small>💡 <strong>Note:</strong> This order will remain in your pending orders until payment is completed.</small></p>
       </div>
     </div>
-
-    {paymentMethod === 'bank' && showBankDetails && (
-   <BankDetails/>
-    )}
-
-    <button 
-      className={`checkout-button ${!paymentMethod ? 'disabled' : ''}`}
-      disabled={!paymentMethod || (paymentMethod === 'bank' && !address)}
-    >
-      {paymentMethod === 'bank' ? 'Complete Order' : 'Proceed to Payment'}
-    </button>
-  </div>
   )
 }
