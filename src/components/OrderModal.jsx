@@ -7,7 +7,7 @@ import PaymentMethod from './PaymentMethod';
 import MobileOrderResponsiveFix from './MobileOrderResponsiveFix';
 import { useCreateOrder } from '../hooks/useCreateOrder';
 import { getActiveOutlet } from '../utils/getActiveOutlets';
-import { getActiveUser } from '../utils/getActiveUser';
+
 
 const OrderModal = ({ product, onClose }) => {
   const [quantity, setQuantity] = useState(1);
@@ -23,7 +23,7 @@ const OrderModal = ({ product, onClose }) => {
 
   const createOrderMutation = useCreateOrder();
   const active_outlet = getActiveOutlet()
-  const sephcocco_user_id = getActiveUser();
+ 
 
   // Prevent scrolling of the body when modal is open
   useEffect(() => {
@@ -81,7 +81,7 @@ const OrderModal = ({ product, onClose }) => {
 
       const payload = {
         [dynamicOrderKey]: {
-          sephcocco_user_id,
+        
           [`sephcocco_${active_outlet}_product_id`]: product.id,
           quantity,
           address,
