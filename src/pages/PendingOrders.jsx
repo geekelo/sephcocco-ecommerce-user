@@ -247,13 +247,13 @@ const {data: deliveryData} = useGetDeliveryOrder(activeOutlet)
             className={`tab-button ${activeTab === 'pending' ? 'active' : ''}`}
             onClick={() => setActiveTab('pending')}
           >
-           Unpaid ({pendingApprovalOrders.length})
+           Unpaid {orderData?.length > 0 && (orderData?.length)}
           </button>
           <button 
             className={`tab-button ${activeTab === 'delivering' ? 'active' : ''}`}
             onClick={() => setActiveTab('delivering')}
           >
-            In Delivery ({deliveringOrders.length})
+            In Delivery {deliveryData?.length > 0 && (deliveryData?.length)}
           </button>
         </div>
         
