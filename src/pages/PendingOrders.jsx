@@ -26,7 +26,7 @@ const PendingOrders = () => {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isPaymentSuccessful, setIsPaymentSuccessful] = useState(false);
   const [activeTab, setActiveTab] = useState('pending'); // 'pending' or 'delivering'
-  const [orderQuantities, setOrderQuantities] = useState({});
+  
   const [checkedOrders, setCheckedOrders] = useState({});
   const navigate = useNavigate();
   const activeOutlet = getActiveOutlet()
@@ -34,6 +34,7 @@ const PendingOrders = () => {
   const deleteOrderMutation = useDeleteOrder();
   const updateOrderMutation = useUpdateOrder();
 const {data: deliveryData} = useGetDeliveryOrder(activeOutlet)
+const [orderQuantities, setOrderQuantities] = useState({});
   console.log("Order Data:", orderData);
   
   // Check for mobile device on mount and resize
@@ -48,27 +49,31 @@ const {data: deliveryData} = useGetDeliveryOrder(activeOutlet)
   }, []);
 
   // Filter orders based on their status
-  const pendingApprovalOrders = orders.filter(order => 
+  const pendingApprovalOrders = orderData?.filter(order => 
     ['Processing Order', 'Processing Payment', 'Awaiting Payment Confirmation'].includes(order.status)
   );
 
-  const deliveringOrders = orders.filter(order => 
+  const deliveringOrders = deliveryData?.filter(order => 
     ['Delivering'].includes(order.status)
   );
 
   // Initialize quantities for pending orders
   useEffect(() => {
+    if (!orderData) return;
+  
     const initialQuantities = {};
-    pendingApprovalOrders.forEach(order => {
-      initialQuantities[order.id] = order.items ? order.items.length : 1;
+    orderData?.forEach(order => {
+      initialQuantities[order.id] = order.quantity || 1;
     });
+    console.log("Initial Quantities:", initialQuantities);
     setOrderQuantities(initialQuantities);
-  }, []);
+  }, [orderData]);
+  
 
   // Set current order for similar discounts - default to first order of active tab
   useEffect(() => {
     const activeOrders = activeTab === 'pending' ? pendingApprovalOrders : deliveringOrders;
-    if (activeOrders.length > 0 && (!currentOrder || !activeOrders.some(order => order.id === currentOrder.id))) {
+    if (activeOrders?.length > 0 && (!currentOrder || !activeOrders?.some(order => order.id === currentOrder.id))) {
       setCurrentOrder(activeOrders[0]);
     }
   }, [activeTab, pendingApprovalOrders, deliveringOrders, currentOrder]);
@@ -119,7 +124,7 @@ const {data: deliveryData} = useGetDeliveryOrder(activeOutlet)
     }));
 
   const payload =  {
-    [`sephcocco_${activeOutlet}order`]: {
+    [`sephcocco_${activeOutlet}_order`]: {
 
       quantity: newQuantity
     }
@@ -136,26 +141,30 @@ const {data: deliveryData} = useGetDeliveryOrder(activeOutlet)
   };
   
   // Increase quantity for a pending order
-  const increaseQuantity = (orderId,quantity) => {
-    const newQty = (orderQuantities[quantity] || 1) + 1;
+  const increaseQuantity = (orderId) => {
+    const currentQty = orderQuantities[orderId] || 1;
+    const newQty = currentQty + 1;
+  
     setOrderQuantities(prev => ({
       ...prev,
-      [quantity]: (prev[quantity] || 1) + 1
+      [orderId]: newQty
     }));
+  
     handleQuantityUpdate(orderId, newQty);
   };
-
-  // Decrease quantity for a pending order
-  const decreaseQuantity = (orderId,quantity) => {
-    const currentQty = orderQuantities[quantity] || 1;
+  
+  const decreaseQuantity = (orderId) => {
+    const currentQty = orderQuantities[orderId] || 1;
     const newQty = Math.max(1, currentQty - 1);
   
     setOrderQuantities(prev => ({
       ...prev,
-      [quantity]: Math.max(1, (prev[quantity] || 1) - 1)
+      [orderId]: newQty
     }));
+  
     handleQuantityUpdate(orderId, newQty);
   };
+  
 
   // Toggle checked state of an order
   const toggleOrderCheck = (orderId) => {
@@ -169,7 +178,7 @@ const {data: deliveryData} = useGetDeliveryOrder(activeOutlet)
   const calculateSelectedItems = () => {
     let totalItems = 0;
 
-    pendingApprovalOrders.forEach(order => {
+    pendingApprovalOrders?.forEach(order => {
       if (checkedOrders[order.id]) {
         const quantity = orderQuantities[order.id] || 1;
         totalItems += quantity;
@@ -185,8 +194,8 @@ const {data: deliveryData} = useGetDeliveryOrder(activeOutlet)
   // Get selected orders data for the payment modal
   const getSelectedOrdersData = () => {
     return pendingApprovalOrders
-      .filter(order => checkedOrders[order.id])
-      .map(order => ({
+      ?.filter(order => checkedOrders[order.id])
+      ?.map(order => ({
         ...order,
         quantity: orderQuantities[order.id] || 1,
         total: (orderQuantities[order.id] || 1) * order.price
@@ -289,9 +298,9 @@ const {data: deliveryData} = useGetDeliveryOrder(activeOutlet)
                       key={order.id}
                       order={order}
                       index={index}
-                      quantity={orderQuantities[order.quantity] || 1}
-                      onIncrease={() => increaseQuantity(order.id,order.quantity)}
-                      onDecrease={() => decreaseQuantity(order.id,order.quantity)}
+                      quantity={orderQuantities[order.id] || 1}
+                      onIncrease={() => increaseQuantity(order.id)}
+                      onDecrease={() => decreaseQuantity(order.id)}
                       onClick={() => handleOrderClick(order)}
                       isSelected={currentOrder && currentOrder.id === order.id}
                       isChecked={!!checkedOrders[order.id]}

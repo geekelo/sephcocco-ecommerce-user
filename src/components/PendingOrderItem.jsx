@@ -17,7 +17,10 @@ export const PendingOrderItem = ({
   onToggleCheck,
   onDelete 
 }) => {
-  const totalPrice = order?.total_cost * quantity;
+  const totalPrice = parseFloat(order?.total_cost ?? "0") * Number(quantity ?? 1);
+
+console.log('ok',totalPrice);
+console.log(quantity);
 
   return (
     <motion.div
