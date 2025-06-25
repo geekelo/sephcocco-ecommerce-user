@@ -16,17 +16,17 @@ export const DeliveryOrderItem = ({ order, index, onClick, isSelected }) => {
       onClick={onClick}
     >
       <div className="delivery-order-image">
-        <img src={order.image} alt={order.name} />
+        <img src={order?.product?.main_image_url} alt={order.product?.name} />
       </div>
       
       <div className="delivery-order-info">
-        <h3 className="delivery-product-name">{order.name}</h3>
-        <p className="delivery-status-text">Status: {order.status}</p>
+        <h3 className="delivery-product-name">{order?.product?.name}</h3>
+   
         <OrderStatusBadge status={order.status} />
       </div>
       
       <div className="delivery-order-actions">
-        <div className="delivery-price">₦{order.price.toFixed(2)}</div>
+        <div className="delivery-price">₦{order.total_cost}</div>
         <Link to={`/order/${order.id}`} className="delivery-see-more">
           See More Details <ChevronRight size={16} />
         </Link>

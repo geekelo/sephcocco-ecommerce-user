@@ -5,14 +5,17 @@ import { DeliveryOrderItem } from "../components/DeliveryOrderItem";
 import { PendingOrderItem } from "../components/PendingOrderItem";
 import { orders, getSimilarOrderProducts } from "../constants/orders";
 import '../styles/PendingOrders.css';
-import SimilarDiscounts from "../components/SimilarDiscounts";
+
 import ProductModal from "../components/ProductModal";
 import { useNavigate } from "react-router-dom";
 import OrderModal from "../components/OrderModal";
 import PaymentModal from "../components/PaymentModal";
 import PaymentSuccessModal from "../components/PaymentSuccessModal";
-import { useGetOrder } from "../hooks/useGetOrder";
+import {  useGetPendingOrder } from "../hooks/useGetPendingOrder";
 import { getActiveOutlet } from "../utils/getActiveOutlets";
+import { useDeleteOrder } from "../hooks/useDeleteOrder";
+import { useUpdateOrder } from "../hooks/useUpdateOrder";
+import { useGetDeliveryOrder } from "../hooks/useGetDeliveryOrder";
 
 const PendingOrders = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -27,7 +30,10 @@ const PendingOrders = () => {
   const [checkedOrders, setCheckedOrders] = useState({});
   const navigate = useNavigate();
   const activeOutlet = getActiveOutlet()
-  const {data: orderData} = useGetOrder(activeOutlet)
+  const {data: orderData, refetch} = useGetPendingOrder(activeOutlet)
+  const deleteOrderMutation = useDeleteOrder();
+  const updateOrderMutation = useUpdateOrder();
+const {data: deliveryData} = useGetDeliveryOrder(activeOutlet)
   console.log("Order Data:", orderData);
   
   // Check for mobile device on mount and resize
@@ -82,7 +88,22 @@ const PendingOrders = () => {
   const handleBack = () => {
     navigate('/products');
   };
-
+  const handleDeleteOrder = (orderId) => {
+    deleteOrderMutation.mutate(
+      { active_outlet: activeOutlet, orderId },
+      {
+        onSuccess: () => {
+          toast.success("Order deleted successfully");
+          // Optional: Refresh or remove the order from the local state/UI
+        },
+        onError: () => {
+          toast.error("Failed to delete order");
+        }
+      }
+    );
+    refetch();
+  };
+  
   const handleOrderClick = (order) => {
     setCurrentOrder(order);
   };
@@ -91,21 +112,46 @@ const PendingOrders = () => {
     setSelectedProduct(product);
     setShowModal(true);
   };
-
+  const handleQuantityUpdate = (orderId, newQuantity) => {
+    setOrderQuantities(prev => ({
+      ...prev,
+      [orderId]: newQuantity
+    }));
+  
+    updateOrderMutation.mutate(
+      {
+        active_outlet: activeOutlet,
+        orderId,
+        payload: {
+          [`sephcocco_${activeOutlet}order`]: {
+            quantity: newQuantity
+          }
+        }
+      }
+    );
+    refetch()
+  };
+  
   // Increase quantity for a pending order
   const increaseQuantity = (orderId) => {
+    const newQty = (orderQuantities[orderId] || 1) + 1;
     setOrderQuantities(prev => ({
       ...prev,
       [orderId]: (prev[orderId] || 1) + 1
     }));
+    handleQuantityUpdate(orderId, newQty);
   };
 
   // Decrease quantity for a pending order
   const decreaseQuantity = (orderId) => {
+    const currentQty = orderQuantities[orderId] || 1;
+    const newQty = Math.max(1, currentQty - 1);
+  
     setOrderQuantities(prev => ({
       ...prev,
       [orderId]: Math.max(1, (prev[orderId] || 1) - 1)
     }));
+    handleQuantityUpdate(orderId, newQty);
   };
 
   // Toggle checked state of an order
@@ -234,19 +280,20 @@ const PendingOrders = () => {
               key={activeTab} // Force re-render of animation when tab changes
             >
               {activeTab === 'pending' ? (
-                pendingApprovalOrders.length > 0 ? (
-                  pendingApprovalOrders.map((order, index) => (
+                orderData?.length > 0 ? (
+                  orderData?.map((order, index) => (
                     <PendingOrderItem 
                       key={order.id}
                       order={order}
                       index={index}
-                      quantity={orderQuantities[order.id] || 1}
-                      onIncrease={() => increaseQuantity(order.id)}
-                      onDecrease={() => decreaseQuantity(order.id)}
+                      quantity={orderQuantities[order.quantity] || 1}
+                      onIncrease={() => increaseQuantity(order.quantity)}
+                      onDecrease={() => decreaseQuantity(order.quantity)}
                       onClick={() => handleOrderClick(order)}
                       isSelected={currentOrder && currentOrder.id === order.id}
                       isChecked={!!checkedOrders[order.id]}
                       onToggleCheck={toggleOrderCheck}
+                      onDelete={handleDeleteOrder}
                     />
                   ))
                 ) : (
@@ -255,8 +302,8 @@ const PendingOrders = () => {
                   </div>
                 )
               ) : (
-                deliveringOrders.length > 0 ? (
-                  deliveringOrders.map((order, index) => (
+                deliveryData?.length > 0 ? (
+                  deliveryData?.map((order, index) => (
                     <DeliveryOrderItem 
                       key={order.id}
                       order={order}
@@ -282,7 +329,7 @@ const PendingOrders = () => {
           </div>
         )}
         {/* Make Payment Button (only show in pending tab) */}
-        {activeTab === 'pending' && pendingApprovalOrders.length > 0 && (
+        {activeTab === 'pending' && orderData?.length > 0 && (
           <div className="make-payment-container">
             <button 
               className="make-payment-button"
@@ -295,7 +342,7 @@ const PendingOrders = () => {
           </div>
         )}
         
-        {currentOrder && (
+        {/* {currentOrder && (
           <div className="similar-discounts-container">
             <motion.div 
               className="similar-order"
@@ -310,7 +357,7 @@ const PendingOrders = () => {
               />
             </motion.div>
           </div>
-        )}
+        )} */}
       </div>
       
       {/* Product Modal */}

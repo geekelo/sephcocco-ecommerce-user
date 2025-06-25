@@ -13,17 +13,17 @@ export const OrderItem = ({ order, index }) => {
         transition={{ duration: 0.3, delay: index * 0.1 }}
       >
         <div className="order-image">
-          <img src={order.image} alt={order.name} />
+          <img src={order?.product?.main_image_url} alt={order.product?.name} />
         </div>
         
         <div className="order-info">
-          <h3 className="product-order-name">{order.name}</h3>
-          <p className="status-text">Status: Processing Order</p>
+          <h3 className="product-order-name">{order?.product?.name}</h3>
+       
           <OrderStatusBadge status={order.status} />
         </div>
         
         <div className="order-actions">
-          <div className="price">${order.price.toFixed(2)}</div>
+          <div className="price">${order.total_cost}</div>
           <Link to={`/order/${order.id}`} className="see-more">
             See More Details <ChevronRight size={16} />
           </Link>

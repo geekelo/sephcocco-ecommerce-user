@@ -10,6 +10,8 @@ import ProductModal from "../components/ProductModal";
 import { useNavigate } from "react-router-dom";
 import OrderModal from "../components/OrderModal";
 import { OrderItem } from "../components/OrderItem";
+import { getActiveOutlet } from "../utils/getActiveOutlets";
+import { useGetCompletedOrder } from "../hooks/userGetCompletedOrder";
 
 const CompletedOrders = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -18,7 +20,8 @@ const CompletedOrders = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const navigate = useNavigate();
-  
+  const activeOutlet = getActiveOutlet()
+  const {data: completedData} = useGetCompletedOrder(activeOutlet)
   // Check for mobile device on mount and resize
   useEffect(() => {
     const checkMobile = () => {
@@ -105,8 +108,8 @@ const CompletedOrders = () => {
           <h1 className="header-title">Completed Orders</h1>
         </div>
         
-     {/* I commented this out because there is no OrderItem File */}
-        {/* <div className="orders-static-section">
+
+         <div className="orders-static-section">
           <AnimatePresence mode="wait">
             <motion.div 
               className="order-list-no-scroll"
@@ -115,8 +118,8 @@ const CompletedOrders = () => {
               animate="show"
               exit="exit"
             >
-              {CompletedOrders.length > 0 ? (
-                CompletedOrders.map((order, index) => (
+              {completedData?.length > 0 ? (
+                completedData?.map((order, index) => (
                   <OrderItem 
                     key={order.id} 
                     order={order} 
@@ -132,10 +135,10 @@ const CompletedOrders = () => {
               )}
             </motion.div>
           </AnimatePresence>
-        </div> */}
+        </div> 
         
         {/* Similar Discounts Section - Using actual similar products from same category */}
-        {currentOrder && (
+        {/* {currentOrder && (
           <div className="similar-discounts-container">
          
             
@@ -152,7 +155,7 @@ const CompletedOrders = () => {
               />
             </motion.div>
           </div>
-        )}
+        )} */}
       </div>
       
       {/* Product Modal */}
