@@ -22,6 +22,8 @@ const CompletedOrders = () => {
   const navigate = useNavigate();
   const activeOutlet = getActiveOutlet()
   const {data: completedData} = useGetCompletedOrder(activeOutlet)
+  console.log('com',completedData);
+  
   // Check for mobile device on mount and resize
   useEffect(() => {
     const checkMobile = () => {
@@ -118,8 +120,8 @@ const CompletedOrders = () => {
               animate="show"
               exit="exit"
             >
-              {completedData?.length > 0 ? (
-                completedData?.map((order, index) => (
+              {completedData?.orders?.length > 0 ? (
+                completedData?.orders?.map((order, index) => (
                   <OrderItem 
                     key={order.id} 
                     order={order} 

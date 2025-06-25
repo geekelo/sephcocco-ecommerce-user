@@ -117,39 +117,42 @@ const {data: deliveryData} = useGetDeliveryOrder(activeOutlet)
       ...prev,
       [orderId]: newQuantity
     }));
-  
+
+  const payload =  {
+    [`sephcocco_${activeOutlet}order`]: {
+
+      quantity: newQuantity
+    }
+  }
+  console.log(payload);
     updateOrderMutation.mutate(
       {
         active_outlet: activeOutlet,
         orderId,
-        payload: {
-          [`sephcocco_${activeOutlet}order`]: {
-            quantity: newQuantity
-          }
-        }
+        payload: payload
       }
     );
     refetch()
   };
   
   // Increase quantity for a pending order
-  const increaseQuantity = (orderId) => {
-    const newQty = (orderQuantities[orderId] || 1) + 1;
+  const increaseQuantity = (orderId,quantity) => {
+    const newQty = (orderQuantities[quantity] || 1) + 1;
     setOrderQuantities(prev => ({
       ...prev,
-      [orderId]: (prev[orderId] || 1) + 1
+      [quantity]: (prev[quantity] || 1) + 1
     }));
     handleQuantityUpdate(orderId, newQty);
   };
 
   // Decrease quantity for a pending order
-  const decreaseQuantity = (orderId) => {
-    const currentQty = orderQuantities[orderId] || 1;
+  const decreaseQuantity = (orderId,quantity) => {
+    const currentQty = orderQuantities[quantity] || 1;
     const newQty = Math.max(1, currentQty - 1);
   
     setOrderQuantities(prev => ({
       ...prev,
-      [orderId]: Math.max(1, (prev[orderId] || 1) - 1)
+      [quantity]: Math.max(1, (prev[quantity] || 1) - 1)
     }));
     handleQuantityUpdate(orderId, newQty);
   };
@@ -247,13 +250,13 @@ const {data: deliveryData} = useGetDeliveryOrder(activeOutlet)
             className={`tab-button ${activeTab === 'pending' ? 'active' : ''}`}
             onClick={() => setActiveTab('pending')}
           >
-           Unpaid {orderData?.length > 0 && (orderData?.length)}
+           Unpaid {orderData?.length > 0 && `(${orderData?.length})`}
           </button>
           <button 
             className={`tab-button ${activeTab === 'delivering' ? 'active' : ''}`}
             onClick={() => setActiveTab('delivering')}
           >
-            In Delivery {deliveryData?.length > 0 && (deliveryData?.length)}
+            In Delivery {deliveryData?.length > 0 && `(${deliveryData?.length})`}
           </button>
         </div>
         
@@ -287,8 +290,8 @@ const {data: deliveryData} = useGetDeliveryOrder(activeOutlet)
                       order={order}
                       index={index}
                       quantity={orderQuantities[order.quantity] || 1}
-                      onIncrease={() => increaseQuantity(order.quantity)}
-                      onDecrease={() => decreaseQuantity(order.quantity)}
+                      onIncrease={() => increaseQuantity(order.id,order.quantity)}
+                      onDecrease={() => decreaseQuantity(order.id,order.quantity)}
                       onClick={() => handleOrderClick(order)}
                       isSelected={currentOrder && currentOrder.id === order.id}
                       isChecked={!!checkedOrders[order.id]}
