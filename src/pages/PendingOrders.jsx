@@ -11,6 +11,8 @@ import { useNavigate } from "react-router-dom";
 import OrderModal from "../components/OrderModal";
 import PaymentModal from "../components/PaymentModal";
 import PaymentSuccessModal from "../components/PaymentSuccessModal";
+import { useGetOrder } from "../hooks/useGetOrder";
+import { getActiveOutlet } from "../utils/getActiveOutlets";
 
 const PendingOrders = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -24,6 +26,9 @@ const PendingOrders = () => {
   const [orderQuantities, setOrderQuantities] = useState({});
   const [checkedOrders, setCheckedOrders] = useState({});
   const navigate = useNavigate();
+  const activeOutlet = getActiveOutlet()
+  const {data: orderData} = useGetOrder(activeOutlet)
+  console.log("Order Data:", orderData);
   
   // Check for mobile device on mount and resize
   useEffect(() => {

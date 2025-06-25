@@ -96,8 +96,9 @@ const OrderModal = ({ product, onClose }) => {
         active_outlet,
         payload
       });
-
-      setCreatedOrderId(response.order_id || response.id);
+      console.log(response);
+      
+      setCreatedOrderId(response.order_number);
       setOrderCreated(true);
       setShowPaymentOnMobile(true);
     } catch (error) {

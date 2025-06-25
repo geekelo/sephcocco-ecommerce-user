@@ -1,4 +1,4 @@
-import { CheckCircle, CreditCard, Landmark } from 'lucide-react'
+import { CheckCircle, CreditCard, Landmark, Copy, Check } from 'lucide-react'
 import React, { useState } from 'react'
 import BankDetails from './BankDetails'
 import '../styles/PaymentMethod.css'
@@ -11,6 +11,7 @@ export default function PaymentMethod({address, product, quantity, orderId, onPa
   
   const [paymentMethod, setPaymentMethod] = useState(null);
   const [showBankDetails, setShowBankDetails] = useState(false);
+  const [copied, setCopied] = useState(false);
   
   const handleBankTransfer = () => {
     setPaymentMethod('bank');
@@ -20,6 +21,24 @@ export default function PaymentMethod({address, product, quantity, orderId, onPa
   const handleOnlinePayment = () => {
     setPaymentMethod('online');
     setShowBankDetails(false);
+  };
+
+  const handleCopyOrderId = async () => {
+    try {
+      await navigator.clipboard.writeText(orderId);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
+    } catch (err) {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = orderId;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   const handlePaymentAction = () => {
@@ -42,7 +61,18 @@ export default function PaymentMethod({address, product, quantity, orderId, onPa
         <h3 className="section-title">Payment Method</h3>
         
         <div className="order-status-info">
-          <p><strong>Order ID:</strong> {orderId}</p>
+          <div className="order-id-container">
+            <p className='order-id'>
+              <strong>Order ID:</strong> {orderId}
+              <button 
+                className="copy-button"
+                onClick={handleCopyOrderId}
+                title={copied ? 'Copied!' : 'Copy Order ID'}
+              >
+                {copied ? <Check size={16} /> : <Copy size={16} />}
+              </button>
+            </p>
+          </div>
           <p><small>✅ Order created successfully</small></p>
         </div>
         
@@ -106,9 +136,7 @@ export default function PaymentMethod({address, product, quantity, orderId, onPa
         {paymentMethod === 'bank' ? 'Confirm Bank Transfer' : 'Pay Now'}
       </button>
       
-      <div className="payment-notice">
-        <p><small>💡 <strong>Note:</strong> This order will remain in your pending orders until payment is completed.</small></p>
-      </div>
+   
     </div>
   )
 }
