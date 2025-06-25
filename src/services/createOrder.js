@@ -1,4 +1,4 @@
-import { apiClient } from "../../../sephcocco-ecommerce-admin/src/services/axios";
+import { apiClient } from "./axios";
 
 export const createOrder = async (active_outlet,payload) => {
   try {

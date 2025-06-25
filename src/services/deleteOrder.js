@@ -1,4 +1,4 @@
-import { apiClient } from "../../../sephcocco-ecommerce-admin/src/services/axios";
+import { apiClient } from "./axios";
 
 export const deleteOrder = async (active_outlet,orderId) => {
   try {
