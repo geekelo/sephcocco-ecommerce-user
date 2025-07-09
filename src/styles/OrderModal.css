@@ -73,7 +73,9 @@
     overflow: auto;
     height: calc(100% - 72px);
   }
-  
+  input {
+    color: #000;
+  }
   /* Mobile navigation controls */
   .next-button-mobile {
     display: none; /* Hide by default, only show on mobile */

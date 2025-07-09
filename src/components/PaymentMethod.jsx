@@ -2,6 +2,8 @@ import { CheckCircle, CreditCard, Landmark, Copy, Check } from 'lucide-react'
 import React, { useState } from 'react'
 import BankDetails from './BankDetails'
 import '../styles/PaymentMethod.css'
+import { usePayment } from '../hooks/usePayment';
+import { getActiveOutlet } from '../utils/getActiveOutlets';
 
 export default function PaymentMethod({address, product, quantity, orderId, onPaymentComplete}) {
   
@@ -12,7 +14,8 @@ export default function PaymentMethod({address, product, quantity, orderId, onPa
   const [paymentMethod, setPaymentMethod] = useState(null);
   const [showBankDetails, setShowBankDetails] = useState(false);
   const [copied, setCopied] = useState(false);
-  
+  const activeOutlet = getActiveOutlet()
+  const {mutateAsync: payment} = usePayment()
   const handleBankTransfer = () => {
     setPaymentMethod('bank');
     setShowBankDetails(true);
@@ -41,12 +44,34 @@ export default function PaymentMethod({address, product, quantity, orderId, onPa
     }
   };
 
-  const handlePaymentAction = () => {
+  const handlePaymentAction = async () => {
     if (paymentMethod === 'bank') {
-      // Handle bank transfer completion
-      // You might want to call an API to mark as pending payment
-      alert('Bank transfer details provided. Your order is now pending payment verification.');
-      onPaymentComplete();
+      const payload = {
+        sephcocco_restaurant_payment: {
+          order_ids: [orderId],
+          amount: totalCost,
+          payment_method: paymentMethod,
+          transaction_id: '' // Add actual ID if needed
+        }
+      };
+    
+      try {
+        await payment({ activeOutlet, payload });
+    
+        if (paymentMethod === 'bank') {
+          alert('Bank transfer recorded. Your order is now pending verification.');
+          onPaymentComplete();
+        } else {
+          alert('Payment successful.');
+        }
+    
+        onPaymentComplete(); // Trigger whatever happens after payment
+      } catch (error) {
+        console.error('Payment failed:', error);
+        alert('Payment failed. Please try again.');
+      }
+   
+    
     } else if (paymentMethod === 'online') {
       // Proceed with online payment integration
       // This would typically integrate with your payment gateway
@@ -65,11 +90,11 @@ export default function PaymentMethod({address, product, quantity, orderId, onPa
             <p className='order-id'>
               <strong>Order ID:</strong> {orderId}
               <button 
-                className="copy-button"
+                className="copy-button-order"
                 onClick={handleCopyOrderId}
                 title={copied ? 'Copied!' : 'Copy Order ID'}
               >
-                {copied ? <Check size={16} /> : <Copy size={16} />}
+                {copied ? <Check size={16} color='#000' /> : <Copy size={16} color='#000' />}
               </button>
             </p>
           </div>
@@ -133,7 +158,7 @@ export default function PaymentMethod({address, product, quantity, orderId, onPa
         disabled={!paymentMethod}
         onClick={handlePaymentAction}
       >
-        {paymentMethod === 'bank' ? 'Confirm Bank Transfer' : 'Pay Now'}
+        {paymentMethod === 'bank' ? 'I have paid' : 'Pay Now'}
       </button>
       
    

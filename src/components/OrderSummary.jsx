@@ -136,7 +136,7 @@ export default function OrderSummary({
             Creating Order...
           </>
         ) : orderCreated ? (
-          'Continue to Payment'
+          'Continue to Payment ➡️'
         ) : (
           'Create Order'
         )}

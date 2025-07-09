@@ -278,7 +278,8 @@ export default function Product() {
   };
 
   const handleBuyNow = () => {
-    const isLoggedIn = localStorage.getItem('token') !== null;
+    const isLoggedIn = localStorage.getItem('token') !== null && localStorage.getItem('userId') !== null;
+    
     
     if (!isLoggedIn) {
       setPendingOrderProduct(selectedProduct);
