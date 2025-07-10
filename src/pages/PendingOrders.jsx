@@ -35,6 +35,7 @@ const PendingOrders = () => {
   const updateOrderMutation = useUpdateOrder();
 const {data: deliveryData} = useGetDeliveryOrder(activeOutlet)
 const [orderQuantities, setOrderQuantities] = useState({});
+
   console.log("Order Data:", orderData);
   
   // Check for mobile device on mount and resize
@@ -211,9 +212,10 @@ console.log('getorderdata', orderData
   // Handle payment completion
   const handlePaymentComplete = () => {
  
-    
+    refetch();
     setIsPaymentModalOpen(false);  // Close the payment modal
     setIsPaymentSuccessful(true);  // Show success message
+
   };
 
   // Calculate discount percentage for display
@@ -400,6 +402,7 @@ console.log('getorderdata', orderData
           onPaymentComplete={handlePaymentComplete}
         />
       )}
+   
     </div>
   );
 };

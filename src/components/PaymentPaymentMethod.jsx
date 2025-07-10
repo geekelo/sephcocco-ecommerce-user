@@ -16,7 +16,7 @@ export default function PaymentPaymentMethod({
   const [paymentMethod, setPaymentMethod] = useState(null);
   const [showBankDetails, setShowBankDetails] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
+ 
   const { mutateAsync: payment } = usePayment();
 
   const transactionId = localStorage.getItem('pay-ref');
@@ -61,10 +61,9 @@ console.log('act',activeOutlet);
       await payment({ active_outlet: activeOutlet, payload });
 
       if (paymentMethod === 'bank') {
-        alert('Bank transfer recorded. Your order is now pending verification.');
+        onPaymentComplete?.(); 
       } else {
-        alert('Payment successful.');
-        setShowSuccessModal(true);
+    
         onPaymentComplete?.(); 
       }
     } catch (error) {
@@ -134,12 +133,10 @@ console.log('act',activeOutlet);
         disabled={!paymentMethod || isProcessing}
         onClick={handleCheckout}
       >
-        {isProcessing ? 'Processing...' : paymentMethod === 'bank' ? 'Complete Order' : 'Proceed to Payment'}
+        {isProcessing ? 'Processing...' : paymentMethod === 'bank' ? 'I have paid' : 'Proceed to Payment'}
       </button>
 
-      {showSuccessModal && (
-        <PaymentSuccessModal onClose={() => setShowSuccessModal(false)} />
-      )}
+    
     </div>
   );
 }
