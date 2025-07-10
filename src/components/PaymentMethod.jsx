@@ -8,14 +8,16 @@ import { getActiveOutlet } from '../utils/getActiveOutlets';
 export default function PaymentMethod({address, product, quantity, orderId, onPaymentComplete}) {
   
   // Calculate costs
-  const itemTotal = product.price * quantity;
-  const totalCost = itemTotal;
+ 
+  const totalCost = product?.total_cost;
+  console.log(product?.total_cost, 'total cost');
   
   const [paymentMethod, setPaymentMethod] = useState(null);
   const [showBankDetails, setShowBankDetails] = useState(false);
   const [copied, setCopied] = useState(false);
   const activeOutlet = getActiveOutlet()
   const {mutateAsync: payment} = usePayment()
+  const transactionId = localStorage.getItem('pay-ref')
   const handleBankTransfer = () => {
     setPaymentMethod('bank');
     setShowBankDetails(true);
@@ -47,20 +49,21 @@ export default function PaymentMethod({address, product, quantity, orderId, onPa
   const handlePaymentAction = async () => {
     if (paymentMethod === 'bank') {
       const payload = {
-        sephcocco_restaurant_payment: {
-          order_ids: [orderId],
-          amount: totalCost,
+        [`sephcocco_${activeOutlet}_payment`]: {
+          orders_ids: [orderId],
+          amount: 200,
           payment_method: paymentMethod,
-          transaction_id: '' // Add actual ID if needed
+          transaction_id: transactionId 
         }
       };
+    console.log(payload);
     
       try {
         await payment({ activeOutlet, payload });
     
         if (paymentMethod === 'bank') {
           alert('Bank transfer recorded. Your order is now pending verification.');
-          onPaymentComplete();
+        
         } else {
           alert('Payment successful.');
         }

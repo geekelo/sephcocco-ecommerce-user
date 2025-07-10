@@ -6,8 +6,8 @@ import PaymentOrderSummary from './PaymentOrderSummary';
 import PaymentPaymentMethod from './PaymentPaymentMethod';
 
 const PaymentModal = ({ selectedOrders, onClose, onPaymentComplete }) => {
-  const [activeTab, setActiveTab] = useState('summary'); // 'summary' or 'payment'
-  const [address, setAddress] = useState('');
+
+
   const [quantity, setQuantity] = useState(1);
   
   // If we have selected orders, set the initial quantity to the total
@@ -21,7 +21,7 @@ const PaymentModal = ({ selectedOrders, onClose, onPaymentComplete }) => {
   // Create a combined product object for OrderSummary
   const combinedProduct = {
     name: `${selectedOrders.length} Selected Items`,
-    price: selectedOrders.reduce((sum, order) => sum + order.price, 0),
+    price: selectedOrders.reduce((sum, order) => sum + Number(order.price), 0),
     images: [selectedOrders[0]?.image || ''],
     stockCount: 100, // Arbitrary large number
     id: 'combined-orders'
@@ -82,21 +82,13 @@ const PaymentModal = ({ selectedOrders, onClose, onPaymentComplete }) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="payment-modal-header">
-            <h2>Order Payment</h2>
-          </div>
-          
+        
           {/* Mobile Tabs */}
           <div className="payment-modal-tabs">
+      
             <button 
-              className={`payment-tab-button ${activeTab === 'summary' ? 'active' : ''}`}
-              onClick={() => setActiveTab('summary')}
-            >
-              Order Summary
-            </button>
-            <button 
-              className={`payment-tab-button ${activeTab === 'payment' ? 'active' : ''}`}
-              onClick={() => setActiveTab('payment')}
+              className={`payment-tab-button`}
+            
             >
               Payment Method
             </button>
@@ -105,18 +97,10 @@ const PaymentModal = ({ selectedOrders, onClose, onPaymentComplete }) => {
           <div className="payment-modal-body">
             {/* Desktop view - both columns always visible */}
             <div className="payment-desktop-view">
-              <PaymentOrderSummary
-                product={combinedProduct}
-                setAddress={setAddress}
-                setQuantity={setQuantity}
-                quantity={quantity}
-                address={address}
-                selectedOrders={selectedOrders}
-                showPaymentOnMobile={() => setActiveTab('payment')}
-              />
+          
               
               <PaymentPaymentMethod
-                address={address}
+               
                 quantity={quantity}
                 product={combinedProduct}
                 onPaymentComplete={handlePaymentComplete}
@@ -126,25 +110,15 @@ const PaymentModal = ({ selectedOrders, onClose, onPaymentComplete }) => {
             
             {/* Mobile view - show based on active tab */}
             <div className="payment-mobile-view">
-              {activeTab === 'summary' ? (
-                <PaymentOrderSummary
-                  product={combinedProduct}
-                  setAddress={setAddress}
-                  setQuantity={setQuantity}
-                  quantity={quantity}
-                  address={address}
-                  selectedOrders={selectedOrders}
-                  showPaymentOnMobile={() => setActiveTab('payment')}
-                />
-              ) : (
+            
                 <PaymentPaymentMethod
-                  address={address}
+                 
                   quantity={quantity}
                   product={combinedProduct}
                   onPaymentComplete={handlePaymentComplete}
                   selectedOrders={selectedOrders}
                 />
-              )}
+              
             </div>
           </div>
         </motion.div>
