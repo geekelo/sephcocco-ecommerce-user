@@ -90,9 +90,10 @@ export const MobilePaymentHistoryFilter = ({ onFilterChange }) => {
               className="status-select-mobile"
             >
               <option value="">All Statuses</option>
-              <option value="success">Success</option>
-              <option value="pending">Pending</option>
-              <option value="failed">Failed</option>
+              <option value="paid">Awaiting confirmation</option>
+              <option value="payment confirmed">Confirmed</option>
+              <option value="declined">Declined</option>
+              <option value="cancelled">Cancelled</option>
             </select>
           </div>
           

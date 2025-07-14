@@ -4,12 +4,13 @@ import { Link } from 'react-router-dom';
 import { PaymentHistoryFilter } from './PaymentHistoryFilter';
 import '../styles/DesktopPaymentHistory.css';
 
-export const DesktopPaymentHistoryTable = ({ payments: allPayments }) => {
+export const DesktopPaymentHistoryTable = ({ payments: allPayments, onFilterChange }) => {
   const [filteredPayments, setFilteredPayments] = useState(allPayments);
   const [filters, setFilters] = useState({
     startDate: '',
     endDate: '',
-    status: ''
+    status: '',
+
   });
 
   useEffect(() => {
@@ -18,6 +19,10 @@ export const DesktopPaymentHistoryTable = ({ payments: allPayments }) => {
 
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
+    // Pass filters to parent component for API calls
+    if (onFilterChange) {
+      onFilterChange(newFilters);
+    }
   };
 
   const applyFilters = (currentFilters) => {
@@ -27,7 +32,7 @@ export const DesktopPaymentHistoryTable = ({ payments: allPayments }) => {
     if (currentFilters.startDate) {
       const startDate = new Date(currentFilters.startDate);
       result = result.filter(payment => {
-        const paymentDate = new Date(payment.date);
+        const paymentDate = new Date(payment.paymentDate || payment.date);
         return paymentDate >= startDate;
       });
     }
@@ -37,15 +42,26 @@ export const DesktopPaymentHistoryTable = ({ payments: allPayments }) => {
       // Set time to end of day
       endDate.setHours(23, 59, 59, 999);
       result = result.filter(payment => {
-        const paymentDate = new Date(payment.date);
+        const paymentDate = new Date(payment.paymentDate || payment.date);
         return paymentDate <= endDate;
       });
     }
 
     // Filter by status
     if (currentFilters.status) {
-      result = result.filter(payment => 
+      result = result.filter(payment =>
         payment.status.toLowerCase() === currentFilters.status.toLowerCase()
+      );
+    }
+
+    // Filter by search terms (search in transaction ID, order ID, customer name, etc.)
+    if (currentFilters.search_terms) {
+      const searchTerm = currentFilters.search_terms.toLowerCase();
+      result = result.filter(payment =>
+        payment.transactionId?.toLowerCase().includes(searchTerm) ||
+        payment.orderId?.toString().toLowerCase().includes(searchTerm) ||
+        payment.customerName?.toLowerCase().includes(searchTerm) ||
+        payment.customerEmail?.toLowerCase().includes(searchTerm)
       );
     }
 
@@ -69,29 +85,23 @@ export const DesktopPaymentHistoryTable = ({ payments: allPayments }) => {
               <th>Amount</th>
               <th>Status</th>
               <th>Reference</th>
-              <th>Order Number</th>
+              <th>Payment method</th>
             </tr>
           </thead>
           <tbody>
             {filteredPayments.length > 0 ? (
               filteredPayments.map((payment, index) => (
-                <tr key={index}>
-                  <td>{payment.date}</td>
-                  <td>₦{payment.amount.toFixed(2)}</td>
+                <tr key={payment.id || index}>
+                  <td>{new Date(payment.paymentDate || payment.date).toLocaleDateString()}</td>
+                  <td>₦{payment.amount}</td>
                   <td>
                     <span className={`status-badge ${payment.status.toLowerCase()}`}>
-                      {payment.status}
+                      {payment.status.toLowerCase() === 'paid' ? 'Awaiting comfirmation' : payment.status}
                     </span>
                   </td>
-                  <td>{payment.reference}</td>
-                  <td>
-                    <Link
-                      to={`/order/${payment.orderNumber}`}
-                      className="order-link"
-                    >
-                      {payment.orderNumber}
-                    </Link>
-                  </td>
+                  <td>{payment.transactionId}</td>
+               
+                  <td>{payment.paymentMethod}</td>
                 </tr>
               ))
             ) : (

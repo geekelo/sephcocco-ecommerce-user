@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { MobilePaymentHistoryFilter } from './MobilePaymentHistoryFilter';
+
 import '../styles/MobilePaymentHistory.css';
 
+import { MobilePaymentHistoryFilter } from './MobilePaymentHistoryFilter';
 
-export const MobilePaymentHistoryCard = ({ payments: allPayments }) => {
+export const MobilePaymentHistoryCard = ({ payments: allPayments, onFilterChange }) => {
   const [filteredPayments, setFilteredPayments] = useState(allPayments);
   const [filters, setFilters] = useState({
     startDate: '',
     endDate: '',
-    status: ''
+    status: '',
+
   });
 
   useEffect(() => {
@@ -19,6 +21,10 @@ export const MobilePaymentHistoryCard = ({ payments: allPayments }) => {
 
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
+    // Pass filters to parent component for API calls
+    if (onFilterChange) {
+      onFilterChange(newFilters);
+    }
   };
 
   const applyFilters = (currentFilters) => {
@@ -28,7 +34,7 @@ export const MobilePaymentHistoryCard = ({ payments: allPayments }) => {
     if (currentFilters.startDate) {
       const startDate = new Date(currentFilters.startDate);
       result = result.filter(payment => {
-        const paymentDate = new Date(payment.date);
+        const paymentDate = new Date(payment.paymentDate || payment.date);
         return paymentDate >= startDate;
       });
     }
@@ -38,19 +44,37 @@ export const MobilePaymentHistoryCard = ({ payments: allPayments }) => {
       // Set time to end of day
       endDate.setHours(23, 59, 59, 999);
       result = result.filter(payment => {
-        const paymentDate = new Date(payment.date);
+        const paymentDate = new Date(payment.paymentDate || payment.date);
         return paymentDate <= endDate;
       });
     }
 
     // Filter by status
     if (currentFilters.status) {
-      result = result.filter(payment => 
+      result = result.filter(payment =>
         payment.status.toLowerCase() === currentFilters.status.toLowerCase()
       );
     }
 
+
+
     setFilteredPayments(result);
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const formatAmount = (amount) => {
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN',
+      minimumFractionDigits: 0
+    }).format(amount);
   };
 
   return (
@@ -61,46 +85,76 @@ export const MobilePaymentHistoryCard = ({ payments: allPayments }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="payment-history-card-container"
+        className="mobile-payment-history-container"
       >
         {filteredPayments.length > 0 ? (
-          filteredPayments.map((payment, index) => (
-            <motion.div
-              key={index}
-              whileHover={{ scale: 1.02 }}
-              className="payment-history-card"
-            >
-              <div className="card-header">
-                <span className="card-date">{payment.date}</span>
-                <span className={`status-badge ${payment.status.toLowerCase()}`}>
-                  {payment.status}
-                </span>
-              </div>
-              <div className="card-body">
-                <div className="card-amount">
-                  <span className="label">Amount:</span>
-                  <span className="value">${payment.amount.toFixed(2)}</span>
+          <div className="payment-cards-container">
+            {filteredPayments.map((payment, index) => (
+              <motion.div
+                key={payment.id || index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.1 }}
+                className="payment-card"
+              >
+                <div className="payment-card-header">
+                  <div className="payment-amount">
+                    {formatAmount(payment.amount)}
+                  </div>
+                  <div className={`payment-status ${payment.status.toLowerCase()}`}>
+                  {payment.status.toLowerCase() === 'paid' ? 'Awaiting comfirmation' : payment.status}
+                  </div>
                 </div>
-                <div className="card-reference">
-                  <span className="label">Reference:</span>
-                  <span className="value">{payment.reference}</span>
+                
+                <div className="payment-card-body">
+                  <div className="payment-detail">
+                    <span className="detail-label">Date:</span>
+                    <span className="detail-value">
+                      {formatDate(payment.paymentDate || payment.date)}
+                    </span>
+                  </div>
+                  
+                  <div className="payment-detail">
+                    <span className="detail-label">Transaction ID:</span>
+                    <span className="detail-value transaction-id">
+                      {payment.transactionId}
+                    </span>
+                  </div>
+                  
+                
+                  
+                  {payment.customerName && (
+                    <div className="payment-detail">
+                      <span className="detail-label">Customer:</span>
+                      <span className="detail-value">
+                        {payment.customerName}
+                      </span>
+                    </div>
+                  )}
+                  
+                  {payment.paymentMethod && (
+                    <div className="payment-detail">
+                      <span className="detail-label">Method:</span>
+                      <span className="detail-value">
+                        {payment.paymentMethod}
+                      </span>
+                    </div>
+                  )}
                 </div>
-                <div className="card-order">
-                  <span className="label">Order Number:</span>
-                  <Link
-                    to={`/order/${payment.orderNumber}`}
-                    className="order-link"
-                  >
-                    {payment.orderNumber}
-                  </Link>
-                </div>
-              </div>
-            </motion.div>
-          ))
-        ) : (
-          <div className="no-results-message">
-            No matching transactions found
+              </motion.div>
+            ))}
           </div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="no-results-mobile"
+          >
+            <div className="no-results-icon">📋</div>
+            <h3>No matching transactions found</h3>
+            <p>Try adjusting your filters or search terms</p>
+          </motion.div>
         )}
       </motion.div>
     </>
