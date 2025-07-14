@@ -1,30 +1,31 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import '../styles/PaymentHistoryFilter.css';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import "../styles/PaymentHistoryFilter.css";
 
 export const PaymentHistoryFilter = ({ onFilterChange }) => {
   const [filters, setFilters] = useState({
-    startDate: '',
-    endDate: '',
-    status: ''
+    startDate: "",
+    endDate: "",
+    status: "",
   });
 
-  const handleFilterChange = (e) => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
-    const updatedFilters = {
-      ...filters,
-      [name]: value
-    };
-    
-    setFilters(updatedFilters);
-    onFilterChange(updatedFilters);
+    setFilters(prev => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const applyFilters = () => {
+    onFilterChange(filters);
   };
 
   const clearFilters = () => {
     const resetFilters = {
-      startDate: '',
-      endDate: '',
-      status: ''
+      startDate: "",
+      endDate: "",
+      status: "",
     };
     setFilters(resetFilters);
     onFilterChange(resetFilters);
@@ -38,8 +39,9 @@ export const PaymentHistoryFilter = ({ onFilterChange }) => {
       className="payment-filter-container"
     >
       <h3 className="filter-title">Filter Transactions</h3>
-      
+
       <div className="filter-section">
+        {/* Date Filters */}
         <div className="filter-group date-filters">
           <div className="filter-field">
             <label htmlFor="startDate">From Date</label>
@@ -48,11 +50,11 @@ export const PaymentHistoryFilter = ({ onFilterChange }) => {
               id="startDate"
               name="startDate"
               value={filters.startDate}
-              onChange={handleFilterChange}
+              onChange={handleInputChange}
               className="date-input"
             />
           </div>
-          
+
           <div className="filter-field">
             <label htmlFor="endDate">To Date</label>
             <input
@@ -60,12 +62,13 @@ export const PaymentHistoryFilter = ({ onFilterChange }) => {
               id="endDate"
               name="endDate"
               value={filters.endDate}
-              onChange={handleFilterChange}
+              onChange={handleInputChange}
               className="date-input"
             />
           </div>
         </div>
-        
+
+        {/* Status Filter */}
         <div className="filter-group">
           <div className="filter-field">
             <label htmlFor="status">Status</label>
@@ -73,23 +76,24 @@ export const PaymentHistoryFilter = ({ onFilterChange }) => {
               id="status"
               name="status"
               value={filters.status}
-              onChange={handleFilterChange}
+              onChange={handleInputChange}
               className="status-select"
             >
               <option value="">All Statuses</option>
-              <option value="success">Success</option>
-              <option value="pending">Pending</option>
-              <option value="failed">Failed</option>
+              <option value="paid">Awaiting confirmation</option>
+              <option value="payment confirmed">Confirmed</option>
+              <option value="declined">Declined</option>
+              <option value="cancelled">Cancelled</option>
             </select>
           </div>
         </div>
       </div>
-      
+
       <div className="filter-actions">
-        <button 
-          className="clear-filters-btn"
-          onClick={clearFilters}
-        >
+        <button className="apply-filters-btn" onClick={applyFilters}>
+          Apply Filters
+        </button>
+        <button className="clear-filters-btn" onClick={clearFilters}>
           Clear Filters
         </button>
       </div>

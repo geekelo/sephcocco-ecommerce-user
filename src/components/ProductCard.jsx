@@ -21,7 +21,7 @@ export const ProductCard = ({
   } = product;
 
   // Check if user is logged in
-  const isLoggedIn = localStorage.getItem('token') !== null;
+  const isLoggedIn = localStorage.getItem('token') !== null && localStorage.getItem('userId') !== null;
 
   // Get the first available image
   const productImage = main_image_url

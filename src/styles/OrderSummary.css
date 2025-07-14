@@ -137,6 +137,7 @@
   border-radius: 6px;
   font-size: 1rem;
   resize: vertical;
+  color: #000;
   transition: border-color 0.2s;
   background-color: white;
 }

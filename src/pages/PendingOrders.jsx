@@ -26,7 +26,7 @@ const PendingOrders = () => {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isPaymentSuccessful, setIsPaymentSuccessful] = useState(false);
   const [activeTab, setActiveTab] = useState('pending'); // 'pending' or 'delivering'
-  
+  const [selectedOrders, setSelectedOrders] = useState([]);
   const [checkedOrders, setCheckedOrders] = useState({});
   const navigate = useNavigate();
   const activeOutlet = getActiveOutlet()
@@ -35,6 +35,7 @@ const PendingOrders = () => {
   const updateOrderMutation = useUpdateOrder();
 const {data: deliveryData} = useGetDeliveryOrder(activeOutlet)
 const [orderQuantities, setOrderQuantities] = useState({});
+
   console.log("Order Data:", orderData);
   
   // Check for mobile device on mount and resize
@@ -49,9 +50,7 @@ const [orderQuantities, setOrderQuantities] = useState({});
   }, []);
 
   // Filter orders based on their status
-  const pendingApprovalOrders = orderData?.filter(order => 
-    ['Processing Order', 'Processing Payment', 'Awaiting Payment Confirmation'].includes(order.status)
-  );
+  const pendingApprovalOrders = orderData
 
   const deliveringOrders = deliveryData?.filter(order => 
     ['Delivering'].includes(order.status)
@@ -193,26 +192,30 @@ const [orderQuantities, setOrderQuantities] = useState({});
 
   // Get selected orders data for the payment modal
   const getSelectedOrdersData = () => {
-    return pendingApprovalOrders
+    return orderData
       ?.filter(order => checkedOrders[order.id])
       ?.map(order => ({
         ...order,
         quantity: orderQuantities[order.id] || 1,
-        total: (orderQuantities[order.id] || 1) * order.price
+        total: order?.total_cost
       }));
   };
+console.log('getorderdata', orderData
+  ?.filter(order => checkedOrders[order.id]));
 
   // Handle make payment button click
   const handleMakePayment = () => {
+    const selected = getSelectedOrdersData();
+    setSelectedOrders(selected);
     setIsPaymentModalOpen(true);
   };
-
   // Handle payment completion
   const handlePaymentComplete = () => {
  
-    
+    refetch();
     setIsPaymentModalOpen(false);  // Close the payment modal
     setIsPaymentSuccessful(true);  // Show success message
+
   };
 
   // Calculate discount percentage for display
@@ -345,7 +348,7 @@ const [orderQuantities, setOrderQuantities] = useState({});
           <div className="make-payment-container">
             <button 
               className="make-payment-button"
-              disabled={!hasSelectedItems}
+              // disabled={!hasSelectedItems}
               onClick={handleMakePayment}
             >
               <ShoppingCart size={18} style={{ marginRight: '8px' }} />
@@ -384,21 +387,22 @@ const [orderQuantities, setOrderQuantities] = useState({});
         />
       )}
       
-      {isOrderModalOpen && 
+      {/* {isOrderModalOpen && 
         <OrderModal 
           product={selectedProduct} 
           onClose={() => setIsOrderModalOpen(false)}
         />
-      }
+      } */}
       
       {/* Payment Modal */}
       {isPaymentModalOpen && (
         <PaymentModal
-          selectedOrders={getSelectedOrdersData()}
+          selectedOrders={selectedOrders}
           onClose={() => setIsPaymentModalOpen(false)}
           onPaymentComplete={handlePaymentComplete}
         />
       )}
+   
     </div>
   );
 };

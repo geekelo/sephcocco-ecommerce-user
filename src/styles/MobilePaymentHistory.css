@@ -1,115 +1,198 @@
+/* Mobile Payment History Styles */
+.mobile-payment-history-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  color: #000;
+}
 
-.payment-history-card-container {
-    display: flex;
+.payment-cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.payment-card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid #f0f0f0;
+}
+
+.payment-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.payment-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.payment-amount {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.payment-status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.payment-status.success,
+.payment-status.completed {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: #4CAF50;
+  border: 1px solid rgba(76, 175, 80, 0.2);
+}
+
+.payment-status.pending {
+  background-color: rgba(255, 152, 0, 0.1);
+  color: #FF9800;
+  border: 1px solid rgba(255, 152, 0, 0.2);
+}
+
+.payment-status.failed,
+.payment-status.cancelled {
+  background-color: rgba(244, 67, 54, 0.1);
+  color: #F44336;
+  border: 1px solid rgba(244, 67, 54, 0.2);
+}
+
+.payment-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.payment-detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.detail-label {
+  font-weight: 500;
+  color: #666;
+  font-size: 14px;
+  min-width: 100px;
+}
+
+.detail-value {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+  text-align: right;
+  flex: 1;
+}
+
+.transaction-id {
+  font-family: 'Courier New', monospace;
+  background-color: #f8f9fa;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #495057;
+}
+
+.order-link-mobile {
+  color: #2196F3;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background-color: rgba(33, 150, 243, 0.1);
+}
+
+.order-link-mobile:hover {
+  color: #1976D2;
+  background-color: rgba(33, 150, 243, 0.2);
+  text-decoration: underline;
+}
+
+/* No Results Styling */
+.no-results-mobile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin: 20px 0;
+}
+
+.no-results-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.6;
+}
+
+.no-results-mobile h3 {
+  margin: 0 0 8px 0;
+  color: #333;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.no-results-mobile p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 480px) {
+  .mobile-payment-history-container {
+    padding: 16px;
+  }
+  
+  .payment-card {
+    padding: 16px;
+  }
+  
+  .payment-amount {
+    font-size: 16px;
+  }
+  
+  .payment-detail {
     flex-direction: column;
-    gap: 15px;
-    width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  .no-results-message {
-    width: 100%;
-    padding: 24px 16px;
-    text-align: center;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    color: #666;
-    font-size: 15px;
-    margin: 16px 0;
+    align-items: flex-start;
+    gap: 4px;
   }
   
-  /* Hide mobile components on desktop */
-  @media screen and (min-width: 769px) {
-    .payment-history-card-container {
-      display: none;
-    }
-  }
-  .payment-history-card {
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 15px;
-    transition: transform 0.3s ease;
+  .detail-label {
+    min-width: auto;
   }
   
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #e0e0e0;
+  .detail-value {
+    text-align: left;
   }
-  
-  .card-date {
-    font-weight: 500;
-    color: #666;
+}
+
+/* Hide on desktop */
+@media screen and (min-width: 769px) {
+  .mobile-payment-history-container {
+    display: none;
   }
-  
-  .status-badge {
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.8em;
-    font-weight: 600;
-    text-transform: uppercase;
-  }
-  
-  .status-badge.success {
-    background-color: rgba(76, 175, 80, 0.1);
-    color: #4CAF50;
-  }
-  
-  .status-badge.pending {
-    background-color: rgba(255, 152, 0, 0.1);
-    color: #FF9800;
-  }
-  
-  .status-badge.failed {
-    background-color: rgba(244, 67, 54, 0.1);
-    color: #F44336;
-  }
-  
-  .card-body {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .card-amount,
-  .card-reference,
-  .card-order {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .label {
-    font-weight: 500;
-    color: #666;
-    margin-right: 10px;
-  }
-  
-  .value {
-    font-weight: 600;
-    color: #333;
-  }
-  
-  .order-link {
-    color: #2196F3;
-    text-decoration: none;
-    transition: color 0.3s ease;
-  }
-  
-  .order-link:hover {
-    color: #1976D2;
-    text-decoration: underline;
-  }
-  
-  /* Desktop adjustments */
-  @media screen and (min-width: 769px) {
-    .payment-history-card-container {
-      display: none;
-    }
-  }
+}
