@@ -51,7 +51,7 @@ export default function PaymentMethod({address, product, quantity, orderId, onPa
       const payload = {
         [`sephcocco_${activeOutlet}_payment`]: {
           orders_ids: [orderId],
-          amount: 200,
+          amount: totalCost,
           payment_method: paymentMethod,
           transaction_id: transactionId 
         }
