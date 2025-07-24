@@ -1,43 +1,103 @@
-import React, { useState } from 'react';
-import { Send, ChevronLeft } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Send, ChevronLeft, Wifi, WifiOff } from 'lucide-react';
 import '../styles/MobileChatDetail.css';
-import Image from '../assets/image.png'
-const MobileChatDetail = ({ chatItem, onBackClick }) => {
-  const [message, setMessage] = useState('');
-  const [chatMessages, setChatMessages] = useState([
-    {
-      id: 1,
-      sender: 'agent',
-      text: 'Hi Kitsbase. Let me know you need help and you can ask us any questions.',
-      time: '08:20 AM'
-    },
-    {
-      id: 2,
-      sender: 'user',
-      text: 'How to create a FinX Stock account?',
-      time: '08:21 AM',
-      highlighted: true
-    },
-    {
-      id: 3,
-      sender: 'agent',
-      text: 'Open the FinX Stock app to get started and follow the steps. FinX Stock doesn\'t charge a fee to create or maintain your FinX Stock account.',
-      time: '08:22 AM'
-    }
-  ]);
+import Image from '../assets/image.png';
 
-  const handleSendMessage = (e) => {
+const MobileChatDetail = ({ 
+  chatItem, 
+  onBackClick, 
+  messages, 
+  sendMessage, 
+  isConnected, 
+  isConnecting, 
+  connectionError 
+}) => {
+  const [message, setMessage] = useState('');
+  const [isSending, setIsSending] = useState(false);
+  const messagesEndRef = useRef(null);
+  
+  // Filter messages for this conversation
+  const conversationMessages = messages.filter(msg => 
+    chatItem?.isNew ? false : (msg.conversation_id === chatItem?.id || chatItem?.id === 'default')
+  );
+
+  // Scroll to bottom when new messages arrive
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [conversationMessages]);
+
+  const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (message.trim()) {
-      const newMessage = {
-        id: chatMessages.length + 1,
-        sender: 'user',
-        text: message,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      };
-      setChatMessages(prev => [...prev, newMessage]);
-      setMessage('');
+    
+    if (!message.trim() || !isConnected || isSending) {
+      return;
     }
+
+    setIsSending(true);
+    
+    try {
+      // Send message through WebSocket
+      await sendMessage(message.trim(), 'text');
+      setMessage('');
+    } catch (error) {
+      console.error('Failed to send message:', error);
+      // You might want to show an error notification here
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const formatMessageTime = (timestamp) => {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+  };
+
+  const renderMessages = () => {
+    if (chatItem?.isNew && conversationMessages.length === 0) {
+      return (
+        <div className="welcome-message">
+          <div className="welcome-content">
+            <img src={Image} alt="Support" className="welcome-avatar" />
+            <div className="welcome-text">
+              <h3>👋 Welcome to Support Chat</h3>
+              <p>Hi there! How can we help you today? Feel free to ask any questions.</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (conversationMessages.length === 0) {
+      return (
+        <div className="no-messages">
+          <p>No messages in this conversation yet.</p>
+        </div>
+      );
+    }
+
+    return conversationMessages.map((msg, index) => (
+      <div
+        key={msg.id || index}
+        className={`chat-message ${msg.sender || (msg.user_id ? 'user' : 'agent')} ${
+          msg.highlighted ? 'highlighted' : ''
+        }`}
+      >
+        {(msg.sender === 'agent' || !msg.user_id) && (
+          <div className="message-avatar">
+            <img src={Image} alt="Agent" />
+          </div>
+        )}
+        <div className="message-bubble">
+          <div className="message-text">{msg.content || msg.text}</div>
+          <div className="message-time">
+            {formatMessageTime(msg.created_at || msg.timestamp || new Date())}
+          </div>
+        </div>
+      </div>
+    ));
   };
 
   return (
@@ -47,38 +107,61 @@ const MobileChatDetail = ({ chatItem, onBackClick }) => {
           <ChevronLeft size={20} />
           <span>{chatItem?.title || 'Chat Support'}</span>
         </div>
+        
+        {/* Connection Status */}
+        <div className="connection-status">
+          {isConnecting && <div className="status-dot connecting"></div>}
+          {connectionError && <WifiOff size={16} className="status-icon error" />}
+          {isConnected && <Wifi size={16} className="status-icon connected" />}
+        </div>
       </div>
 
+      {/* Connection Error Banner */}
+      {connectionError && (
+        <div className="connection-error-banner">
+          ⚠️ Connection lost. Messages may not be delivered.
+        </div>
+      )}
+
       <div className="mobile-chat-messages">
-        {chatMessages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`chat-message ${msg.sender} ${msg.highlighted ? 'highlighted' : ''}`}
-          >
-            {msg.sender === 'agent' && (
-              <div className="message-avatar">
-                <img src={Image} alt="Agent" />
-              </div>
-            )}
-            <div className="message-bubble">
-              <div className="message-text">{msg.text}</div>
-              <div className="message-time">{msg.time}</div>
-            </div>
-          </div>
-        ))}
+        {renderMessages()}
+        <div ref={messagesEndRef} />
       </div>
 
       <form className="chat-input-container" onSubmit={handleSendMessage}>
         <input
           type="text"
-          placeholder="Type message..."
+          placeholder={
+            isConnected 
+              ? "Type message..." 
+              : isConnecting 
+                ? "Connecting..." 
+                : "Cannot send message (offline)"
+          }
           value={message}
           onChange={(e) => setMessage(e.target.value)}
+          disabled={!isConnected || isSending}
+          maxLength={1000}
         />
-        <button type="submit" className="send-button">
-          <Send size={18} />
+        <button 
+          type="submit" 
+          className="send-button"
+          disabled={!isConnected || !message.trim() || isSending}
+        >
+          {isSending ? (
+            <div className="spinner-small"></div>
+          ) : (
+            <Send size={18} />
+          )}
         </button>
       </form>
+      
+      {/* Character Count */}
+      {message.length > 800 && (
+        <div className="character-count">
+          {message.length}/1000
+        </div>
+      )}
     </div>
   );
 };
