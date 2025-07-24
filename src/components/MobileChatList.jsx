@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import { MessageCircle, Wifi, WifiOff } from 'lucide-react';
 import '../styles/MobileChatList.css';
-import Image from '../assets/image.png';
 
 const MobileChatList = ({ 
   onChatClick, 
@@ -16,38 +15,73 @@ const MobileChatList = ({
       return [];
     }
 
-    // Group messages by conversation_id or create single conversation
+    // Extract chats from messages (same as Desktop approach)
+    const allChats = messages.flatMap(msg => 
+      msg.chats ? msg.chats.map(chat => ({...chat, conversation_id: msg.conversation_id || 'default'})) : []
+    );
+
+    if (allChats.length === 0) {
+      return [];
+    }
+
+    // Group chats by conversation_id
     const conversationsMap = new Map();
     
-    messages.forEach(message => {
-      const conversationId = message.conversation_id || 'default';
+    allChats.forEach(chat => {
+      const conversationId = chat.conversation_id || 'default';
       
       if (!conversationsMap.has(conversationId)) {
         conversationsMap.set(conversationId, {
           id: conversationId,
-          title: message.subject || 'Chat Support',
-          description: message.content?.substring(0, 40) + '...' || 'New conversation',
-          lastMessage: message,
+          title: 'Chat Support',
+          description: chat.content?.substring(0, 40) + '...' || 'New conversation',
+          lastMessage: chat,
           messages: []
         });
       }
       
-      conversationsMap.get(conversationId).messages.push(message);
+      conversationsMap.get(conversationId).messages.push(chat);
       
-      // Update with latest message
-      if (new Date(message.created_at || message.timestamp) > 
-          new Date(conversationsMap.get(conversationId).lastMessage.created_at || 
-                  conversationsMap.get(conversationId).lastMessage.timestamp)) {
-        conversationsMap.get(conversationId).lastMessage = message;
+      // Update with latest message (check timestamp validity)
+      const currentLastMessageTime = conversationsMap.get(conversationId).lastMessage.timestamp;
+      const newMessageTime = chat.timestamp;
+      
+      if (currentLastMessageTime && newMessageTime) {
+        const currentDate = new Date(currentLastMessageTime);
+        const newDate = new Date(newMessageTime);
+        
+        // Only update if both dates are valid and new message is more recent
+        if (!isNaN(currentDate.getTime()) && !isNaN(newDate.getTime()) && newDate > currentDate) {
+          conversationsMap.get(conversationId).lastMessage = chat;
+          conversationsMap.get(conversationId).description = 
+            chat.content?.substring(0, 40) + '...' || 'New message';
+        }
+      } else if (newMessageTime && !currentLastMessageTime) {
+        // If current has no timestamp but new one does, update
+        conversationsMap.get(conversationId).lastMessage = chat;
         conversationsMap.get(conversationId).description = 
-          message.content?.substring(0, 40) + '...' || 'New message';
+          chat.content?.substring(0, 40) + '...' || 'New message';
       }
     });
 
-    return Array.from(conversationsMap.values()).sort((a, b) => 
-      new Date(b.lastMessage.created_at || b.lastMessage.timestamp) - 
-      new Date(a.lastMessage.created_at || a.lastMessage.timestamp)
-    );
+    // Sort conversations by last message timestamp
+    return Array.from(conversationsMap.values()).sort((a, b) => {
+      const aTime = a.lastMessage.timestamp;
+      const bTime = b.lastMessage.timestamp;
+      
+      if (!aTime && !bTime) return 0;
+      if (!aTime) return 1;
+      if (!bTime) return -1;
+      
+      const aDate = new Date(aTime);
+      const bDate = new Date(bTime);
+      
+      if (isNaN(aDate.getTime()) && isNaN(bDate.getTime())) return 0;
+      if (isNaN(aDate.getTime())) return 1;
+      if (isNaN(bDate.getTime())) return -1;
+      
+      return bDate - aDate;
+    });
   }, [messages]);
 
   const handleStartNewChat = () => {
@@ -58,6 +92,24 @@ const MobileChatList = ({
       isNew: true
     };
     onChatClick(newChat);
+  };
+
+  // Format time safely
+  const formatTime = (timestamp) => {
+    if (!timestamp) return 'Recently';
+    
+    const date = new Date(timestamp);
+    if (isNaN(date.getTime())) return 'Recently';
+    
+    return date.toLocaleTimeString([], { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+  };
+
+  // Check if message is from user
+  const isUserMessage = (msg) => {
+    return msg.user_role === 'user';
   };
 
   return (
@@ -121,26 +173,20 @@ const MobileChatList = ({
               onClick={() => onChatClick(conversation)}
             >
               <div className="order-avatar">
-                <img src={Image} alt="Conversation" />
-                {conversation.lastMessage.sender !== 'user' && (
-                  <div className="unread-indicator"></div>
-                )}
+                <div className="avatar-circle">
+                  <MessageCircle size={24} />
+                </div>
+            
               </div>
               <div className="order-details">
                 <h3>{conversation.title}</h3>
                 <p>{conversation.description}</p>
                 <div className="message-meta">
                   <span className="message-time">
-                    {new Date(
-                      conversation.lastMessage.created_at || 
-                      conversation.lastMessage.timestamp
-                    ).toLocaleTimeString([], { 
-                      hour: '2-digit', 
-                      minute: '2-digit' 
-                    })}
+                    {formatTime(conversation.lastMessage?.timestamp)}
                   </span>
                   <span className="message-count">
-                    {conversation.messages.length} messages
+                    {conversation.messages.length} message{conversation.messages.length !== 1 ? 's' : ''}
                   </span>
                 </div>
               </div>

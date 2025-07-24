@@ -9,6 +9,7 @@ import MobileFAQList from '../components/MobileFAQList';
 import MobileChatList from '../components/MobileChatList';
 import { useMessaging } from '../hooks/useMessaging';
 import { getActiveOutlet } from '../utils/getActiveOutlets';
+import { useGetFaq } from '../hooks/useGetFaq';
 
 const Messages = () => {
   const [activeTab, setActiveTab] = useState('chat');
@@ -17,8 +18,15 @@ const Messages = () => {
   const navigate = useNavigate();
   
   // Get auth token from localStorage, context, or props
-  const authToken = localStorage.getItem('token')
-  const outletType = getActiveOutlet()
+  const authToken = localStorage.getItem('token');
+  const outletType = getActiveOutlet();
+  
+  // Get FAQ data
+  const { 
+    data: faqData, 
+    loading: faqLoading, 
+    error: faqError 
+  } = useGetFaq(outletType);
   
   // Initialize messaging hook
   const { 
@@ -27,10 +35,11 @@ const Messages = () => {
     isConnecting, 
     connectionError, 
     sendMessage,
-    refreshMessages // Get refreshMessages from the hook
+    refreshMessages
   } = useMessaging(authToken, outletType);
 
   console.log('Messages:', messages);
+  console.log('FAQ Data:', faqData);
 
   // Check for mobile/desktop view
   useEffect(() => {
@@ -68,7 +77,7 @@ const Messages = () => {
           isConnected={isConnected}
           isConnecting={isConnecting}
           connectionError={connectionError}
-          refreshMessages={refreshMessages} // Pass refreshMessages to mobile component
+          refreshMessages={refreshMessages}
         />
       ) : (
         <MobileChatList 
@@ -80,7 +89,13 @@ const Messages = () => {
         />
       );
     } else {
-      return <MobileFAQList />;
+      return (
+        <MobileFAQList 
+          faqData={faqData}
+          loading={faqLoading}
+          error={faqError}
+        />
+      );
     }
   };
 
@@ -94,11 +109,17 @@ const Messages = () => {
           isConnected={isConnected}
           isConnecting={isConnecting}
           connectionError={connectionError}
-          refreshMessages={refreshMessages} // Pass refreshMessages to desktop component
+          refreshMessages={refreshMessages}
         />
       );
     } else {
-      return <DesktopFAQ />;
+      return (
+        <DesktopFAQ 
+          faqData={faqData}
+          loading={faqLoading}
+          error={faqError}
+        />
+      );
     }
   };
 
@@ -147,6 +168,9 @@ const Messages = () => {
               onClick={() => setActiveTab('faqs')}
             >
               FAQs
+              {faqData && faqData.length > 0 && (
+                <span className="faq-count">{faqData.length}</span>
+              )}
             </button>
           </div>
           
