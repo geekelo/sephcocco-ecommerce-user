@@ -198,11 +198,7 @@ const getUserDisplayText = (name) => {
             chat.optimistic ? 'sending' : ''
           }`}
         >
-          {!isUser && (
-            <div className="message-avatar agent-avatar">
-              <MessageCircle size={16} />
-            </div>
-          )}
+     
           
           <div className="message-content">
             <div className={`message-bubble ${isUser ? 'user-bubble' : 'agent-bubble'}`}>
