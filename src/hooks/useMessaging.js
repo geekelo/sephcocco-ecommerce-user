@@ -535,24 +535,7 @@ export const useMessaging = (authToken, outletType = '', userData = mockUserData
                   console.log('📨 Current messages before adding:', prev.length);
                   console.log('📨 Attempting to add message:', standardizedMessage);
                   
-                  // More lenient duplicate check for real-time messages
-                  // Only skip if the message has the exact same content and timestamp
-                  const existingMessage = prev.find(msg => msg.id === standardizedMessage.id);
-                  if (existingMessage) {
-                    const sameContent = existingMessage.content === standardizedMessage.content;
-                    const sameTimestamp = existingMessage.timestamp === standardizedMessage.timestamp;
-                    
-                    if (sameContent && sameTimestamp) {
-                      console.log('⚠️ Exact duplicate message (same ID, content, and timestamp), skipping:', standardizedMessage.id);
-                      return prev;
-                    } else {
-                      console.log('🔄 Message with same ID but different content/timestamp, updating:', standardizedMessage.id);
-                      // Replace the existing message with the new one
-                      return prev.map(msg => msg.id === standardizedMessage.id ? standardizedMessage : msg);
-                    }
-                  }
-                  
-                  // IMPROVED duplicate check - be more specific about what constitutes a duplicate
+                  // Content-based duplicate check only - allow multiple messages with same ID but different content
                   const hasSimilarMessage = prev.some(msg => {
                     const sameContent = msg.content === standardizedMessage.content;
                     const sameUser = msg.user_id === standardizedMessage.user_id;
