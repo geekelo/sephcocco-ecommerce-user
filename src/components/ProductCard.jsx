@@ -1,6 +1,7 @@
 import React from 'react';
 import { Heart, ThumbsUp } from 'lucide-react';
 import '../styles/ProductCard.css';
+import { getActiveUser } from '../utils/getActiveUser';
 
 export const ProductCard = ({
   product,
@@ -21,7 +22,8 @@ export const ProductCard = ({
   } = product;
 
   // Check if user is logged in
-  const isLoggedIn = localStorage.getItem('token') !== null && localStorage.getItem('userId') !== null;
+  const user = getActiveUser();
+  const isLoggedIn = user && user.token && user.id;
 
   // Get the first available image
   const productImage = main_image_url

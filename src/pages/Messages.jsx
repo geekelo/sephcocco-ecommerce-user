@@ -9,6 +9,7 @@ import MobileFAQList from '../components/MobileFAQList';
 import MobileChatList from '../components/MobileChatList';
 import { useMessaging } from '../hooks/useMessaging';
 import { getActiveOutlet } from '../utils/getActiveOutlets';
+import { getActiveUser } from '../utils/getActiveUser';
 import { useGetFaq } from '../hooks/useGetFaq';
 
 const Messages = () => {
@@ -21,6 +22,10 @@ const Messages = () => {
   const authToken = localStorage.getItem('token');
   const outletType = getActiveOutlet();
   
+  // Get user info for debugging
+  const user = getActiveUser();
+  console.log('📱 Messages page - Current user:', user);
+  
   // Get FAQ data
   const { 
     data: faqData, 
@@ -30,15 +35,18 @@ const Messages = () => {
   
   // Initialize messaging hook
   const { 
-    messages, 
+    allMessages, 
+    optimisticMessages,
     isConnected, 
     isConnecting, 
     connectionError, 
+    isLoading,
     sendMessage,
-    refreshMessages
-  } = useMessaging(authToken, outletType);
+    refreshMessages,
+    triggerMessageLoad
+  } = useMessaging(authToken, outletType, user);
 
-  console.log('Messages:', messages);
+  console.log('Messages:', allMessages);
   console.log('FAQ Data:', faqData);
 
   // Check for mobile/desktop view
@@ -72,7 +80,7 @@ const Messages = () => {
         <MobileChatDetail 
           chatItem={activeChatItem}
           onBackClick={handleBackClick}
-          messages={messages}
+          messages={allMessages}
           sendMessage={sendMessage}
           isConnected={isConnected}
           isConnecting={isConnecting}
@@ -82,7 +90,7 @@ const Messages = () => {
       ) : (
         <MobileChatList 
           onChatClick={handleChatClick}
-          messages={messages}
+          messages={allMessages}
           isConnected={isConnected}
           isConnecting={isConnecting}
           connectionError={connectionError}
@@ -104,7 +112,7 @@ const Messages = () => {
     if (activeTab === 'chat') {
       return (
         <DesktopChat 
-          messages={messages}
+          messages={allMessages}
           sendMessage={sendMessage}
           isConnected={isConnected}
           isConnecting={isConnecting}
@@ -137,21 +145,148 @@ const Messages = () => {
           <span>🔄 Connecting to chat...</span>
         </div>
       )}
-      
-      {/* Back Navigation */}
-      <div className="back-navigation">
-        {isMobile && activeChatItem ? (
-          <div className="back-link" onClick={handleBackClick}>
-            <ChevronLeft size={20} color='black'/>
-            <span>Back</span>
-          </div>
-        ) : (
-          <div className="order" onClick={handleClick}>
-            <ArrowLeft size={20} />
-            <span>Messages</span>
-          </div>
-        )}
+
+      {/* Debug Connection Status */}
+      <div style={{ 
+        padding: '10px', 
+        background: '#f8f9fa', 
+        borderBottom: '1px solid #e9ecef',
+        fontSize: '12px',
+        fontFamily: 'monospace'
+      }}>
+        <div>🔗 Connection: {isConnected ? '✅ Connected' : isConnecting ? '🔄 Connecting' : '❌ Disconnected'}</div>
+        <div>📨 Messages: {allMessages.length}</div>
+        <div>👤 User ID: {localStorage.getItem('userId') || 'Not set'}</div>
+        <div>🏪 Outlet: {outletType}</div>
       </div>
+      
+              {/* Back Navigation */}
+        <div className="back-navigation">
+          {isMobile && activeChatItem ? (
+            <div className="back-link" onClick={handleBackClick}>
+              <ChevronLeft size={20} color='black'/>
+              <span>Back</span>
+            </div>
+          ) : (
+            <div className="order" onClick={handleClick}>
+              <ArrowLeft size={20} />
+              <span>Messages</span>
+            </div>
+          )}
+          {/* Debug button for loading messages */}
+          <button 
+            onClick={refreshMessages}
+            disabled={!isConnected}
+            style={{ 
+              marginLeft: '10px', 
+              padding: '4px 8px', 
+              fontSize: '12px',
+              background: isConnected ? '#007bff' : '#6c757d',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: isConnected ? 'pointer' : 'not-allowed'
+            }}
+          >
+            {isConnected ? 'Load Messages' : 'Connecting...'}
+          </button>
+          {/* Debug connection button */}
+          <button 
+            onClick={() => {
+              console.log('🔧 Manual connection trigger');
+              console.log('🔧 Current state:', { isConnected, isConnecting, connectionError });
+              console.log('🔧 Auth token:', !!localStorage.getItem('token'));
+              console.log('🔧 Outlet type:', outletType);
+              console.log('🔧 User ID:', localStorage.getItem('userId'));
+              
+              if (!isConnected && !isConnecting) {
+                console.log('🔧 Attempting manual connection...');
+                // The connect function is no longer available in the new useMessaging hook
+                // This button will now only log the state.
+                console.log('🔧 Manual connection not available in this version.');
+              }
+            }}
+            style={{ 
+              marginLeft: '10px', 
+              padding: '4px 8px', 
+              fontSize: '12px',
+              background: '#28a745',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            {isConnected ? 'Debug State' : 'Connect'}
+          </button>
+          {/* Test load messages button */}
+          <button 
+            onClick={() => {
+              console.log('🧪 Manual load messages test');
+              console.log('🧪 Current messages count:', allMessages.length);
+              console.log('🧪 Current messages:', allMessages);
+              triggerMessageLoad();
+            }}
+            style={{ 
+              marginLeft: '10px', 
+              padding: '4px 8px', 
+              fontSize: '12px',
+              background: '#ffc107',
+              color: 'black',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Test Load
+          </button>
+          {/* Create test message button */}
+          <button 
+            onClick={() => {
+              console.log('🧪 Creating test message to create thread...');
+              try {
+                sendMessage('Hello! This is a test message to create a message thread.', 'text');
+                console.log('🧪 Test message sent successfully');
+              } catch (error) {
+                console.error('🧪 Error sending test message:', error);
+              }
+            }}
+            style={{ 
+              marginLeft: '10px', 
+              padding: '4px 8px', 
+              fontSize: '12px',
+              background: '#dc3545',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Create Thread
+          </button>
+          {/* Force refresh messages button */}
+          <button 
+            onClick={() => {
+              console.log('🔄 Force refreshing messages...');
+              console.log('🔄 Current messages before refresh:', allMessages);
+              // The forceRefreshMessages function is no longer available in the new useMessaging hook
+              // This button will now only log the state.
+              console.log('🔄 Force refresh not available in this version.');
+            }}
+            style={{ 
+              marginLeft: '10px', 
+              padding: '4px 8px', 
+              fontSize: '12px',
+              background: '#6f42c1',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Force Refresh
+          </button>
+        </div>
 
       {/* Tab Navigation */}
       {(!isMobile || !activeChatItem) && (
