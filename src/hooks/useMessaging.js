@@ -21,11 +21,11 @@ export const getActiveUser = () => {
   };
 };
 
-// Mock user data for demonstration - in real app this would come from auth context
+// Mock user data for demonstration - FIXED to match backend logs
 const mockUserData = {
-  id: "user123",
-  name: "Test User",
-  email: "test@example.com",
+  id: "335b636e-9a9d-4cda-a509-49b1bd23550e", // ✅ Match backend user ID
+  name: "User3 User",
+  email: "user2@sephcocco.com", 
   role: "user"
 };
 
@@ -434,7 +434,7 @@ export const useMessaging = (authToken, outletType = '', userData = mockUserData
               return;
             }
             
-            // Handle real-time new messages - EXPANDED TYPES
+            // Handle real-time new messages - EXPANDED TYPES AND BETTER LOGGING
             if (data.type === 'new_message' || 
                 data.type === 'broadcast_message' || 
                 data.type === 'message_broadcast' || 
@@ -443,11 +443,14 @@ export const useMessaging = (authToken, outletType = '', userData = mockUserData
                 data.broadcast === true) {
               
               console.log('🚨 REAL-TIME: User received new message!');
+              console.log('🚨 Message received at:', new Date().toISOString());
               console.log('💬 Full data object:', JSON.stringify(data, null, 2));
               console.log('💬 Message type:', data.type);
               console.log('💬 Message content:', data.content);
-              console.log('💬 Sender ID:', data.sender_id || data.user?.id || data.user_id);
-              console.log('💬 Thread owner ID:', data.thread_owner_id || data.user_id);
+              console.log('💬 Data sender_id:', data.sender_id);
+              console.log('💬 Data user.id:', data.user?.id);
+              console.log('💬 Data user_id:', data.user_id);
+              console.log('💬 Data thread_owner_id:', data.thread_owner_id);
               console.log('💬 Current user ID:', currentUserIdRef.current);
               console.log('💬 Broadcast flag:', data.broadcast);
 
@@ -458,7 +461,7 @@ export const useMessaging = (authToken, outletType = '', userData = mockUserData
               const isFromCurrentUser = String(senderId) === String(currentUserIdRef.current);
               
               const standardizedMessage = {
-                id: data.id || data.chat_id || `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                id: String(data.id || data.chat_id || `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`),
                 content: data.content,
                 message_type: data.message_type || 'text',
                 user_id: senderId,
@@ -481,18 +484,30 @@ export const useMessaging = (authToken, outletType = '', userData = mockUserData
               console.log('📨 Thread owner ID extracted:', threadOwnerId);
               console.log('📨 Is from current user:', isFromCurrentUser);
 
-              // More flexible conversation checking
-              const isMyConversation = !threadOwnerId || 
+              // More flexible conversation checking - IMPROVED LOGIC
+              const isMyConversation = (
+                // If no thread owner specified, assume it's for current user
+                !threadOwnerId || 
+                // If thread owner matches current user
                 String(threadOwnerId) === String(currentUserIdRef.current) ||
+                // If the message is from current user (they should always see their own messages)
                 isFromCurrentUser ||
-                data.broadcast === true;
+                // If it's explicitly marked as broadcast
+                data.broadcast === true ||
+                // If it's sent TO current user (check user_id in data)
+                String(data.user_id) === String(currentUserIdRef.current)
+              );
 
               console.log('🔍 Message belongs to current user conversation:', isMyConversation);
-              console.log('🔍 Conversation check details:');
+              console.log('🔍 Detailed conversation check:');
+              console.log('   - Thread owner ID:', threadOwnerId);
+              console.log('   - Current user ID:', currentUserIdRef.current);
               console.log('   - No thread owner ID:', !threadOwnerId);
               console.log('   - Thread owner matches current user:', String(threadOwnerId) === String(currentUserIdRef.current));
               console.log('   - Is from current user:', isFromCurrentUser);
               console.log('   - Is broadcast message:', data.broadcast === true);
+              console.log('   - Data user_id:', data.user_id);
+              console.log('   - Data user_id matches current user:', String(data.user_id) === String(currentUserIdRef.current));
 
               if (isMyConversation) {
                 console.log('✅ Adding real-time message to user messages!');
@@ -518,28 +533,69 @@ export const useMessaging = (authToken, outletType = '', userData = mockUserData
                 
                 setMessages(prev => {
                   console.log('📨 Current messages before adding:', prev.length);
+                  console.log('📨 Attempting to add message:', standardizedMessage);
                   
-                  // Simple duplicate check by ID
-                  if (standardizedMessage.id && prev.some(msg => msg.id === standardizedMessage.id)) {
-                    console.log('⚠️ Duplicate message by ID, skipping:', standardizedMessage.id);
-                    return prev;
+                  // More lenient duplicate check for real-time messages
+                  // Only skip if the message has the exact same content and timestamp
+                  const existingMessage = prev.find(msg => msg.id === standardizedMessage.id);
+                  if (existingMessage) {
+                    const sameContent = existingMessage.content === standardizedMessage.content;
+                    const sameTimestamp = existingMessage.timestamp === standardizedMessage.timestamp;
+                    
+                    if (sameContent && sameTimestamp) {
+                      console.log('⚠️ Exact duplicate message (same ID, content, and timestamp), skipping:', standardizedMessage.id);
+                      return prev;
+                    } else {
+                      console.log('🔄 Message with same ID but different content/timestamp, updating:', standardizedMessage.id);
+                      // Replace the existing message with the new one
+                      return prev.map(msg => msg.id === standardizedMessage.id ? standardizedMessage : msg);
+                    }
                   }
                   
-                  // Less aggressive duplicate check - only for very recent similar messages
-                  const hasSimilarMessage = prev.some(msg => 
-                    msg.content === standardizedMessage.content && 
-                    msg.user_id === standardizedMessage.user_id &&
-                    Math.abs(new Date(msg.timestamp).getTime() - new Date(currentTimestamp).getTime()) < 1000
-                  );
+                  // IMPROVED duplicate check - be more specific about what constitutes a duplicate
+                  const hasSimilarMessage = prev.some(msg => {
+                    const sameContent = msg.content === standardizedMessage.content;
+                    const sameUser = msg.user_id === standardizedMessage.user_id;
+                    const recentTime = Math.abs(new Date(msg.timestamp).getTime() - new Date(currentTimestamp).getTime()) < 500; // Reduced to 500ms
+                    
+                    const isDuplicate = sameContent && sameUser && recentTime;
+                    
+                    if (isDuplicate) {
+                      console.log('⚠️ Found potential duplicate:', {
+                        existingMsg: { id: msg.id, content: msg.content, timestamp: msg.timestamp, user_id: msg.user_id },
+                        newMsg: { id: standardizedMessage.id, content: standardizedMessage.content, timestamp: standardizedMessage.timestamp, user_id: standardizedMessage.user_id },
+                        timeDiff: Math.abs(new Date(msg.timestamp).getTime() - new Date(currentTimestamp).getTime())
+                      });
+                    }
+                    
+                    return isDuplicate;
+                  });
                   
                   if (hasSimilarMessage) {
                     console.log('⚠️ Very similar recent message exists, skipping');
                     return prev;
                   }
                   
+                  // Check if this is a very old message trying to be added
+                  const messageTime = new Date(currentTimestamp).getTime();
+                  const now = Date.now();
+                  const isVeryOld = (now - messageTime) > 300000; // 5 minutes
+                  
+                  if (isVeryOld && prev.length > 0) {
+                    console.log('⚠️ Message is very old, might be duplicate from history load, skipping');
+                    return prev;
+                  }
+                  
                   const newMessages = [...prev, standardizedMessage];
                   console.log('✅ Real-time message added! New count:', newMessages.length);
-                  console.log('✅ Added message:', standardizedMessage);
+                  console.log('✅ Added message details:', {
+                    id: standardizedMessage.id,
+                    content: standardizedMessage.content,
+                    user_id: standardizedMessage.user_id,
+                    user_name: standardizedMessage.user_name,
+                    timestamp: standardizedMessage.timestamp,
+                    isFromCurrentUser
+                  });
                   
                   return newMessages;
                 });
