@@ -355,11 +355,31 @@
   border: 1px solid #e2e8f0;
 }
 
+/* Message Sender Name */
+.message-sender {
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  opacity: 0.8;
+  text-transform: capitalize;
+}
+
+.user-bubble .message-sender {
+  color: #667eea;
+  text-align: right;
+}
+
+.agent-bubble .message-sender {
+  color: #6b7280;
+  text-align: left;
+}
+
+/* Message Text */
 .message-text {
   font-size: 14px;
-  line-height: 1.5;
-  margin-bottom: 4px;
-  font-weight: 400;
+  line-height: 1.4;
+  word-wrap: break-word;
+  white-space: pre-wrap;
 }
 
 .user-bubble .message-text {

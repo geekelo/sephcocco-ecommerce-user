@@ -141,9 +141,13 @@ const getUserDisplayText = (name) => {
 
   const formatMessageTime = (timestamp) => {
     const date = new Date(timestamp);
-    return date.toLocaleTimeString([], { 
+    return date.toLocaleString('en-US', { 
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
       hour: '2-digit', 
-      minute: '2-digit' 
+      minute: '2-digit',
+      hour12: false
     });
   };
 
@@ -199,6 +203,10 @@ const getUserDisplayText = (name) => {
           
           <div className="message-content">
             <div className={`message-bubble ${isUser ? 'user-bubble' : 'agent-bubble'}`}>
+              {/* Add user name display */}
+              <div className="message-sender">
+                {isUser ? 'You' : chat.user_name || 'Admin'}
+              </div>
               <div className="message-text">{chat.content || 'No content'}</div>
               <div className="message-time">
                 {formatMessageTime(chat.timestamp)}

@@ -80,12 +80,31 @@
     background-color: #ffecef;
   }
   
-  .message-text {
-    font-size: 14px;
-    line-height: 1.4;
-    margin-bottom: 4px;
-    color: #000
-  }
+  /* Message Sender Name */
+.message-sender {
+  font-size: 10px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  opacity: 0.8;
+  text-transform: capitalize;
+}
+
+.chat-message.user .message-sender {
+  color: #667eea;
+  text-align: right;
+}
+
+.chat-message.agent .message-sender {
+  color: #6b7280;
+  text-align: left;
+}
+
+.message-text {
+  font-size: 14px;
+  line-height: 1.4;
+  margin-bottom: 4px;
+  color: #000
+}
   
   .message-time {
     font-size: 12px;

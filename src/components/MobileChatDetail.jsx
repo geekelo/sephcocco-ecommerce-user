@@ -119,9 +119,13 @@ const MobileChatDetail = ({
     // Check if date is valid
     if (isNaN(date.getTime())) return '';
     
-    return date.toLocaleTimeString([], { 
+    return date.toLocaleString('en-US', { 
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
       hour: '2-digit', 
-      minute: '2-digit' 
+      minute: '2-digit',
+      hour12: false
     });
   };
 
@@ -189,6 +193,10 @@ const MobileChatDetail = ({
           )}
           
           <div className="message-bubble">
+            {/* Add user name display */}
+            <div className="message-sender">
+              {chat.user_name || (isUser ? 'You' : 'Admin')}
+            </div>
             <div className="message-text">{chat.content || 'No content'}</div>
             <div className="message-time">
               {formatMessageTime(chat.timestamp)}
