@@ -12,7 +12,21 @@
     border-right: 1px solid #e5e7eb;
     overflow-y: auto;
   }
-  
+  .desktop-faq-detail .faq-answer-desktop {
+  margin-bottom: 24px;
+  color: #000;
+}
+
+.desktop-faq-detail .faq-answer-desktop p {
+  color: #000;
+  font-size: 16px;
+  line-height: 1.7;
+  margin: 0 0 16px;
+}
+
+.desktop-faq-detail .faq-answer p:last-child {
+  margin-bottom: 0;
+}
   .faq-item {
     border-bottom: 1px solid #e5e7eb;
   }
@@ -26,6 +40,7 @@
     padding: 16px;
     cursor: pointer;
     align-items: center;
+    color: #000;
   }
   
   .plus-icon {
@@ -60,4 +75,5 @@
     font-size: 14px;
     color: #4b5563;
     line-height: 1.5;
+    color: #4b5563;
   }

@@ -11,6 +11,7 @@ import { ErrorState } from '../components/ErrorState';
 import { EmptyState } from '../components/EmptyState';
 import { useViewAllProduct } from '../hooks/useGetAllProduct';
 import { getActiveOutlet } from '../utils/getActiveOutlets';
+import { getActiveUser } from '../utils/getActiveUser';
 
 
 export default function Product() {
@@ -26,8 +27,11 @@ export default function Product() {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [pendingOrderProduct, setPendingOrderProduct] = useState(null);
 
+  // Get user ID for API calls
+  const user = getActiveUser();
+  
   // Fetch products using the hook
-  const { data: products = [], isLoading, error, refetch } = useViewAllProduct(activeOutlet);
+  const { data: products = [], isLoading, error, refetch } = useViewAllProduct(activeOutlet, 1, 20, user?.id);
 
   const filterOptions = ['Price: Low to High', 'Price: High to Low', 'Newest First', 'Categories', 'Rating'];
 

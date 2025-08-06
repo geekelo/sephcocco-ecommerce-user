@@ -53,7 +53,7 @@ export default function Product() {
     error: productsError, 
     refetch,
     isPreviousData 
-  } = useViewAllProduct(activeOutlet, currentPage, itemsPerPage, activeUser);
+  } = useViewAllProduct(activeOutlet, currentPage, itemsPerPage, activeUser?.id);
   
   const { 
     data: categories = [], 
@@ -278,7 +278,8 @@ export default function Product() {
   };
 
   const handleBuyNow = () => {
-    const isLoggedIn = localStorage.getItem('token') !== null && localStorage.getItem('userId') !== null;
+    const user = getActiveUser();
+  const isLoggedIn = user && user.token && user.id;
     
     
     if (!isLoggedIn) {
