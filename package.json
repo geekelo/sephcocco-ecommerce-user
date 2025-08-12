@@ -18,6 +18,7 @@
     "lucide-react": "^0.507.0",
     "react": "^19.1.0",
     "react-dom": "^19.0.0",
+    "react-paystack": "^6.0.0",
     "react-router-dom": "^7.5.3",
     "swiper": "^11.2.6"
   },
