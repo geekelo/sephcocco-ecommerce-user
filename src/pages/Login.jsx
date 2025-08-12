@@ -61,9 +61,24 @@ const handleSubmit = async (e) => {
     
     const response = await login(payload);
     if (response?.message) {
-    localStorage.setItem('token', response?.token)
-    console.log("Login success:", response);
-    navigate("/products");
+      localStorage.setItem('token', response?.token);
+      
+      // Save user information
+      if (response?.user) {
+        localStorage.setItem('userId', response.user.id);
+        localStorage.setItem('userRole', response.user.role);
+        localStorage.setItem('userEmail', response.user.email);
+        localStorage.setItem('userName', response.user.name || '');
+        console.log("User info saved:", {
+          id: response.user.id,
+          role: response.user.role,
+          email: response.user.email,
+          name: response.user.name
+        });
+      }
+      
+      console.log("Login success:", response);
+      navigate("/products");
     }
 
   } catch (error) {

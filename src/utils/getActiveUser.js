@@ -1,16 +1,19 @@
 
 
 export const getActiveUser = () => {
-    const selectedUser = localStorage.getItem('userId');
-    
-    if (!selectedUser) {
-      console.warn('No active user');
-      return null;
-    }
-    
-    // Ensure we always return a string
-    const user = String(selectedUser).trim();
- 
-    
-    return user;
+  const userId = localStorage.getItem('userId') || localStorage.getItem('user_id');
+  const userRole = localStorage.getItem('userRole');
+  const userEmail = localStorage.getItem('userEmail');
+  const userName = localStorage.getItem('userName');
+  const token = localStorage.getItem('token');
+
+  return {
+    id: userId,
+    role: userRole,
+    email: userEmail,
+    name: userName,
+    token: token,
+    isAdmin: userRole === 'admin',
+    isUser: userRole === 'user'
   };
+};

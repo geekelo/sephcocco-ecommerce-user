@@ -8,7 +8,8 @@ const DesktopChat = ({
   isConnected, 
   isConnecting, 
   connectionError,
-  refreshMessages // Add this prop to refresh message history
+  refreshMessages, // Add this prop to refresh message history
+  testConnection // Add test connection function
 }) => {
   const [message, setMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -19,13 +20,9 @@ const DesktopChat = ({
   const messagesContainerRef = useRef(null);
   const lastMessageCountRef = useRef(0);
 
-  // Extract chats from messages and filter for the selected conversation
-  const allChats = messages.flatMap(msg => 
-    msg.chats ? msg.chats.map(chat => ({...chat, conversation_id: msg.conversation_id || 'default'})) : []
-  );
-  
-  const conversationMessages = allChats.filter(chat => 
-    (chat.conversation_id || 'default') === selectedConversation
+  // Process messages directly (no more nested chats structure)
+  const conversationMessages = messages.filter(msg => 
+    (msg.conversation_id || 'default') === selectedConversation
   );
 
   // Function to get user display text with initials
@@ -73,11 +70,11 @@ const getUserDisplayText = (name) => {
 
   // Auto-select first conversation if available
   useEffect(() => {
-    if (allChats.length > 0 && !conversationMessages.length) {
-      const firstConversationId = allChats[0].conversation_id || 'default';
+    if (messages.length > 0 && !conversationMessages.length) {
+      const firstConversationId = messages[0].conversation_id || 'default';
       setSelectedConversation(firstConversationId);
     }
-  }, [allChats.length, conversationMessages.length]);
+  }, [messages.length, conversationMessages.length]);
 
   // Enhanced message sending with history refresh
   const handleSendMessage = async (e) => {
@@ -253,6 +250,11 @@ const getUserDisplayText = (name) => {
               {isConnected ? 'Online' : connectionError ? 'Offline' : 'Connecting'}
             </span>
           </div>
+          {isConnected && (
+            <div className="connection-details" style={{ fontSize: '10px', color: '#666', marginTop: '5px' }}>
+              WebSocket: Active | Channel: messaging_user_{localStorage.getItem('userId')}
+            </div>
+          )}
         </div>
 
         {/* Support Chat Button */}
@@ -272,6 +274,15 @@ const getUserDisplayText = (name) => {
           <div className="connection-error">
             <AlertCircle size={14} />
             <span>Messages may not be delivered</span>
+            {testConnection && (
+              <button 
+                onClick={testConnection}
+                className="test-connection-btn"
+                style={{ marginLeft: '10px', padding: '4px 8px', fontSize: '12px' }}
+              >
+                Test Connection
+              </button>
+            )}
           </div>
         )}
 
