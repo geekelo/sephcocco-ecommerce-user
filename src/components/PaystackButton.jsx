@@ -1,8 +1,8 @@
-
 import { PaystackButton } from 'react-paystack';
+import '../styles/PaystackPayment.css'; 
 
-const PaystackPayment = ({ email, amount, reference, onSuccess, onClose }) => {
-  const publicKey = "pk_test_ac62c03eab599d53ff6439b3d7caf71cb604d1fd"; // Replace with your actual public key
+const PaystackPayment = ({ email, amount, reference, onSuccess, onClose, disabled = false }) => {
+  const publicKey = "pk_test_ac62c03eab599d53ff6439b3d7caf71cb604d1fd"; 
 
   const componentProps = {
     email,
@@ -17,9 +17,15 @@ const PaystackPayment = ({ email, amount, reference, onSuccess, onClose }) => {
     onClose: () => {
       onClose();
     },
+    className: `paystack-pay-button ${disabled ? 'paystack-disabled' : ''}`,
+    disabled: disabled
   };
 
-  return <PaystackButton {...componentProps} />;
+  return (
+    <div className="paystack-button-wrapper">
+      <PaystackButton {...componentProps} />
+    </div>
+  );
 };
 
 export default PaystackPayment;

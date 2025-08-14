@@ -51,6 +51,7 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister, onSuccess }) =
       if (response?.message) {
         localStorage.setItem('token', response?.token);
         localStorage.setItem('userId', response?.user?.id);
+        localStorage.setItem('userEmail', response?.user?.email);
         localStorage.setItem('pay-ref', response?.user?.payment_ref)
         // Cookies.set('userId', response?.user?.id, { expires: 1 });
         onSuccess && onSuccess();
