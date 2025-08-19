@@ -105,7 +105,7 @@ export default function PaymentPaymentMethod({
     
     const  verificationResult = await paymentVerify({ active_outlet: activeOutlet, payload: verifyPayload });
        console.log('payment verify', verificationResult);
-      if (verificationResult.status === "success") {
+      if (verificationResult.payment.status) {
         console.log("Payment verified ✅");
         
    
@@ -141,10 +141,7 @@ export default function PaymentPaymentMethod({
   // Get user email from multiple sources
   const getUserEmail = () => {
     // Priority order: activeUser email > selectedOrders email > default
-    return activeUser.email || 
-           selectedOrders?.[0]?.email || 
-           selectedOrders?.[0]?.user?.email || 
-           'customer@example.com';
+    return activeUser.email 
   };
 
   return (
