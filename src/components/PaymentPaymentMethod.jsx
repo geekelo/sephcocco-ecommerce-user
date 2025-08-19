@@ -2,26 +2,32 @@ import { CheckCircle, CreditCard, Landmark } from 'lucide-react';
 import React, { useState } from 'react';
 import BankDetails from './BankDetails';
 import PaymentSuccessModal from './PaymentSuccessModal';
+import PaystackPayment from './PaystackButton';
+
 import { usePayment } from '../hooks/usePayment';
+import { usePaymentVerify } from '../hooks/usePaymentVerify'; // Add this import
 import '../styles/PaymentPaymentMethod.css';
+
 import { getActiveOutlet } from '../utils/getActiveOutlets';
+import { getActiveUser } from '../utils/getActiveUser'; // Add this import
 
 export default function PaymentPaymentMethod({
   product,
   quantity,
   onPaymentComplete,
   selectedOrders,
-
 }) {
   const [paymentMethod, setPaymentMethod] = useState(null);
   const [showBankDetails, setShowBankDetails] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
  
   const { mutateAsync: payment } = usePayment();
+  const { mutateAsync: paymentVerify } = usePaymentVerify(); // Add this hook
 
   const transactionId = localStorage.getItem('pay-ref');
-const activeOutlet = getActiveOutlet()
-console.log('act',activeOutlet);
+  const activeOutlet = getActiveOutlet();
+  const activeUser = getActiveUser(); // Get active user data
+  console.log('act', activeOutlet);
 
   const itemTotal =
     selectedOrders?.reduce((sum, order) => {
@@ -41,7 +47,8 @@ console.log('act',activeOutlet);
     setShowBankDetails(false);
   };
 
-  const handleCheckout = async () => {
+  // Handle bank payment
+  const handleBankPayment = async () => {
     if (!paymentMethod) return;
 
     setIsProcessing(true);
@@ -52,26 +59,89 @@ console.log('act',activeOutlet);
       [`sephcocco_${activeOutlet}_payment`]: {
         orders_ids: orderIds,
         amount: totalCost,
-        payment_method: paymentMethod,
+        payment_method: 'bank',
         transaction_id: transactionId,
       },
     };
 
     try {
       await payment({ active_outlet: activeOutlet, payload });
-
-      if (paymentMethod === 'bank') {
-        onPaymentComplete?.(); 
-      } else {
-    
-        onPaymentComplete?.(); 
-      }
+      alert('Bank transfer recorded. Your order is now pending verification.');
+      onPaymentComplete?.(); 
     } catch (error) {
       console.error('Payment failed:', error);
       alert('Payment failed. Please try again.');
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  // Handle successful Paystack payment
+  const handlePaystackSuccess = async (response) => {
+    console.log('Paystack payment successful:', response);
+    
+    setIsProcessing(true);
+    
+    // Verify payment with Paystack first
+    const verifyPayload = {
+      reference: response.reference
+    };
+
+    try {
+           // Now record the payment in your system
+        const orderIds = selectedOrders?.map(order => order.id);
+        const paymentPayload = {
+          [`sephcocco_${activeOutlet}_payment`]: {
+            orders_ids: orderIds,
+            amount: totalCost,
+            payment_method: 'online',
+            transaction_id: response.reference,
+            paystack_reference: response.reference,
+            status: response.status
+          }
+        };
+    const res =  await payment({ active_outlet: activeOutlet, payload: paymentPayload });
+    console.log('payment created', res);
+    
+    const  verificationResult = await paymentVerify({ active_outlet: activeOutlet, payload: verifyPayload });
+       console.log('payment verify', verificationResult);
+      if (verificationResult.payment.status) {
+        console.log("Payment verified ✅");
+        
+   
+
+       
+        onPaymentComplete?.();
+      } else {
+        console.log("Payment verification failed ❌");
+        alert('Payment verification failed. Please contact support with reference: ' + response.reference);
+      }
+    } catch (error) {
+      console.error('Payment verification failed:', error);
+      alert('Payment successful but verification failed. Please contact support with reference: ' + response.reference);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Handle Paystack payment closure/cancellation
+  const handlePaystackClose = () => {
+    console.log('Paystack payment closed');
+    // Optionally handle what happens when user closes payment modal
+  };
+
+  // Generate a unique reference for Paystack
+  const generatePaystackReference = () => {
+    const orderIds = selectedOrders?.map(order => order.id).join('_');
+    return `${orderIds}_${Date.now()}`;
+  };
+
+  console.log('okk', selectedOrders?.[0]);
+
+  // Get user email from multiple sources
+  const getUserEmail = () => {
+    // Priority order: activeUser email > selectedOrders email > default
+    return activeUser.email 
   };
 
   return (
@@ -128,15 +198,34 @@ console.log('act',activeOutlet);
 
       {paymentMethod === 'bank' && showBankDetails && <BankDetails />}
 
-      <button
-        className={`payment-checkout-button ${!paymentMethod ? 'payment-disabled' : ''}`}
-        disabled={!paymentMethod || isProcessing}
-        onClick={handleCheckout}
-      >
-        {isProcessing ? 'Processing...' : paymentMethod === 'bank' ? 'I have paid' : 'Proceed to Payment'}
-      </button>
-
-    
+      {/* Conditional rendering based on payment method */}
+      {paymentMethod === 'bank' ? (
+        <button
+          className="payment-checkout-button"
+          disabled={isProcessing}
+          onClick={handleBankPayment}
+        >
+          {isProcessing ? 'Processing...' : 'I have paid'}
+        </button>
+      ) : paymentMethod === 'online' ? (
+        <div className="">
+          <PaystackPayment
+            email={getUserEmail()}
+            amount={totalCost}
+            reference={generatePaystackReference()}
+            onSuccess={handlePaystackSuccess}
+            onClose={handlePaystackClose}
+            disabled={isProcessing}
+          />
+        </div>
+      ) : (
+        <button
+          className="payment-checkout-button payment-disabled"
+          disabled
+        >
+          Select Payment Method
+        </button>
+      )}
     </div>
   );
 }

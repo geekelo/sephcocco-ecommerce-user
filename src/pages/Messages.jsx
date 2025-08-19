@@ -7,6 +7,7 @@ import DesktopFAQ from '../components/DesktopFAQList';
 import MobileChatDetail from '../components/MobileChatDetail';
 import MobileFAQList from '../components/MobileFAQList';
 import MobileChatList from '../components/MobileChatList';
+import { AuthModals } from '../components/AuthModal'; // Import auth modals
 import { useMessaging } from '../hooks/useMessaging';
 import { getActiveOutlet } from '../utils/getActiveOutlets';
 import { getActiveUser } from '../utils/getActiveUser';
@@ -18,22 +19,52 @@ const Messages = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const navigate = useNavigate();
   
-  // Get auth token from localStorage, context, or props
+  // Authentication states
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  
+  // Get auth token from localStorage and user info
   const authToken = localStorage.getItem('token');
   const outletType = getActiveOutlet();
-  
-  // Get user info for debugging
   const user = getActiveUser();
-  console.log('📱 Messages page - Current user:', user);
   
-  // Get FAQ data
+  console.log('📱 Messages page - Current user:', user);
+       // Check if user is properly authenticated
+   
+  // Check authentication status
+  useEffect(() => {
+    const checkAuthentication = () => {
+
+
+
+ 
+      
+      setIsAuthenticated(!!authToken);
+      setIsCheckingAuth(false);
+      
+      // If not authenticated, show login modal
+      if (!authToken) {
+        console.log('🚫 User not authenticated, showing login modal');
+        setShowLoginModal(true);
+      }
+    };
+
+    checkAuthentication();
+  }, []);
+
+
+  // Get FAQ data (only if authenticated)
   const { 
     data: faqData, 
     loading: faqLoading, 
     error: faqError 
-  } = useGetFaq(outletType);
+  } = useGetFaq(outletType, { 
+    enabled: isAuthenticated // Only fetch if authenticated
+  });
   
-  // Initialize messaging hook
+  // Initialize messaging hook (only if authenticated)
   const { 
     allMessages, 
     optimisticMessages,
@@ -44,7 +75,12 @@ const Messages = () => {
     sendMessage,
     refreshMessages,
     triggerMessageLoad
-  } = useMessaging(authToken, outletType, user);
+  } = useMessaging(
+    isAuthenticated ? authToken : null, // Only pass token if authenticated
+    outletType, 
+    isAuthenticated ? user : null, // Only pass user if authenticated
+    { enabled: isAuthenticated } // Only initialize if authenticated
+  );
 
   console.log('Messages:', allMessages);
   console.log('FAQ Data:', faqData);
@@ -59,12 +95,44 @@ const Messages = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Handler for mobile chat item click
+  // Authentication handlers
+  const handleAuthSuccess = () => {
+    console.log('✅ Authentication successful');
+    setIsAuthenticated(true);
+    setShowLoginModal(false);
+    setShowRegisterModal(false);
+    
+    // Optionally refresh the page to reinitialize all hooks with auth
+    // window.location.reload();
+  };
+
+  const handleCloseAuthModals = () => {
+    console.log('❌ Auth modals closed without authentication');
+    setShowLoginModal(false);
+    setShowRegisterModal(false);
+    
+
+  };
+
+  const handleSwitchToRegister = () => {
+    setShowLoginModal(false);
+    setShowRegisterModal(true);
+  };
+
+  const handleSwitchToLogin = () => {
+    setShowRegisterModal(false);
+    setShowLoginModal(true);
+  };
+
+  // Navigation handlers
   const handleChatClick = (chat) => {
+    if (!isAuthenticated) {
+      setShowLoginModal(true);
+      return;
+    }
     setActiveChatItem(chat);
   };
 
-  // Handler for mobile back button
   const handleBackClick = () => {
     setActiveChatItem(null);
   };
@@ -73,8 +141,12 @@ const Messages = () => {
     navigate('/products');
   };
 
-  // Render mobile view
+
+
+  // Render mobile view (only if authenticated)
   const renderMobileView = () => {
+    if (!isAuthenticated) return null;
+    
     if (activeTab === 'chat') {
       return activeChatItem ? (
         <MobileChatDetail 
@@ -107,8 +179,10 @@ const Messages = () => {
     }
   };
 
-  // Render desktop view
+  // Render desktop view (only if authenticated)
   const renderDesktopView = () => {
+    if (!isAuthenticated) return null;
+    
     if (activeTab === 'chat') {
       return (
         <DesktopChat 
@@ -133,163 +207,37 @@ const Messages = () => {
 
   return (
     <div className="customer-support-app">
-      {/* Connection Status Indicator */}
-      {connectionError && (
+      {/* Connection Status Indicator - only show if authenticated */}
+      {isAuthenticated && connectionError && (
         <div className="connection-error">
           <span>⚠️ {connectionError}</span>
         </div>
       )}
       
-      {isConnecting && (
+      {isAuthenticated && isConnecting && (
         <div className="connection-status">
           <span>🔄 Connecting to chat...</span>
         </div>
       )}
 
-      {/* Debug Connection Status */}
-      <div style={{ 
-        padding: '10px', 
-        background: '#f8f9fa', 
-        borderBottom: '1px solid #e9ecef',
-        fontSize: '12px',
-        fontFamily: 'monospace'
-      }}>
-        <div>🔗 Connection: {isConnected ? '✅ Connected' : isConnecting ? '🔄 Connecting' : '❌ Disconnected'}</div>
-        <div>📨 Messages: {allMessages.length}</div>
-        <div>👤 User ID: {localStorage.getItem('userId') || 'Not set'}</div>
-        <div>🏪 Outlet: {outletType}</div>
+      {/* Back Navigation */}
+      <div className="back-navigation">
+        {isMobile && activeChatItem ? (
+          <div className="back-link" onClick={handleBackClick}>
+            <ChevronLeft size={20} color='black'/>
+            <span>Back</span>
+          </div>
+        ) : (
+          <div className="order" onClick={handleClick}>
+            <ArrowLeft size={20} />
+            <span>Messages</span>
+          </div>
+        )}
+  
       </div>
-      
-              {/* Back Navigation */}
-        <div className="back-navigation">
-          {isMobile && activeChatItem ? (
-            <div className="back-link" onClick={handleBackClick}>
-              <ChevronLeft size={20} color='black'/>
-              <span>Back</span>
-            </div>
-          ) : (
-            <div className="order" onClick={handleClick}>
-              <ArrowLeft size={20} />
-              <span>Messages</span>
-            </div>
-          )}
-          {/* Debug button for loading messages */}
-          <button 
-            onClick={refreshMessages}
-            disabled={!isConnected}
-            style={{ 
-              marginLeft: '10px', 
-              padding: '4px 8px', 
-              fontSize: '12px',
-              background: isConnected ? '#007bff' : '#6c757d',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: isConnected ? 'pointer' : 'not-allowed'
-            }}
-          >
-            {isConnected ? 'Load Messages' : 'Connecting...'}
-          </button>
-          {/* Debug connection button */}
-          <button 
-            onClick={() => {
-              console.log('🔧 Manual connection trigger');
-              console.log('🔧 Current state:', { isConnected, isConnecting, connectionError });
-              console.log('🔧 Auth token:', !!localStorage.getItem('token'));
-              console.log('🔧 Outlet type:', outletType);
-              console.log('🔧 User ID:', localStorage.getItem('userId'));
-              
-              if (!isConnected && !isConnecting) {
-                console.log('🔧 Attempting manual connection...');
-                // The connect function is no longer available in the new useMessaging hook
-                // This button will now only log the state.
-                console.log('🔧 Manual connection not available in this version.');
-              }
-            }}
-            style={{ 
-              marginLeft: '10px', 
-              padding: '4px 8px', 
-              fontSize: '12px',
-              background: '#28a745',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            {isConnected ? 'Debug State' : 'Connect'}
-          </button>
-          {/* Test load messages button */}
-          <button 
-            onClick={() => {
-              console.log('🧪 Manual load messages test');
-              console.log('🧪 Current messages count:', allMessages.length);
-              console.log('🧪 Current messages:', allMessages);
-              triggerMessageLoad();
-            }}
-            style={{ 
-              marginLeft: '10px', 
-              padding: '4px 8px', 
-              fontSize: '12px',
-              background: '#ffc107',
-              color: 'black',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            Test Load
-          </button>
-          {/* Create test message button */}
-          <button 
-            onClick={() => {
-              console.log('🧪 Creating test message to create thread...');
-              try {
-                sendMessage('Hello! This is a test message to create a message thread.', 'text');
-                console.log('🧪 Test message sent successfully');
-              } catch (error) {
-                console.error('🧪 Error sending test message:', error);
-              }
-            }}
-            style={{ 
-              marginLeft: '10px', 
-              padding: '4px 8px', 
-              fontSize: '12px',
-              background: '#dc3545',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            Create Thread
-          </button>
-          {/* Force refresh messages button */}
-          <button 
-            onClick={() => {
-              console.log('🔄 Force refreshing messages...');
-              console.log('🔄 Current messages before refresh:', allMessages);
-              // The forceRefreshMessages function is no longer available in the new useMessaging hook
-              // This button will now only log the state.
-              console.log('🔄 Force refresh not available in this version.');
-            }}
-            style={{ 
-              marginLeft: '10px', 
-              padding: '4px 8px', 
-              fontSize: '12px',
-              background: '#6f42c1',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            Force Refresh
-          </button>
-        </div>
 
-      {/* Tab Navigation */}
-      {(!isMobile || !activeChatItem) && (
+      {/* Tab Navigation - only show if authenticated */}
+      {isAuthenticated && (!isMobile || !activeChatItem) && (
         <div className="tabs-container">
           <div className="tabs">
             <button 
@@ -317,12 +265,25 @@ const Messages = () => {
         </div>
       )}
 
-      {/* Main Content */}
-      <div className="main-content">
-        {isMobile ? renderMobileView() : renderDesktopView()}
-      </div>
+      {/* Main Content - only render if authenticated */}
+      {isAuthenticated && (
+        <div className="main-content">
+          {isMobile ? renderMobileView() : renderDesktopView()}
+        </div>
+      )}
+
+      {/* Authentication Modals */}
+      <AuthModals
+        showLogin={showLoginModal}
+        showRegister={showRegisterModal}
+        onCloseAll={handleCloseAuthModals}
+        onAuthSuccess={handleAuthSuccess}
+        onSwitchToRegister={handleSwitchToRegister}
+        onSwitchToLogin={handleSwitchToLogin}
+      />
     </div>
   );
 };
 
 export default Messages;
+
