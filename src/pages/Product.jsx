@@ -45,7 +45,6 @@ export default function Product() {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [pendingOrderProduct, setPendingOrderProduct] = useState(null);
 
-
   // Fetch data with pagination
   const { 
     data: productsData, 
@@ -279,8 +278,7 @@ export default function Product() {
 
   const handleBuyNow = () => {
     const user = getActiveUser();
-  const isLoggedIn = user && user.token && user.id;
-    
+    const isLoggedIn = user && user.token && user.id;
     
     if (!isLoggedIn) {
       setPendingOrderProduct(selectedProduct);
@@ -331,7 +329,7 @@ export default function Product() {
           onCategoryChange={handleMobileCategoryChange}
         />
         <Hero/>
-        <section className="product-showcases-container">
+        <section className="product-showcases-container" id="products-section">
           <div className="products-loading-container">
             <div className="products-grid">
               {Array.from({ length: itemsPerPage }).map((_, idx) => (
@@ -359,7 +357,7 @@ export default function Product() {
           onCategoryChange={handleMobileCategoryChange}
         />
         <Hero/>
-        <section className="product-showcases-container">
+        <section className="product-showcases-container" id="products-section">
           <ErrorState 
             message="Failed to load products. Please check your connection and try again." 
             onRetry={handleRetry}
@@ -382,7 +380,7 @@ export default function Product() {
           onCategoryChange={handleMobileCategoryChange}
         />
         <Hero/>
-        <section className="product-showcases-container">
+        <section className="product-showcases-container" id="products-section">
           <EmptyState 
             message="No products available at the moment." 
             btnText="Refresh Products"
@@ -405,7 +403,7 @@ export default function Product() {
         onCategoryChange={handleMobileCategoryChange}
       />
       <Hero/>
-      <section className="product-showcases-container">
+      <section className="product-showcases-container" id="products-section">
         
         {filteredAndSortedProducts.length > 0 ? (
           <>
