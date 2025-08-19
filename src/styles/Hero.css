@@ -1,12 +1,12 @@
 .hero-section {
     position: relative;
-    background-image: url('/hero.png');
-    background-size: cover; /* Cover is used to fill the space */
+   
+    background-size: cover;
     background-position: center;
     height: 70vh;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+   
     padding: 2rem;
 }
 .hero-overlay {
@@ -16,7 +16,7 @@
    
     position: relative; 
     padding: 20px;
-    margin-right: 0;
+    margin-left: 0;
     color: #fff;
     border-radius: 15px
 
@@ -92,4 +92,9 @@
     .hero-button {
         padding: 0.6rem 1.2rem;  
     }
+}
+
+.hero-content-left {
+  text-align: left;
+  align-items: flex-start;
 }
