@@ -426,10 +426,10 @@ const PendingOrders = () => {
         {/* Tabs */}
         <div className="order-tabs">
           <button className={`tab-button ${activeTab === "pending" ? "active" : ""}`} onClick={() => setActiveTab("pending")}>
-            Unpaid {orderData?.length > 0 && `(${orderData.length})`}
+            Unpaid {orderData?.length > 0 && `(${orderData?.length})`}
           </button>
           <button className={`tab-button ${activeTab === "delivering" ? "active" : ""}`} onClick={() => setActiveTab("delivering")}>
-            In Delivery {deliveryData?.length > 0 && `(${deliveryData.length})`}
+            In Delivery {deliveryData?.length > 0 && `(${deliveryData?.length})`}
           </button>
         </div>
 
@@ -444,7 +444,7 @@ const PendingOrders = () => {
               key={activeTab}
             >
         {activeTab === "pending" ? (
-  orderData && orderData.length > 0 ? (
+  orderData && orderData?.length > 0 ? (
     orderData.map((order, index) => (
       <PendingOrderItem
         key={order.id}
@@ -464,7 +464,7 @@ const PendingOrders = () => {
     <div className="no-orders">No pending orders found</div>
   )
 ) : (
-  deliveryData && deliveryData.length > 0 ? (
+  deliveryData && deliveryData?.length > 0 ? (
     deliveryData.map((order, index) => (
       <DeliveryOrderItem
         key={order.id}
@@ -492,7 +492,7 @@ const PendingOrders = () => {
           </div>
         )}
 
-        {activeTab === "pending" && orderData.length > 0  && (
+        {activeTab === "pending" && orderData?.length > 0  && (
           <div className="make-payment-container">
             <button
               className="make-payment-button"
