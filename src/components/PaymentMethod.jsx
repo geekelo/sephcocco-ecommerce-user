@@ -70,7 +70,7 @@ export default function PaymentMethod({address,totalCost, product, quantity, ord
     console.log(payload);
     
     try {
-      await payment({ activeOutlet, payload });
+      await payment({ activeOutlet: activeOutlet, payload: payload });
       alert('Bank transfer recorded. Your order is now pending verification.');
       onPaymentComplete(); // Trigger whatever happens after payment
     } catch (error) {
