@@ -25,6 +25,8 @@ export default function OrderSummary({
   };
 
   const increaseQuantity = () => {
+    console.log('Increasing quantity from', quantity, 'to', quantity + 1);
+    
     if (quantity < product.stockCount && !orderCreated) {
       setQuantity(quantity + 1);
     }
@@ -61,23 +63,34 @@ export default function OrderSummary({
               </div>
             </div>
             
+            {/* Fixed quantity selector with proper display */}
             <div className="quantity-selector">
               <button
                 className="order-quantity-btn"
                 onClick={decreaseQuantity}
                 disabled={quantity <= 1 || orderCreated}
+                type="button"
               >
                 <Minus size={16} />
               </button>
+              
+              {/* Add quantity display */}
+              <span className="quantity-display">{quantity}</span>
               
               <button
                 className="order-quantity-btn"
                 onClick={increaseQuantity}
                 disabled={quantity >= product.stockCount || orderCreated}
+                type="button"
               >
                 <Plus size={16} />
               </button>
             </div>
+
+            {/* Stock info for debugging */}
+            <p className="stock-info">
+              Available: {product.stockCount} | Current: {quantity}
+            </p>
           </div>
         </div>
       </div>
@@ -129,6 +142,7 @@ export default function OrderSummary({
         className={`create-order-button ${!isFormValid && !orderCreated ? 'disabled' : ''}`}
         onClick={handleContinueClick}
         disabled={(!isFormValid && !orderCreated) || isCreatingOrder}
+        type="button"
       >
         {isCreatingOrder ? (
           <>
