@@ -17,10 +17,8 @@ export const PendingOrderItem = ({
   onToggleCheck,
   onDelete 
 }) => {
-  const totalPrice = parseFloat(order?.total_cost ?? "0") * Number(quantity ?? 1);
-
-console.log('ok',totalPrice);
-console.log(quantity);
+  // ✅ Only calculate display total based on parent-passed quantity
+  const totalPrice = parseFloat(order.unit_price) * Number(quantity ?? 1);
 
   return (
     <motion.div
@@ -51,7 +49,6 @@ console.log(quantity);
           <h3 className="pending-product-name">{order?.product?.name}</h3>
           <OrderStatusBadge status={order.status} />
           
-          
           <button
             className="delete-btn"
             onClick={(e) => {
@@ -72,7 +69,7 @@ console.log(quantity);
                 className="quantity-btn quantity-decrease"
                 onClick={(e) => {
                   e.stopPropagation();
-                  onDecrease();
+                  onDecrease(order.id);
                 }}
               >
                 <Minus size={16} />
@@ -82,7 +79,7 @@ console.log(quantity);
                 className="quantity-btn quantity-increase"
                 onClick={(e) => {
                   e.stopPropagation();
-                  onIncrease();
+                  onIncrease(order.id);
                 }}
               >
                 <Plus size={16} />

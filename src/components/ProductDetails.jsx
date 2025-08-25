@@ -9,6 +9,7 @@ import { HelpCircle } from 'lucide-react';
 import { useLikedProduct } from '../hooks/useLikedProduct';
 import { useUnlikedProduct } from '../hooks/useUnlikedProduct';
 import { getActiveOutlet } from '../utils/getActiveOutlets';
+import { useNavigate } from 'react-router-dom';
 
 const ProductDetails = ({ product, onCloseModal, onBuyNow, onProductUpdate }) => {
   const [selectedImage, setSelectedImage] = useState(product?.main_image_url);
@@ -16,7 +17,7 @@ const ProductDetails = ({ product, onCloseModal, onBuyNow, onProductUpdate }) =>
   
   // Check if user is logged in
   const isLoggedIn = localStorage.getItem('token') !== null;
-  
+  const navigate = useNavigate()
   // Get current active outlet
   const activeOutlet = getActiveOutlet();
   
@@ -145,7 +146,7 @@ const ProductDetails = ({ product, onCloseModal, onBuyNow, onProductUpdate }) =>
           </div>
            
           <div className="pending-order-container">
-            <div className="enquiry-help">
+            <div className="enquiry-help" onClick={() => navigate('/messages')}>
               <HelpCircle size={18} strokeWidth={1.5} className="help-icon" />
               <span className="help-text">Make enquiries</span>
             </div>

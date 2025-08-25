@@ -1,24 +1,51 @@
-import React from 'react';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowLeft } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { orders } from '../constants/orders';
 import '../styles/OrderDetails.css';
 import InfoSection from '../components/InfoSection';
 import ProductInfo from '../components/ProductInfo';
+import { getActiveOutlet } from '../utils/getActiveOutlets';
+import { useGetDeliveryOrder } from '../hooks/useGetDeliveryOrder';
+import OrderDetailsSkeleton from '../components/OrderDetailsSkeleton';
+import { useTrackOrder } from '../hooks/useTrackOrder';
+import { useRiders } from '../hooks/useRiders';
 
 const OrderDetails = () => {
   const navigate = useNavigate();
   const { orderId } = useParams();
-  
-  // Find the order by ID
-  const order = orders.find(o => o.id.toString() === orderId) || orders[0]; 
-  
+  const activeOutlet = getActiveOutlet();
+
+  const {
+    data: deliveryData,
+    isLoading: isLoadingDelivery,
+  } = useGetDeliveryOrder(activeOutlet);
+
+  const [showTracking, setShowTracking] = useState(false);
+
+  // Find the order by ID from API response
+  const order =
+    deliveryData?.find((o) => o.id.toString() === orderId) || null;
+const {data: riders, isLoading: isLoadingRiders} = useRiders()
+console.log('dd',riders);
+
+  // Fetch tracking info only when needed
+  const { data: trackData, isLoading: isTrackingLoading } = useTrackOrder(
+    order?.assigned_rider?.id,
+    { enabled: showTracking } // only run if tracking is opened
+  );
+
   const handleBack = () => {
-    navigate(-1); // Go back to previous page
+    navigate(-1);
   };
-  
- 
-  
+
+  if (isLoadingDelivery) {
+    return <OrderDetailsSkeleton />;
+  }
+
+  if (!order) {
+    return <p className="error-text">Order not found</p>;
+  }
+
   return (
     <div className="order-details-container">
       {/* Navigation */}
@@ -28,61 +55,90 @@ const OrderDetails = () => {
           <span>Back</span>
         </button>
       </div>
-      
+
       {/* Order Status Message */}
       <div className="order-status-message">
         <p className="status-text">
-          Your order will be completed 2-3 hours after arrival. During this period, you can raise a dispute if 
-          you did not receive your product or received the wrong product.
+          Your order will be completed 2-3 hours after arrival. During this
+          period, you can raise a dispute if you did not receive your product or
+          received the wrong product.
         </p>
       </div>
-      
+
       {/* Product Information */}
-      <ProductInfo 
-        name={order.name}
-        image={order.image}
-        price={order.price}
-        rating={order.rating}
-        ratingCount={order.ratingCount}
+      <ProductInfo
+        name={order.product?.name}
+        image={order.product?.main_image_url}
+        price={order.unit_price}
+        rating={order.rating ?? 0}
+        ratingCount={order.ratingCount ?? 0}
         status={order.status}
-        likes={order.likes}
-        isFavorite={order.isFavorite}
+        likes={order.likes ?? 0}
+        isFavorite={false}
+        onTrackOrder={() => setShowTracking(true)}
       />
-      
-      {/* Product Description */}
-      <div className="product-description-section">
-        <h3 className="section-title">Product Description</h3>
-        <p className="description-text">
-          {order.longDescription || 
-           "Lorem ipsum dolor sit amet consectetur. Neque tincidunt urna rhoncus vitae sit. Sodales nec diam dignissim eu risus. Orci ac sed pellentesque venenatis nunc mi cursus viverra. Turpis laculis massa elementum eu. Ipsum imperdiet tincida arcu erat gravida."}
-        </p>
-      </div>
-      
-      {/* Information Sections */}
+
+      {/* Product Description OR Tracking */}
+      {!showTracking ? (
+        <div className="product-description-section">
+          <h3 className="section-title">Product Description</h3>
+          <p className="description-text">
+            {order.additional_notes ||
+              'No additional notes provided for this order.'}
+          </p>
+                {/* Information Sections */}
       <div className="info-sections-container">
-        <InfoSection 
+        <InfoSection
           title="Payment Information"
           items={[
-            { label: "Payment Method:", value: "Door step Delivery" },
-            { label: "Payment Details:", value: "Lorem ipsum dolor sit amet consectetur. Rhoncus vel praesent duis et." }
+            { label: 'Payment Method:', value: 'N/A' },
+            {
+              label: 'Payment Details:',
+              value: order.payment_details || 'N/A',
+            },
+            { label: 'Total Price:', value: ` ₦${order.total_price}` },
           ]}
         />
-        
-        <InfoSection 
+
+        <InfoSection
           title="Delivery Information"
           items={[
-            { label: "Delivery Method:", value: "Door step Delivery" },
-            { label: "Shipping Address:", value: "Lorem ipsum dolor sit amet consectetur. Rhoncus vel praesent duis et." },
-            { label: "Shipping Details:", value: "Lorem ipsum dolor sit amet consectetur. Rhoncus vel praesent duis et." }
+            { label: 'Delivery Method:', value: 'Door step Delivery' },
+            { label: 'Shipping Address:', value: order.address },
+            { label: 'Phone Number:', value: order.phone_number },
           ]}
         />
       </div>
-      
+        </div>
+      ) : (
+        <div className="tracking-info-section">
+          <h3 className="section-title">Tracking Information</h3>
+          {isTrackingLoading ? (
+            <p className="description-text">Loading tracking details...</p>
+          ) : trackData && trackData.locations?.length > 0 ? (
+            <div className="tracking-details">
+              <p><strong>Status:</strong> {order.status}</p>
+              <p><strong>Latitude:</strong> {trackData.locations[0].latitude}</p>
+              <p><strong>Longitude:</strong> {trackData.locations[0].longitude}</p>
+            </div>
+          ) : (
+            <p className="description-text">No tracking info available yet.</p>
+          )}
+        </div>
+      )}
+
+
+
       {/* Action Buttons */}
       <div className="order-action-buttons">
-        <button className="help-button">Get Help</button>
-        
-      
+        <button
+          onClick={() => {
+            navigate('/messages');
+          }}
+          className="help-button"
+        >
+          Get Help
+        </button>
       </div>
     </div>
   );

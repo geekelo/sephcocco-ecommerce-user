@@ -11,13 +11,15 @@ import { getActiveOutlet } from '../utils/getActiveOutlets';
 
 const OrderModal = ({ product, onClose }) => {
   const [quantity, setQuantity] = useState(1);
+  console.log('ordd',product);
+  
   const [address, setAddress] = useState('');
   const [phoneNumbers, setPhoneNumbers] = useState('');
   const [notes, setNotes] = useState('');
   const [showPaymentOnMobile, setShowPaymentOnMobile] = useState(false);
   const [orderCreated, setOrderCreated] = useState(false);
   const [createdOrderId, setCreatedOrderId] = useState(null);
-  
+  const [totalCost, setTotalCost] = useState(null);
   // Add error state
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -99,6 +101,7 @@ const OrderModal = ({ product, onClose }) => {
       console.log(response);
       
       setCreatedOrderId(response.order_number);
+      setTotalCost(response.total_cost);
       setOrderCreated(true);
       setShowPaymentOnMobile(true);
     } catch (error) {
@@ -222,6 +225,7 @@ const OrderModal = ({ product, onClose }) => {
                 address={address}
                 quantity={quantity}
                 product={product}
+                totalCost={totalCost}
                 orderId={createdOrderId}
                 onPaymentComplete={onClose}
               />

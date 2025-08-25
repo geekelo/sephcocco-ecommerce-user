@@ -17,17 +17,18 @@ export default function OrderSummary({
   orderCreated,
   isCreatingOrder
 }) {
+  console.log('dd',product);
   
   const decreaseQuantity = () => {
     if (quantity > 1 && !orderCreated) {
       setQuantity(quantity - 1);
     }
   };
-
+const totalCost = product?.price * quantity || 0;
   const increaseQuantity = () => {
     console.log('Increasing quantity from', quantity, 'to', quantity + 1);
     
-    if (quantity < product.stockCount && !orderCreated) {
+    if (quantity < product.amount_in_stock && !orderCreated) {
       setQuantity(quantity + 1);
     }
   };
@@ -57,7 +58,7 @@ export default function OrderSummary({
             <h4>{product.name}</h4>
             
             <div className="item-price-row">
-              <p className="item-price">₦{parseFloat(product.price || 0).toFixed(2)}</p>
+              <p className="item-price">₦{parseFloat(totalCost).toFixed(2)}</p>
               <div>
                 <p className="quantity-label">Total Quantity: <span className="quantity-value">{quantity}</span></p>
               </div>
@@ -80,7 +81,7 @@ export default function OrderSummary({
               <button
                 className="order-quantity-btn"
                 onClick={increaseQuantity}
-                disabled={quantity >= product.stockCount || orderCreated}
+                disabled={quantity >= product.amount_in_stock || orderCreated}
                 type="button"
               >
                 <Plus size={16} />
@@ -89,7 +90,7 @@ export default function OrderSummary({
 
             {/* Stock info for debugging */}
             <p className="stock-info">
-              Available: {product.stockCount} | Current: {quantity}
+              Available: {product.amount_in_stock} | Current: {quantity}
             </p>
           </div>
         </div>

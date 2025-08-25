@@ -13,6 +13,7 @@ import { getActiveUser } from '../utils/getActiveUser'; // Add this import
 
 export default function PaymentPaymentMethod({
   product,
+  totalCost,
   quantity,
   onPaymentComplete,
   selectedOrders,
@@ -20,22 +21,24 @@ export default function PaymentPaymentMethod({
   const [paymentMethod, setPaymentMethod] = useState(null);
   const [showBankDetails, setShowBankDetails] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
- 
+ console.log('pyaemt',selectedOrders);
   const { mutateAsync: payment } = usePayment();
   const { mutateAsync: paymentVerify } = usePaymentVerify(); // Add this hook
+  console.log('Total Cost:', totalCost);
 
   const transactionId = localStorage.getItem('pay-ref');
   const activeOutlet = getActiveOutlet();
   const activeUser = getActiveUser(); // Get active user data
   console.log('act', activeOutlet);
 
-  const itemTotal =
-    selectedOrders?.reduce((sum, order) => {
-      const cost = Number(order.total_cost || order.price * order.quantity || 0);
-      return sum + cost;
-    }, 0) || 0;
+//   const itemTotal =
+//     selectedOrders?.reduce((sum, order) => {
+//       const cost = Number(order.total_cost);
+//       return sum + cost;
+//     }, 0) || 0;
+// console.log(itemTotal);
 
-  const totalCost = itemTotal;
+//   const totalCost = itemTotal * quantity;
 
   const handleBankTransfer = () => {
     setPaymentMethod('bank');
@@ -66,11 +69,10 @@ export default function PaymentPaymentMethod({
 
     try {
       await payment({ active_outlet: activeOutlet, payload });
-      alert('Bank transfer recorded. Your order is now pending verification.');
       onPaymentComplete?.(); 
     } catch (error) {
       console.error('Payment failed:', error);
-      alert('Payment failed. Please try again.');
+      alert('Payment failed. Please try again: ' + error.response?.data.error);
     } finally {
       setIsProcessing(false);
     }
@@ -188,11 +190,11 @@ export default function PaymentPaymentMethod({
       <div className="payment-checkout-section payment-total-section">
         <div className="payment-total-row">
           <span>Subtotal</span>
-          <span>₦{itemTotal.toLocaleString()}</span>
+          <span>₦{parseFloat(totalCost).toLocaleString()}</span>
         </div>
         <div className="payment-total-row payment-grand-total">
           <span>Total</span>
-          <span>₦{totalCost.toLocaleString()}</span>
+          <span>₦{parseFloat(totalCost).toLocaleString()}</span>
         </div>
       </div>
 

@@ -9,13 +9,13 @@ import { getActiveOutlet } from '../utils/getActiveOutlets';
 import { getActiveUser } from '../utils/getActiveUser'; // Add this import
 import PaystackPayment from './PaystackButton';
 
-export default function PaymentMethod({address, product, quantity, orderId, onPaymentComplete, userEmail}) {
+export default function PaymentMethod({address,totalCost, product, quantity, orderId, onPaymentComplete, userEmail}) {
   console.log(address, product);
   
-  // Calculate costs
-  const totalCost = product?.totalCost;
-  const itemTotal = product?.item_total || totalCost; // Add fallback for itemTotal
-  console.log(product?.total_cost, 'total cost');
+
+
+  const itemTotal = product?.price 
+  console.log('proddds',product);
   
   const [paymentMethod, setPaymentMethod] = useState(null);
   const [showBankDetails, setShowBankDetails] = useState(false);
@@ -204,11 +204,11 @@ export default function PaymentMethod({address, product, quantity, orderId, onPa
       <div className="checkout-section order-total-section">
         <div className="order-total-row">
           <span>Subtotal</span>
-          <span>₦{itemTotal?.toFixed(2)}</span>
+          <span>₦{parseFloat(totalCost).toFixed(2)}</span>
         </div>
         <div className="order-total-row grand-total">
           <span>Total</span>
-          <span>₦{totalCost?.toFixed(2)}</span>
+          <span>₦{parseFloat(totalCost).toFixed(2)}</span>
         </div>
       </div>
 
