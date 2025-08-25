@@ -100,7 +100,7 @@ const OrderModal = ({ product, onClose }) => {
       });
       console.log(response);
       
-      setCreatedOrderId(response.order_number);
+      setCreatedOrderId(response.id);
       setTotalCost(response.total_cost);
       setOrderCreated(true);
       setShowPaymentOnMobile(true);

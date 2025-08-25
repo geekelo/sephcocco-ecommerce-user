@@ -62,15 +62,16 @@ export default function PaymentMethod({address,totalCost, product, quantity, ord
     const payload = {
       [`sephcocco_${activeOutlet}_payment`]: {
         orders_ids: [orderId],
-        amount: totalCost,
+        amount: Number(totalCost),
         payment_method: 'bank',
         transaction_id: transactionId 
       }
     };
+    console.log('activeOutlet',activeOutlet);
     console.log(payload);
     
     try {
-      await payment({ activeOutlet: activeOutlet, payload: payload });
+      await payment({ active_outlet: activeOutlet, payload: payload });
       alert('Bank transfer recorded. Your order is now pending verification.');
       onPaymentComplete(); // Trigger whatever happens after payment
     } catch (error) {
