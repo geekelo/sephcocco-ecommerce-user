@@ -5,10 +5,12 @@ import '../styles/PaymentModal.css';
 import PaymentOrderSummary from './PaymentOrderSummary';
 import PaymentPaymentMethod from './PaymentPaymentMethod';
 
-const PaymentModal = ({ selectedOrders, onClose, onPaymentComplete }) => {
+const PaymentModal = ({ selectedOrders,totalCost, onClose, onPaymentComplete }) => {
 
 
   const [quantity, setQuantity] = useState(1);
+  console.log('opddrdd',selectedOrders);
+  console.log('Total Cost:', totalCost);
   
   // If we have selected orders, set the initial quantity to the total
   useEffect(() => {
@@ -56,6 +58,7 @@ const PaymentModal = ({ selectedOrders, onClose, onPaymentComplete }) => {
       onPaymentComplete();
     }
   };
+  console.log('ddk',quantity);
   
   return (
     <AnimatePresence>
@@ -105,6 +108,7 @@ const PaymentModal = ({ selectedOrders, onClose, onPaymentComplete }) => {
                 product={combinedProduct}
                 onPaymentComplete={handlePaymentComplete}
                 selectedOrders={selectedOrders}
+                totalCost={totalCost} 
               />
             </div>
             
@@ -117,6 +121,7 @@ const PaymentModal = ({ selectedOrders, onClose, onPaymentComplete }) => {
                   product={combinedProduct}
                   onPaymentComplete={handlePaymentComplete}
                   selectedOrders={selectedOrders}
+                  totalCost={totalCost}
                 />
               
             </div>

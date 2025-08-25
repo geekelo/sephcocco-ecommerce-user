@@ -1,0 +1,39 @@
+.order-details-container {
+  padding: 1.5rem;
+}
+
+.order-details-nav {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.order-status-message {
+  margin-top: 1rem;
+}
+
+.product-description-section {
+  margin-top: 2rem;
+}
+
+.info-sections-container {
+  margin-top: 2rem;
+}
+
+.order-action-buttons {
+  margin-top: 2.5rem;
+}
+
+/* Skeleton shimmer effect */
+.animate-pulse {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}

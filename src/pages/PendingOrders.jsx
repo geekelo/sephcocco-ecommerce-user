@@ -1,7 +1,7 @@
-import React from "react";
-import { motion } from 'framer-motion';
-import { ArrowLeft, ShoppingCart } from 'lucide-react';
-import '../styles/PendingOrders.css';
+// import React from "react";
+// import { motion } from 'framer-motion';
+// import { ArrowLeft, ShoppingCart } from 'lucide-react';
+// import '../styles/PendingOrders.css';
 
 const PendingOrdersSkeleton = ({ isMobile = false }) => {
   // Animation variants for skeleton
@@ -298,4 +298,252 @@ const PendingOrdersSkeleton = ({ isMobile = false }) => {
   );
 };
 
-export default PendingOrdersSkeleton;
+import React, { useEffect, useMemo, useState } from "react";
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, ShoppingCart, CheckCircle } from 'lucide-react';
+import { DeliveryOrderItem } from "../components/DeliveryOrderItem";
+import { PendingOrderItem } from "../components/PendingOrderItem";
+import { orders, getSimilarOrderProducts } from "../constants/orders";
+import '../styles/PendingOrders.css';
+
+import ProductModal from "../components/ProductModal";
+import { useNavigate } from "react-router-dom";
+import OrderModal from "../components/OrderModal";
+import PaymentModal from "../components/PaymentModal";
+import PaymentSuccessModal from "../components/PaymentSuccessModal";
+import {  useGetPendingOrder } from "../hooks/useGetPendingOrder";
+import { getActiveOutlet } from "../utils/getActiveOutlets";
+import { useDeleteOrder } from "../hooks/useDeleteOrder";
+import { useUpdateOrder } from "../hooks/useUpdateOrder";
+import { useGetDeliveryOrder } from "../hooks/useGetDeliveryOrder";
+
+const PendingOrders = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  const [currentOrder, setCurrentOrder] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isPaymentSuccessful, setIsPaymentSuccessful] = useState(false);
+  const [activeTab, setActiveTab] = useState("pending");
+
+  const [checkedOrders, setCheckedOrders] = useState({});
+  const [orderQuantities, setOrderQuantities] = useState({});
+
+  const navigate = useNavigate();
+  const activeOutlet = getActiveOutlet();
+  const { data: orderData, refetch, isLoading: isLoadingOrder } = useGetPendingOrder(activeOutlet);
+  const { data: deliveryData, refetch: refetchDelivery, isLoading: isLoadingDelivery } = useGetDeliveryOrder(activeOutlet);
+  const deleteOrderMutation = useDeleteOrder();
+  const updateOrderMutation = useUpdateOrder();
+
+  // Detect mobile
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Init orderQuantities from API
+  useEffect(() => {
+    if (!orderData) return;
+    const initialQuantities = {};
+    orderData.forEach(order => {
+      initialQuantities[order.id] = order.quantity || 1;
+    });
+    setOrderQuantities(initialQuantities);
+  }, [orderData]);
+
+  // Handle delete
+  const handleDeleteOrder = (orderId) => {
+    deleteOrderMutation.mutate({ active_outlet: activeOutlet, orderId }, { onSuccess: refetch });
+  };
+
+  // Handle quantity update → sync with API
+  const handleQuantityUpdate = (orderId, newQuantity) => {
+    setOrderQuantities(prev => ({ ...prev, [orderId]: newQuantity }));
+
+    const payload = {
+      [`sephcocco_${activeOutlet}_order`]: { quantity: newQuantity },
+    };
+
+    updateOrderMutation.mutate({ active_outlet: activeOutlet, orderId, payload }, { onSuccess: refetch });
+  };
+
+  // Increase / Decrease
+  const increaseQuantity = (orderId) => {
+    const currentQty = orderQuantities[orderId] || 1;
+    handleQuantityUpdate(orderId, currentQty + 1);
+  };
+
+  const decreaseQuantity = (orderId) => {
+    const order = orderData.find(o => o.id === orderId);
+    // const minQty = order?.quantity || 1; // 👈 original API qty is minimum
+    const currentQty = orderQuantities[orderId] || 1;
+    const newQty = Math.max(1, currentQty - 1);
+    handleQuantityUpdate(orderId, newQty);
+  };
+
+  // Toggle checkbox
+  const toggleOrderCheck = (orderId) => {
+    setCheckedOrders(prev => ({ ...prev, [orderId]: !prev[orderId] }));
+  };
+
+  // Selected items & total
+  const { selectedItemsCount, totalPrice } = useMemo(() => {
+    let count = 0;
+    let total = 0;
+
+    orderData?.forEach(order => {
+      if (checkedOrders[order.id]) {
+        const qty = orderQuantities[order.id] || order.quantity || 1;
+        count += qty;
+        total += qty * parseFloat(order.unit_price);
+      }
+    });
+
+    return { selectedItemsCount: count, totalPrice: total };
+  }, [orderData, checkedOrders, orderQuantities]);
+
+  if (isLoadingOrder || isLoadingDelivery) {
+    return <PendingOrdersSkeleton />;
+  }
+
+  return (
+    <div className="orders-container full-width">
+      <div className="centered-content">
+        {/* Header */}
+        <div className="orders-header">
+          {isMobile && (
+            <motion.button onClick={() => navigate("/products")} className="back-btn" whileTap={{ scale: 0.95 }}>
+              <ArrowLeft size={20} />
+            </motion.button>
+          )}
+          <h1 className="header-title">Orders</h1>
+        </div>
+
+        {/* Tabs */}
+        <div className="order-tabs">
+          <button className={`tab-button ${activeTab === "pending" ? "active" : ""}`} onClick={() => setActiveTab("pending")}>
+            Unpaid {orderData?.length > 0 && `(${orderData.length})`}
+          </button>
+          <button className={`tab-button ${activeTab === "delivering" ? "active" : ""}`} onClick={() => setActiveTab("delivering")}>
+            In Delivery {deliveryData?.length > 0 && `(${deliveryData.length})`}
+          </button>
+        </div>
+
+        {/* Order list */}
+        <div className="orders-content">
+          <AnimatePresence mode="wait">
+            <motion.div
+              className="order-list"
+              initial="hidden"
+              animate="show"
+              exit="exit"
+              key={activeTab}
+            >
+        {activeTab === "pending" ? (
+  orderData && orderData.length > 0 ? (
+    orderData.map((order, index) => (
+      <PendingOrderItem
+        key={order.id}
+        order={order}
+        index={index}
+        quantity={orderQuantities[order.id] || order.quantity || 1}
+        onIncrease={increaseQuantity}
+        onDecrease={decreaseQuantity}
+        onClick={() => setCurrentOrder(order)}
+        isSelected={currentOrder?.id === order.id}
+        isChecked={!!checkedOrders[order.id]}
+        onToggleCheck={toggleOrderCheck}
+        onDelete={handleDeleteOrder}
+      />
+    ))
+  ) : (
+    <div className="no-orders">No pending orders found</div>
+  )
+) : (
+  deliveryData && deliveryData.length > 0 ? (
+    deliveryData.map((order, index) => (
+      <DeliveryOrderItem
+        key={order.id}
+        order={order}
+        index={index}
+        onClick={() => setCurrentOrder(order)}
+        isSelected={currentOrder?.id === order.id}
+      />
+    ))
+  ) : (
+    <div className="no-orders">No delivery orders found</div>
+  )
+)}
+
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Selected Items & Payment */}
+        {activeTab === "pending" && selectedItemsCount > 0 && (
+          <div className="selected-items-indicator">
+            <span>
+              {selectedItemsCount} item{selectedItemsCount !== 1 ? "s" : ""} selected — ₦{totalPrice}
+            </span>
+          </div>
+        )}
+
+        {activeTab === "pending" && orderData.length > 0  && (
+          <div className="make-payment-container">
+            <button
+              className="make-payment-button"
+              disabled={selectedItemsCount === 0}
+              onClick={() => setIsPaymentModalOpen(true)}
+            >
+              <ShoppingCart size={18} style={{ marginRight: "8px" }} />
+              Make Payment
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Modals */}
+      {showModal && selectedProduct && (
+        <ProductModal
+          product={selectedProduct}
+          onClose={() => setShowModal(false)}
+          onBuyNow={() => {
+            setShowModal(false);
+            setIsOrderModalOpen(true);
+          }}
+        />
+      )}
+
+      {isOrderModalOpen && (
+        <OrderModal product={selectedProduct} onClose={() => setIsOrderModalOpen(false)} />
+      )}
+
+      {isPaymentModalOpen && (
+        <PaymentModal
+          selectedOrders={orderData.filter(order => checkedOrders[order.id])}
+          onClose={() => setIsPaymentModalOpen(false)}
+           totalCost={totalPrice} 
+          onPaymentComplete={() => {
+            setIsPaymentModalOpen(false);
+            setIsPaymentSuccessful(true);
+            refetch();
+            refetchDelivery();
+          }}
+        />
+      )}
+
+      {isPaymentSuccessful && (
+        <>
+          <div className="payment-success-backdrop" />
+          <PaymentSuccessModal onClose={() => setIsPaymentSuccessful(false)} />
+        </>
+      )}
+    </div>
+  );
+};
+
+export default PendingOrders;

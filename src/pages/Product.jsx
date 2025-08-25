@@ -383,8 +383,8 @@ export default function Product() {
         <section className="product-showcases-container" id="products-section">
           <EmptyState 
             message="No products available at the moment." 
-            btnText="Refresh Products"
-            handleAddCategory={handleRetry}
+          
+          
           />
         </section>
       </>

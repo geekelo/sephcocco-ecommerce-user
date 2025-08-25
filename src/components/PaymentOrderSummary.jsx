@@ -25,6 +25,7 @@ export default function PaymentOrderSummary({
       setQuantity(quantity + 1);
     }
   };
+  console.log('dd',selectedOrders);
   
   return (
     <div className="order-left-column">
