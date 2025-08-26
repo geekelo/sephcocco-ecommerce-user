@@ -3,7 +3,8 @@ import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../styles/PaymentModal.css';
 import PaymentOrderSummary from './PaymentOrderSummary';
-import PaymentPaymentMethod from './PaymentPaymentMethod';
+import PaymentPaymentMethod from './PendingPaymentMethod';
+
 
 const PaymentModal = ({ selectedOrders,totalCost, onClose, onPaymentComplete }) => {
 

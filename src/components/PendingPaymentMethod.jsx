@@ -1,39 +1,44 @@
-import { CheckCircle, CreditCard, Landmark, Copy, Check } from 'lucide-react'
-import React, { useState } from 'react'
-import BankDetails from './BankDetails'
+import { CheckCircle, CreditCard, Landmark } from 'lucide-react';
+import React, { useState } from 'react';
+import BankDetails from './BankDetails';
+import PaymentSuccessModal from './PaymentSuccessModal';
+import PaystackPayment from './PaystackButton';
 
 
-import '../styles/PaymentMethod.css'
 import { usePayment } from '../hooks/usePayment';
 import { usePaymentVerify } from '../hooks/usePaymentVerify';
+import '../styles/PaymentPaymentMethod.css';
+
 import { getActiveOutlet } from '../utils/getActiveOutlets';
 import { getActiveUser } from '../utils/getActiveUser';
-import PaystackPayment from './PaystackButton';
 import { AuthModals } from './AuthModal';
 
-export default function PaymentMethod({address, totalCost, product, quantity, orderId, onPaymentComplete, userEmail}) {
-  console.log(address, product);
-  
-  const itemTotal = product?.price 
-  console.log('proddds', product);
-  
+export default function PaymentPaymentMethod({
+  product,
+  totalCost,
+  quantity,
+  onPaymentComplete,
+  selectedOrders,
+}) {
   const [paymentMethod, setPaymentMethod] = useState(null);
   const [showBankDetails, setShowBankDetails] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   
   // Auth modal states
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   
-  const activeOutlet = getActiveOutlet()
-  const activeUser = localStorage.getItem('userEmail')
+  console.log('pyaemt', selectedOrders);
+  
+  const { mutateAsync: payment } = usePayment();
+  const { mutateAsync: paymentVerify } = usePaymentVerify();
+  console.log('Total Cost:', totalCost);
+
+  const transactionId = localStorage.getItem('pay-ref');
+  const activeOutlet = getActiveOutlet();
+  const activeUser = localStorage.getItem('userEmail');
   console.log('act', activeOutlet);
-  
-  const { mutateAsync: payment } = usePayment()
-  const { mutateAsync: paymentVerify } = usePaymentVerify()
-  const transactionId = localStorage.getItem('pay-ref')
-  
+
   // Check if user is authenticated
   const checkAuthentication = () => {
     const token = localStorage.getItem('token');
@@ -45,14 +50,14 @@ export default function PaymentMethod({address, totalCost, product, quantity, or
     }
     return true;
   };
-  
+
   const handleBankTransfer = () => {
     if (!checkAuthentication()) return;
     
     setPaymentMethod('bank');
     setShowBankDetails(true);
   };
-  
+
   const handleOnlinePayment = () => {
     if (!checkAuthentication()) return;
     
@@ -60,47 +65,30 @@ export default function PaymentMethod({address, totalCost, product, quantity, or
     setShowBankDetails(false);
   };
 
-  const handleCopyOrderId = async () => {
-    try {
-      await navigator.clipboard.writeText(orderId);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
-    } catch (err) {
-      // Fallback for older browsers
-      const textArea = document.createElement('textarea');
-      textArea.value = orderId;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
-
+  // Handle bank payment
   const handleBankPayment = async () => {
     if (!checkAuthentication()) return;
-    
+    if (!paymentMethod) return;
+
     setIsProcessing(true);
-    
+
+    const orderIds = selectedOrders?.map(order => order.id);
+
     const payload = {
       [`sephcocco_${activeOutlet}_payment`]: {
-        orders_ids: [orderId],
-        amount: Number(totalCost),
+        orders_ids: orderIds,
+        amount: totalCost,
         payment_method: 'bank',
-        transaction_id: transactionId 
-      }
+        transaction_id: transactionId,
+      },
     };
-    console.log('activeOutlet', activeOutlet);
-    console.log(payload);
-    
+
     try {
-      await payment({ active_outlet: activeOutlet, payload: payload });
-      alert('Bank transfer recorded. Your order is now pending verification.');
-      onPaymentComplete(); // Trigger whatever happens after payment
+      await payment({ active_outlet: activeOutlet, payload });
+      onPaymentComplete?.(); 
     } catch (error) {
       console.error('Payment failed:', error);
-      alert('Payment failed. Please try again.');
+      alert('Payment failed. Please try again: ' + error.response?.data.error);
     } finally {
       setIsProcessing(false);
     }
@@ -120,11 +108,28 @@ export default function PaymentMethod({address, totalCost, product, quantity, or
     };
 
     try {
-      const verificationResult = await paymentVerify({ active_outlet: activeOutlet, payload: verifyPayload });
+      // Now record the payment in your system
+      const orderIds = selectedOrders?.map(order => order.id);
+      const paymentPayload = {
+        [`sephcocco_${activeOutlet}_payment`]: {
+          orders_ids: orderIds,
+          amount: totalCost,
+          payment_method: 'online',
+          transaction_id: response.reference,
+          paystack_reference: response.reference,
+          status: response.status
+        }
+      };
       
-      if (verificationResult.status === "success") {
+      const res = await payment({ active_outlet: activeOutlet, payload: paymentPayload });
+      console.log('payment created', res);
+      
+      const verificationResult = await paymentVerify({ active_outlet: activeOutlet, payload: verifyPayload });
+      console.log('payment verify', verificationResult);
+      
+      if (verificationResult.payment.status) {
         console.log("Payment verified ✅");
-        onPaymentComplete();
+        onPaymentComplete?.();
       } else {
         console.log("Payment verification failed ❌");
         alert('Payment verification failed. Please contact support with reference: ' + response.reference);
@@ -144,12 +149,15 @@ export default function PaymentMethod({address, totalCost, product, quantity, or
 
   // Generate a unique reference for Paystack
   const generatePaystackReference = () => {
-    return `${orderId}_${Date.now()}`;
+    const orderIds = selectedOrders?.map(order => order.id).join('_');
+    return `${orderIds}_${Date.now()}`;
   };
 
-  // Get user email from multiple sources with proper priority
-  const getEmailForPayment = () => {
-    return activeUser || userEmail || '';
+  console.log('okk', selectedOrders?.[0]);
+
+  // Get user email from multiple sources
+  const getUserEmail = () => {
+    return activeUser || '';
   };
 
   // Handle auth success
@@ -167,29 +175,12 @@ export default function PaymentMethod({address, totalCost, product, quantity, or
 
   return (
     <>
-      <div className="order-right-column">
-        <div className="checkout-section payment-section">
-          <h3 className="section-title">Payment Method</h3>
-          
-          <div className="order-status-info">
-            <div className="order-id-container">
-              <p className='order-id'>
-                <strong>Order ID:</strong> {orderId}
-                <button 
-                  className="copy-button-order"
-                  onClick={handleCopyOrderId}
-                  title={copied ? 'Copied!' : 'Copy Order ID'}
-                >
-                  {copied ? <Check size={16} color='#000' /> : <Copy size={16} color='#000' />}
-                </button>
-              </p>
-            </div>
-            <p><small>✅ Order created successfully</small></p>
-          </div>
-          
+      <div className="payment-right-column">
+        <div className="payment-checkout-section payment-method-section">
+          <h3 className="payment-section-title">Payment Method</h3>
           <div className="payment-options">
-            <div 
-              className={`payment-option ${paymentMethod === 'bank' ? 'selected' : ''}`}
+            <div
+              className={`payment-option ${paymentMethod === 'bank' ? 'payment-selected-option' : ''}`}
               onClick={handleBankTransfer}
             >
               <div className="payment-option-inner">
@@ -198,15 +189,15 @@ export default function PaymentMethod({address, totalCost, product, quantity, or
                 </div>
                 <div className="payment-option-label">Bank Transfer</div>
                 {paymentMethod === 'bank' && (
-                  <div className="payment-selected">
+                  <div className="payment-selected-indicator">
                     <CheckCircle size={20} />
                   </div>
                 )}
               </div>
             </div>
-            
-            <div 
-              className={`payment-option ${paymentMethod === 'online' ? 'selected' : ''}`}
+
+            <div
+              className={`payment-option ${paymentMethod === 'online' ? 'payment-selected-option' : ''}`}
               onClick={handleOnlinePayment}
             >
               <div className="payment-option-inner">
@@ -215,7 +206,7 @@ export default function PaymentMethod({address, totalCost, product, quantity, or
                 </div>
                 <div className="payment-option-label">Online Payment</div>
                 {paymentMethod === 'online' && (
-                  <div className="payment-selected">
+                  <div className="payment-selected-indicator">
                     <CheckCircle size={20} />
                   </div>
                 )}
@@ -224,34 +215,32 @@ export default function PaymentMethod({address, totalCost, product, quantity, or
           </div>
         </div>
 
-        <div className="checkout-section order-total-section">
-          <div className="order-total-row">
+        <div className="payment-checkout-section payment-total-section">
+          <div className="payment-total-row">
             <span>Subtotal</span>
-            <span>₦{parseFloat(totalCost).toFixed(2)}</span>
+            <span>₦{parseFloat(totalCost).toLocaleString()}</span>
           </div>
-          <div className="order-total-row grand-total">
+          <div className="payment-total-row payment-grand-total">
             <span>Total</span>
-            <span>₦{parseFloat(totalCost).toFixed(2)}</span>
+            <span>₦{parseFloat(totalCost).toLocaleString()}</span>
           </div>
         </div>
 
-        {paymentMethod === 'bank' && showBankDetails && (
-          <BankDetails orderId={orderId} />
-        )}
+        {paymentMethod === 'bank' && showBankDetails && <BankDetails />}
 
         {/* Conditional rendering based on payment method */}
         {paymentMethod === 'bank' ? (
-          <button 
-            className="checkout-button"
-            onClick={handleBankPayment}
+          <button
+            className="payment-checkout-button"
             disabled={isProcessing}
+            onClick={handleBankPayment}
           >
             {isProcessing ? 'Processing...' : 'I have paid'}
           </button>
         ) : paymentMethod === 'online' ? (
-          <div className="paystack-button-container">
+          <div className="">
             <PaystackPayment
-              email={getEmailForPayment()} 
+              email={getUserEmail()}
               amount={totalCost}
               reference={generatePaystackReference()}
               onSuccess={handlePaystackSuccess}
@@ -260,8 +249,8 @@ export default function PaymentMethod({address, totalCost, product, quantity, or
             />
           </div>
         ) : (
-          <button 
-            className="checkout-button disabled"
+          <button
+            className="payment-checkout-button payment-disabled"
             disabled
           >
             Select Payment Method
@@ -277,5 +266,5 @@ export default function PaymentMethod({address, totalCost, product, quantity, or
         onAuthSuccess={handleAuthSuccess}
       />
     </>
-  )
+  );
 }
