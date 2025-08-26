@@ -353,7 +353,7 @@ const PendingOrders = () => {
   useEffect(() => {
     if (!pendingData) return;
     const initialQuantities = {};
-    pendingData.forEach(order => {
+    pendingData?.orders?.forEach(order => {
       initialQuantities[order.id] = order.quantity || 1;
     });
     setOrderQuantities(initialQuantities);
@@ -405,7 +405,7 @@ const PendingOrders = () => {
     let count = 0;
     let total = 0;
 
-    pendingData?.forEach(order => {
+    pendingData?.orders?.forEach(order => {
       if (checkedOrders[order.id]) {
         const qty = orderQuantities[order.id] || order.quantity || 1;
         count += qty;
@@ -419,9 +419,9 @@ const PendingOrders = () => {
   // Get current data based on active tab
   const getCurrentData = () => {
     switch(activeTab) {
-      case "pending": return pendingData;
-      case "paid": return paidData;
-      case "delivering": return deliveryData;
+      case "pending": return pendingData?.orders;
+      case "paid": return paidData?.orders;
+      case "delivering": return deliveryData?.orders;
       default: return [];
     }
   };
@@ -431,7 +431,7 @@ const PendingOrders = () => {
   if (isLoading) {
     return <PendingOrdersSkeleton />;
   }
-console.log('ssdds',pendingData.filter(order => checkedOrders[order.id]));
+console.log('ssdds',pendingData?.orders?.filter(order => checkedOrders[order.id]));
 
   const currentData = getCurrentData();
 
@@ -454,19 +454,19 @@ console.log('ssdds',pendingData.filter(order => checkedOrders[order.id]));
             className={`tab-button ${activeTab === "pending" ? "active" : ""}`} 
             onClick={() => setActiveTab("pending")}
           >
-            Unpaid {pendingData?.length > 0 && `(${pendingData?.length})`}
+            Unpaid {pendingData?.orders?.length > 0 && `(${pendingData?.orders?.length})`}
           </button>
           <button 
             className={`tab-button ${activeTab === "paid" ? "active" : ""}`} 
             onClick={() => setActiveTab("paid")}
           >
-            Paid {paidData?.length > 0 && `(${paidData?.length})`}
+            Paid {paidData?.orders?.length > 0 && `(${paidData?.orders?.length})`}
           </button>
           <button 
             className={`tab-button ${activeTab === "delivering" ? "active" : ""}`} 
             onClick={() => setActiveTab("delivering")}
           >
-            In delivery {deliveryData?.length > 0 && `(${deliveryData?.length})`}
+            In delivery {deliveryData?.orders?.length > 0 && `(${deliveryData?.orders?.length})`}
           </button>
         </div>
 
@@ -532,7 +532,7 @@ console.log('ssdds',pendingData.filter(order => checkedOrders[order.id]));
           </div>
         )}
 
-        {activeTab === "pending" && pendingData?.length > 0 && (
+        {activeTab === "pending" && pendingData?.orders?.length > 0 && (
           <div className="make-payment-container">
             <button
               className="make-payment-button"
@@ -564,7 +564,7 @@ console.log('ssdds',pendingData.filter(order => checkedOrders[order.id]));
 
       {isPaymentModalOpen && (
         <PaymentModal
-          selectedOrders={pendingData.filter(order => checkedOrders[order.id])}
+          selectedOrders={pendingData?.orders?.filter(order => checkedOrders[order.id])}
           onClose={() => setIsPaymentModalOpen(false)}
           totalCost={totalPrice} 
           onPaymentComplete={() => {

@@ -80,9 +80,7 @@ export default function PaymentMethod({address, totalCost, selectedOrders, produ
     setIsProcessing(true);
     
     // Fixed: Handle both single product and multiple selected orders
-    const orderIds = selectedOrders && selectedOrders.length > 0 
-      ? selectedOrders.map(order => order.id || orderId) 
-      : [orderId];
+    const orderIds = [orderId];
     
     const payload = {
       [`sephcocco_${activeOutlet}_payment`]: {
