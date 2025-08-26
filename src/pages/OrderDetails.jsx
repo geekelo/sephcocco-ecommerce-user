@@ -9,6 +9,7 @@ import { useGetDeliveryOrder } from '../hooks/useGetDeliveryOrder';
 import OrderDetailsSkeleton from '../components/OrderDetailsSkeleton';
 import { useTrackOrder } from '../hooks/useTrackOrder';
 import { useRiders } from '../hooks/useRiders';
+import { useGetPaidOrder } from '../hooks/useGetPaidOrder';
 
 const OrderDetails = () => {
   const navigate = useNavigate();
@@ -20,11 +21,15 @@ const OrderDetails = () => {
     isLoading: isLoadingDelivery,
   } = useGetDeliveryOrder(activeOutlet);
 
+ const {
+    data: paidData,
+    isLoading: isLoadingPaid,
+  } = useGetPaidOrder(activeOutlet);
   const [showTracking, setShowTracking] = useState(false);
 
   // Find the order by ID from API response
   const order =
-    deliveryData?.find((o) => o.id.toString() === orderId) || null;
+    deliveryData?.find((o) => o.id.toString() === orderId) || paidData?.find((o) => o.id.toString() === orderId);
 const {data: riders, isLoading: isLoadingRiders} = useRiders()
 console.log('dd',riders);
 
@@ -38,7 +43,7 @@ console.log('dd',riders);
     navigate(-1);
   };
 
-  if (isLoadingDelivery) {
+  if (isLoadingDelivery || isLoadingPaid) {
     return <OrderDetailsSkeleton />;
   }
 
