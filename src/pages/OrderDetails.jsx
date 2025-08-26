@@ -29,7 +29,7 @@ const OrderDetails = () => {
 
   // Find the order by ID from API response
   const order =
-    deliveryData?.find((o) => o.id.toString() === orderId) || paidData?.find((o) => o.id.toString() === orderId);
+    deliveryData?.orders?.find((o) => o.id.toString() === orderId) || paidData?.orders?.find((o) => o.id.toString() === orderId);
 const {data: riders, isLoading: isLoadingRiders} = useRiders()
 console.log('dd',riders);
 
