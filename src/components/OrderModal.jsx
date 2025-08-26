@@ -9,7 +9,7 @@ import { useCreateOrder } from '../hooks/useCreateOrder';
 import { getActiveOutlet } from '../utils/getActiveOutlets';
 
 
-const OrderModal = ({ product, onClose }) => {
+const OrderModal = ({ product, onClose,selectedOrders }) => {
   const [quantity, setQuantity] = useState(1);
   console.log('ordd',product);
   

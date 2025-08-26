@@ -431,6 +431,7 @@ const PendingOrders = () => {
   if (isLoading) {
     return <PendingOrdersSkeleton />;
   }
+console.log('ssdds',pendingData.filter(order => checkedOrders[order.id]));
 
   const currentData = getCurrentData();
 

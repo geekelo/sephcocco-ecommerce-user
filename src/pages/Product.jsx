@@ -44,7 +44,10 @@ export default function Product() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [pendingOrderProduct, setPendingOrderProduct] = useState(null);
-
+  
+  // Fixed: Initialize checkedOrders as an object to track selected products
+  const [checkedOrders, setCheckedOrders] = useState({});
+  
   // Fetch data with pagination
   const { 
     data: productsData, 
@@ -83,7 +86,7 @@ export default function Product() {
     const currentOutlet = getActiveOutlet();
     if (currentOutlet !== activeOutlet) {
       setActiveOutlet(currentOutlet);
-      setCurrentPage(1); // Reset to first page when outlet changes
+      setCurrentPage(1);
       refetch();
       refetchCategories();
     }
@@ -97,8 +100,7 @@ export default function Product() {
       
       if (newOutlet !== activeOutlet) {
         setActiveOutlet(newOutlet);
-        setCurrentPage(1); // Reset to first page when outlet changes
-        // Refetch data for the new outlet
+        setCurrentPage(1);
         refetch();
         refetchCategories();
       }
@@ -127,12 +129,10 @@ export default function Product() {
         productId: productId
       });
       
-      // Refetch products to get updated like status
       refetch();
       console.log('Product liked successfully');
     } catch (error) {
       console.error('Failed to like product:', error);
-      // You might want to show a toast notification here
     }
   };
 
@@ -152,18 +152,15 @@ export default function Product() {
         productId: productId
       });
       
-      // Refetch products to get updated like status
       refetch();
       console.log('Product unliked successfully');
     } catch (error) {
       console.error('Failed to unlike product:', error);
-      // You might want to show a toast notification here
     }
   };
 
-  // Handle Favorite Toggle (determines whether to like or unlike)
+  // Handle Favorite Toggle
   const handleFavoriteToggle = async (productId) => {
-    // Find the product to check its current like status
     const product = products.find(p => p.id === productId);
     
     if (!product) {
@@ -172,15 +169,21 @@ export default function Product() {
     }
 
     if (product.liked_by_user) {
-      // If already liked, unlike it
       await handleUnlikeProduct(productId);
     } else {
-      // If not liked, like it
       await handleLikeProduct(productId);
     }
   };
 
-  // Client-side filtering and sorting (for current page products only)
+  // Fixed: Add function to handle product selection for orders
+  const handleProductSelection = (productId, isSelected) => {
+    setCheckedOrders(prev => ({
+      ...prev,
+      [productId]: isSelected
+    }));
+  };
+
+  // Client-side filtering and sorting
   const filteredAndSortedProducts = useMemo(() => {
     if (!products || products.length === 0) {
       return [];
@@ -188,7 +191,7 @@ export default function Product() {
     
     let result = [...products];
     
-    // Apply search (if search term exists)
+    // Apply search
     if (searchTerm && searchTerm.trim()) {
       console.log('🔍 APPLYING SEARCH for:', searchTerm);
       const search = searchTerm.toLowerCase().trim();
@@ -214,7 +217,7 @@ export default function Product() {
       console.log(`Search filtered: ${products.length} → ${result.length}`);
     }
     
-    // Apply category filter (if category is selected)
+    // Apply category filter
     if (selectedCategory && selectedCategory.trim()) {
       console.log('📁 APPLYING CATEGORY FILTER for:', selectedCategory);
       
@@ -229,7 +232,7 @@ export default function Product() {
       console.log(`Category filtered: result length now: ${result.length}`);
     }
     
-    // Apply sorting (if sort option is selected)
+    // Apply sorting
     if (sortOption && sortOption.trim()) {
       console.log('🔽 APPLYING SORT:', sortOption);
       
@@ -255,7 +258,7 @@ export default function Product() {
     return result;
   }, [products, searchTerm, selectedCategory, sortOption]);
 
-  // Mobile-only event handlers (for the mobile SearchFilter)
+  // Mobile-only event handlers
   const handleMobileSearch = (term) => {
     console.log('📱 Mobile search:', term);
     updateSearch(term);
@@ -287,6 +290,14 @@ export default function Product() {
       return;
     }
 
+    // Fixed: Automatically select the current product for order
+    if (selectedProduct) {
+      setCheckedOrders(prev => ({
+        ...prev,
+        [selectedProduct.id]: true
+      }));
+    }
+
     setIsProductModalOpen(false);
     setIsOrderModalOpen(true);
   };
@@ -294,6 +305,11 @@ export default function Product() {
   const handleAuthSuccess = () => {
     if (pendingOrderProduct) {
       setSelectedProduct(pendingOrderProduct);
+      // Fixed: Auto-select the pending product
+      setCheckedOrders(prev => ({
+        ...prev,
+        [pendingOrderProduct.id]: true
+      }));
       setIsOrderModalOpen(true);
       setPendingOrderProduct(null);
     }
@@ -312,9 +328,14 @@ export default function Product() {
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    // Scroll to top when page changes
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // Fixed: Create selectedOrders array based on checkedOrders state
+  const selectedOrders = useMemo(() => {
+    return products.filter(product => checkedOrders[product.id]);
+  }, [products, checkedOrders]);
+console.log('okkd',products);
 
   // Loading state
   if (isLoading && !isPreviousData) {
@@ -383,8 +404,6 @@ export default function Product() {
         <section className="product-showcases-container" id="products-section">
           <EmptyState 
             message="No products available at the moment." 
-          
-          
           />
         </section>
       </>
@@ -393,7 +412,6 @@ export default function Product() {
 
   return (
     <>
-      {/* Mobile-only SearchFilter */}
       <SearchFilter 
         className='mobile-product-only' 
         filterOptions={filterOptions}
@@ -411,9 +429,11 @@ export default function Product() {
               products={filteredAndSortedProducts}
               onProductClick={handleProductClick}
               onFavorite={handleFavoriteToggle}
+              // Fixed: Pass selection handlers if needed by RenderMultipleShowcases
+              onProductSelection={handleProductSelection}
+              checkedOrders={checkedOrders}
             />
             
-            {/* Pagination Component */}
             {meta && meta.total_pages > 1 && (
               <Pagination
                 currentPage={meta.current_page || currentPage}
@@ -447,7 +467,6 @@ export default function Product() {
           }}
           onBuyNow={handleBuyNow}
           onProductUpdate={() => {
-            // Refetch products when like status changes in modal
             refetch();
           }}
         />
@@ -455,10 +474,14 @@ export default function Product() {
            
       {isOrderModalOpen && (
         <OrderModal
+          // Fixed: Pass the properly constructed selectedOrders array
+          selectedOrders={selectedOrders}
           product={selectedProduct}
           onClose={() => {
             setIsOrderModalOpen(false);
             setSelectedProduct(null);
+            // Fixed: Clear the selection when closing modal
+            setCheckedOrders({});
           }}
         />
       )}

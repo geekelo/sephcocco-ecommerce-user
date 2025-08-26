@@ -2,7 +2,6 @@ import { CheckCircle, CreditCard, Landmark, Copy, Check } from 'lucide-react'
 import React, { useState } from 'react'
 import BankDetails from './BankDetails'
 
-
 import '../styles/PaymentMethod.css'
 import { usePayment } from '../hooks/usePayment';
 import { usePaymentVerify } from '../hooks/usePaymentVerify';
@@ -11,11 +10,8 @@ import { getActiveUser } from '../utils/getActiveUser';
 import PaystackPayment from './PaystackButton';
 import { AuthModals } from './AuthModal';
 
-export default function PaymentMethod({address, totalCost,selectedOrders, product, quantity, orderId, onPaymentComplete, userEmail}) {
-  console.log(address, product);
-  
-  const itemTotal = product?.price 
-  console.log('proddds', product);
+export default function PaymentMethod({address, totalCost, selectedOrders, product, quantity, orderId, onPaymentComplete, userEmail}) {
+  console.log('Payment Method Props:', { address, totalCost, selectedOrders, product, quantity, orderId });
   
   const [paymentMethod, setPaymentMethod] = useState(null);
   const [showBankDetails, setShowBankDetails] = useState(false);
@@ -28,7 +24,7 @@ export default function PaymentMethod({address, totalCost,selectedOrders, produc
   
   const activeOutlet = getActiveOutlet()
   const activeUser = localStorage.getItem('userEmail')
-  console.log('act', activeOutlet);
+  console.log('Active outlet:', activeOutlet);
   
   const { mutateAsync: payment } = usePayment()
   const { mutateAsync: paymentVerify } = usePaymentVerify()
@@ -64,7 +60,7 @@ export default function PaymentMethod({address, totalCost,selectedOrders, produc
     try {
       await navigator.clipboard.writeText(orderId);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
+      setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       // Fallback for older browsers
       const textArea = document.createElement('textarea');
@@ -83,21 +79,27 @@ export default function PaymentMethod({address, totalCost,selectedOrders, produc
     
     setIsProcessing(true);
     
+    // Fixed: Handle both single product and multiple selected orders
+    const orderIds = selectedOrders && selectedOrders.length > 0 
+      ? selectedOrders.map(order => order.id || orderId) 
+      : [orderId];
+    
     const payload = {
       [`sephcocco_${activeOutlet}_payment`]: {
-        orders_ids: [orderId],
+        orders_ids: orderIds,
         amount: Number(totalCost),
         payment_method: 'bank',
         transaction_id: transactionId 
       }
     };
-    console.log('activeOutlet', activeOutlet);
-    console.log(payload);
+    
+    console.log('Bank Payment Payload:', payload);
     
     try {
-      await payment({ active_outlet: activeOutlet, payload: payload });
+      const result = await payment({ active_outlet: activeOutlet, payload: payload });
+      console.log('Bank payment result:', result);
       alert('Bank transfer recorded. Your order is now pending verification.');
-      onPaymentComplete(); // Trigger whatever happens after payment
+      onPaymentComplete?.();
     } catch (error) {
       console.error('Payment failed:', error);
       alert('Payment failed. Please try again.');
@@ -120,12 +122,15 @@ export default function PaymentMethod({address, totalCost,selectedOrders, produc
     };
 
     try {
-      // Now record the payment in your system
-      const orderIds = selectedOrders?.map(order => order.id);
+      // Fixed: Handle both single product and multiple selected orders for Paystack
+      const orderIds = [orderId];
+      
+      console.log('Processing payment for order IDs:', orderIds);
+      
       const paymentPayload = {
         [`sephcocco_${activeOutlet}_payment`]: {
           orders_ids: orderIds,
-          amount: totalCost,
+          amount: Number(totalCost),
           payment_method: 'online',
           transaction_id: response.reference,
           paystack_reference: response.reference,
@@ -133,14 +138,17 @@ export default function PaymentMethod({address, totalCost,selectedOrders, produc
         }
       };
       
-      const res = await payment({ active_outlet: activeOutlet, payload: paymentPayload });
-      console.log('payment created', res);
+      console.log('Paystack Payment Payload:', paymentPayload);
+      
+      const paymentResult = await payment({ active_outlet: activeOutlet, payload: paymentPayload });
+      console.log('Payment created:', paymentResult);
       
       const verificationResult = await paymentVerify({ active_outlet: activeOutlet, payload: verifyPayload });
-      console.log('payment verify', verificationResult);
+      console.log('Payment verification result:', verificationResult);
       
       if (verificationResult.payment.status) {
         console.log("Payment verified ✅");
+        alert('Payment successful! Your order has been confirmed.');
         onPaymentComplete?.();
       } else {
         console.log("Payment verification failed ❌");
@@ -173,7 +181,6 @@ export default function PaymentMethod({address, totalCost,selectedOrders, produc
   const handleAuthSuccess = () => {
     setShowLoginModal(false);
     setShowRegisterModal(false);
-    // Optionally refresh user data or trigger any needed updates
   };
 
   // Handle closing auth modals
@@ -181,6 +188,26 @@ export default function PaymentMethod({address, totalCost,selectedOrders, produc
     setShowLoginModal(false);
     setShowRegisterModal(false);
   };
+
+  // Fixed: Calculate display information based on available data
+  const getOrderDisplayInfo = () => {
+    if (selectedOrders && selectedOrders.length > 0) {
+      const totalItems = selectedOrders.reduce((sum, order) => sum + (order.quantity || quantity || 1), 0);
+      return {
+        itemCount: selectedOrders.length,
+        totalItems: totalItems,
+        displayText: selectedOrders.length > 1 ? `${selectedOrders.length} items` : selectedOrders[0]?.name || product?.name
+      };
+    }
+    
+    return {
+      itemCount: 1,
+      totalItems: quantity || 1,
+      displayText: product?.name || 'Product'
+    };
+  };
+
+  const orderInfo = getOrderDisplayInfo();
 
   return (
     <>
@@ -202,6 +229,7 @@ export default function PaymentMethod({address, totalCost,selectedOrders, produc
               </p>
             </div>
             <p><small>✅ Order created successfully</small></p>
+            <p><small>📦 {orderInfo.displayText} (Qty: {orderInfo.totalItems})</small></p>
           </div>
           
           <div className="payment-options">
@@ -243,12 +271,12 @@ export default function PaymentMethod({address, totalCost,selectedOrders, produc
 
         <div className="checkout-section order-total-section">
           <div className="order-total-row">
-            <span>Subtotal</span>
-            <span>₦{parseFloat(totalCost).toFixed(2)}</span>
+            <span>Subtotal ({orderInfo.totalItems} item{orderInfo.totalItems > 1 ? 's' : ''})</span>
+            <span>₦{parseFloat(totalCost || 0).toFixed(2)}</span>
           </div>
           <div className="order-total-row grand-total">
             <span>Total</span>
-            <span>₦{parseFloat(totalCost).toFixed(2)}</span>
+            <span>₦{parseFloat(totalCost || 0).toFixed(2)}</span>
           </div>
         </div>
 
