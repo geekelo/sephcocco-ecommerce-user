@@ -11,7 +11,7 @@ import { getActiveUser } from '../utils/getActiveUser';
 import PaystackPayment from './PaystackButton';
 import { AuthModals } from './AuthModal';
 
-export default function PaymentMethod({address, totalCost, product, quantity, orderId, onPaymentComplete, userEmail}) {
+export default function PaymentMethod({address, totalCost,selectedOrders, product, quantity, orderId, onPaymentComplete, userEmail}) {
   console.log(address, product);
   
   const itemTotal = product?.price 
@@ -120,11 +120,28 @@ export default function PaymentMethod({address, totalCost, product, quantity, or
     };
 
     try {
-      const verificationResult = await paymentVerify({ active_outlet: activeOutlet, payload: verifyPayload });
+      // Now record the payment in your system
+      const orderIds = selectedOrders?.map(order => order.id);
+      const paymentPayload = {
+        [`sephcocco_${activeOutlet}_payment`]: {
+          orders_ids: orderIds,
+          amount: totalCost,
+          payment_method: 'online',
+          transaction_id: response.reference,
+          paystack_reference: response.reference,
+          status: response.status
+        }
+      };
       
-      if (verificationResult.status === "success") {
+      const res = await payment({ active_outlet: activeOutlet, payload: paymentPayload });
+      console.log('payment created', res);
+      
+      const verificationResult = await paymentVerify({ active_outlet: activeOutlet, payload: verifyPayload });
+      console.log('payment verify', verificationResult);
+      
+      if (verificationResult.payment.status) {
         console.log("Payment verified ✅");
-        onPaymentComplete();
+        onPaymentComplete?.();
       } else {
         console.log("Payment verification failed ❌");
         alert('Payment verification failed. Please contact support with reference: ' + response.reference);

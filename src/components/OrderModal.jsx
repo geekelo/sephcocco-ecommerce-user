@@ -228,6 +228,7 @@ const OrderModal = ({ product, onClose }) => {
                 totalCost={totalCost}
                 orderId={createdOrderId}
                 onPaymentComplete={onClose}
+                selectedOrders={selectedOrders}
               />
             )}
           </div>
