@@ -109,26 +109,26 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin, onSuccess }) =
 
   return (
     <AnimatePresence>
-      <div className="modal-overlay">
+      <div className="modal-overlay-auth">
         <motion.div
-          className="modal-card register-modal"
+          className="modal-card-auth register-modal-auth"
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.9 }}
         >
-          <div className="modal-header">
+          <div className="modal-header-auth">
             <div className="logo-container-auth">
               <img src={logo} alt="Logo" className="logo-auth" />
-              <h2 className="modal-title">Create Account</h2>
+              <h2 className="modal-title-auth">Create Account</h2>
             </div>
-            <button onClick={onClose} className="close-button">
+            <button onClick={onClose} className="close-button-auth">
               <X size={24} />
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="modal-form">
-            <div className="form-row">
-              <div className="form-group">
+          <form onSubmit={handleSubmit} className="modal-form-auth">
+            <div className="form-row-auth">
+              <div className="form-group-auth">
                 <label htmlFor="firstName">First Name</label>
                 <input
                   id="firstName"
@@ -145,7 +145,7 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin, onSuccess }) =
                 )}
               </div>
 
-              <div className="form-group">
+              <div className="form-group-auth">
                 <label htmlFor="lastName">Last Name</label>
                 <input
                   id="lastName"
@@ -163,7 +163,7 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin, onSuccess }) =
               </div>
             </div>
 
-            <div className="form-group">
+            <div className="form-group-auth">
               <label htmlFor="email">Email Address</label>
               <input
                 id="email"
@@ -180,7 +180,7 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin, onSuccess }) =
               )}
             </div>
 
-            <div className="form-group">
+            <div className="form-group-auth">
               <label htmlFor="address">Address</label>
               <input
                 id="address"
@@ -192,7 +192,7 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin, onSuccess }) =
               />
             </div>
 
-            <div className="form-group">
+            <div className="form-group-auth">
               <label htmlFor="phone_number">Phone Number</label>
               <input
                 id="phone_number"
@@ -209,7 +209,7 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin, onSuccess }) =
               )}
             </div>
 
-            <div className="form-group">
+            <div className="form-group-auth">
               <label htmlFor="whatsapp_number">WhatsApp Number</label>
               <input
                 id="whatsapp_number"

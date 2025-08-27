@@ -11,7 +11,7 @@ import { getActiveOutlet } from '../utils/getActiveOutlets';
 
 const OrderModal = ({ product, onClose,selectedOrders,setIsPaymentSuccessful }) => {
   const [quantity, setQuantity] = useState(1);
-  console.log('ordd',product);
+
   
   const [address, setAddress] = useState('');
   const [phoneNumbers, setPhoneNumbers] = useState('');

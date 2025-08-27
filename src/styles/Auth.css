@@ -1,5 +1,5 @@
 /* Modal Overlay */
-.modal-overlay {
+.modal-overlay-auth {
   position: fixed;
   top: 0;
   left: 0;
@@ -13,7 +13,7 @@
 }
 
 /* Modal Card */
-.modal-card {
+.modal-card-auth {
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
@@ -24,12 +24,12 @@
   z-index: 1001;
 }
 
-.register-modal {
+.register-modal-auth {
   max-width: 500px;
 }
 
 /* Modal Header */
-.modal-header {
+.modal-header-auth {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -49,14 +49,14 @@
   margin-right: 10px;
 }
 
-.modal-title {
+.modal-title-auth {
   font-size: 20px;
   margin: 0;
   color: #333;
   font-weight: 600;
 }
 
-.close-button {
+.close-button-auth {
   background: none;
   border: none;
   cursor: pointer;
@@ -66,28 +66,28 @@
   transition: color 0.3s, background-color 0.3s;
 }
 
-.close-button:hover {
+.close-button-auth:hover {
   color: #F93A01;
   background-color: rgba(249, 58, 1, 0.1);
 }
 
 /* Modal Form */
-.modal-form {
+.modal-form-auth {
   padding: 20px 30px;
 }
 
-.form-row {
+.form-row-auth {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 15px;
 }
 
-.form-group {
+.form-group-auth {
   margin-bottom: 20px;
   position: relative;
 }
 
-.form-group label {
+.form-group-auth label {
   display: block;
   margin-bottom: 8px;
   font-size: 14px;
@@ -95,7 +95,7 @@
   font-weight: 500;
 }
 
-.form-group input {
+.form-group-auth input {
   width: 100%;
   padding: 12px 15px;
   border: 1px solid #ddd;
@@ -107,13 +107,13 @@
   color: #333
 }
 
-.form-group input:focus {
+.form-group-auth input:focus {
   outline: none;
   border-color: #F93A01;
   box-shadow: 0 0 0 2px rgba(249, 58, 1, 0.1);
 }
 
-.form-group input.error {
+.form-group-auth input.error {
   border-color: #e53935;
 }
 
@@ -201,20 +201,20 @@
 
 /* Responsive Design */
 @media (max-width: 600px) {
-  .modal-card {
+  .modal-card-auth {
     width: 95%;
     margin: 10px;
   }
   
-  .register-modal {
+  .register-modal-auth {
     max-width: 95%;
   }
   
-  .modal-header {
+  .modal-header-auth {
     padding: 15px 20px 10px 20px;
   }
   
-  .modal-form {
+  .modal-form-auth {
     padding: 15px 20px;
   }
   
@@ -222,12 +222,12 @@
     padding: 0 20px 20px 20px;
   }
   
-  .form-row {
+  .form-row-auth {
     grid-template-columns: 1fr;
     gap: 0;
   }
   
-  .modal-title {
+  .modal-title-auth {
     font-size: 18px;
   }
   
@@ -239,17 +239,17 @@
 }
 
 @media (max-width: 480px) {
-  .modal-card {
+  .modal-card-auth {
     width: 98%;
     margin: 5px;
     border-radius: 8px;
   }
   
-  .modal-form {
+  .modal-form-auth {
     padding: 10px 15px;
   }
   
-  .modal-header {
+  .modal-header-auth {
     padding: 10px 15px 8px 15px;
   }
   

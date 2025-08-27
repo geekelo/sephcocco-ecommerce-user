@@ -109,7 +109,7 @@ export default function PaymentPaymentMethod({
     } catch (error) {
       console.error('Payment failed:', error);
       setIsVerifying(false); // End verification state before error
-      alert('Payment failed. Please try again: ' + error.response?.data.error);
+     alert('Payment failed. Please try again: ' + (error.response?.data.error || 'Something went wrong'));
     } finally {
       setIsProcessing(false);
     }

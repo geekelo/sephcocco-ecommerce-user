@@ -69,25 +69,25 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister, onSuccess }) =
 
   return (
     <AnimatePresence>
-      <div className="modal-overlay">
+      <div className="modal-overlay-auth">
         <motion.div
-          className="modal-card login-modal"
+          className="modal-card-auth login-modal-auth"
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.9 }}
         >
-          <div className="modal-header">
+          <div className="modal-header-auth">
             <div className="logo-container-auth">
               <img src={logo} alt="Logo" className="logo-auth" />
-              <h2 className="modal-title">Welcome Back!</h2>
+              <h2 className="modal-title-auth">Welcome Back!</h2>
             </div>
-            <button onClick={onClose} className="close-button">
+            <button onClick={onClose} className="close-button-auth">
               <X size={24} />
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="modal-form">
-            <div className="form-group">
+          <form onSubmit={handleSubmit} className="modal-form-auth">
+            <div className="form-group-auth">
               <label htmlFor="email">Email Address</label>
               <input
                 type="email"

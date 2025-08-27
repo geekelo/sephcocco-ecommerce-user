@@ -4,11 +4,14 @@ import { DesktopPaymentHistoryTable } from "../components/DesktopPaymentHistory"
 import "../styles/PaymentHistory.css";
 import { useViewPayment } from "../hooks/useViewPayment";
 import { getActiveOutlet } from "../utils/getActiveOutlets";
-import { useState } from "react";
+import { getActiveUser } from "../utils/getActiveUser";
+import { useState, useEffect } from "react";
 import { motion } from 'framer-motion';
 import Pagination from "../components/Pagination";
+import { AuthModals } from '../components/AuthModal'; // Import auth modals
+import { useNavigate } from "react-router-dom";
 
-// PaymentHistorySkeleton component
+// PaymentHistorySkeleton component (same as before)
 const PaymentHistorySkeleton = ({ isMobile = false }) => {
   // Animation variants for skeleton
   const shimmerVariants = {
@@ -417,52 +420,88 @@ const PaymentHistory = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const activeOutlet = getActiveOutlet();
+  // Authentication states
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
+  const navigate = useNavigate();
+
+  // Get auth token and user info
+  const authToken = localStorage.getItem('token');
+  const activeOutlet = getActiveOutlet();
+  const user = getActiveUser();
+
+  // Check authentication status
+  useEffect(() => {
+    const checkAuthentication = () => {
+      setIsAuthenticated(!!authToken);
+      setIsCheckingAuth(false);
+      
+      // If not authenticated, show login modal
+      if (!authToken) {
+        console.log('🚫 User not authenticated, showing login modal');
+        setShowLoginModal(true);
+      }
+    };
+
+    checkAuthentication();
+  }, [authToken]);
+
+  // Only fetch payment data if authenticated
   const { data: payment, isLoading, isPreviousData } = useViewPayment(
     activeOutlet,
     filters,
     currentPage,
-    itemsPerPage
+    itemsPerPage,
+    { enabled: isAuthenticated } // Only fetch if authenticated
   );
 
-  // Fix: Get meta from the correct location in the API response
-  const meta = payment?.meta || {};
-  
-  const paymentData =
-    payment?.payments?.flatMap(
-      (payment) =>
-        payment.paid_orders?.map((order) => ({
-          id: payment.id,
-          customerName: order.customer?.name,
-          customerEmail: order.customer?.email,
-          orderId: order.id,
-          phoneNumber: order.customer?.phone_number,
-          orderDate: order.created_at,
-          orderStatus: order.status,
-          paymentMethod: payment.payment_method,
-          status: payment.status,
-          notes: order.notes,
-          products: order.product,
-          amount: payment.amount,
-          transactionId: payment.transaction_id,
-          paymentDate: payment.created_at,
-          orderNumber: order.order_number,
-          totalPrice: order.total_price,
-          // Add formatted date for filtering
-          date: new Date(payment.created_at).toLocaleDateString(),
-        })) || []
-    ) || [];
+  // Authentication handlers
+  const handleAuthSuccess = () => {
+    console.log('✅ Authentication successful');
+    setIsAuthenticated(true);
+    setShowLoginModal(false);
+    setShowRegisterModal(false);
+  };
 
-  // Handle page changes
+  const handleCloseAuthModals = () => {
+    console.log('❌ Auth modals closed without authentication');
+    setShowLoginModal(false);
+    setShowRegisterModal(false);
+    // Redirect to products page if user closes auth modal without logging in
+    navigate('/products');
+  };
+
+  const handleSwitchToRegister = () => {
+    setShowLoginModal(false);
+    setShowRegisterModal(true);
+  };
+
+  const handleSwitchToLogin = () => {
+    setShowRegisterModal(false);
+    setShowLoginModal(true);
+  };
+
+  // Handle page changes (only if authenticated)
   const handlePageChange = (page) => {
+    if (!isAuthenticated) {
+      setShowLoginModal(true);
+      return;
+    }
+    
     setCurrentPage(page);
-    // Optional: scroll to top when page changes
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Handle filter changes from child components
+  // Handle filter changes from child components (only if authenticated)
   const handleFilterChange = (newFilters) => {
+    if (!isAuthenticated) {
+      setShowLoginModal(true);
+      return;
+    }
+
     // Convert filter names to match API expectations
     const apiFilters = {
       search_terms: newFilters.search_terms || "",
@@ -484,11 +523,74 @@ const PaymentHistory = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  if (isLoading) {
+  // Show loading skeleton if checking auth or loading data
+  if (isCheckingAuth || (isAuthenticated && isLoading)) {
+    return <PaymentHistorySkeleton isMobile={isMobile} />;
+  }
+
+  // Don't render main content if not authenticated
+  if (!isAuthenticated) {
     return (
-      <PaymentHistorySkeleton isMobile={isMobile} />
+      <div className="payment-history">
+        <h1 className="payment-history-title">Payment history</h1>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          minHeight: '200px',
+          flexDirection: 'column',
+          gap: '16px',
+          padding: '20px',
+          textAlign: 'center'
+        }}>
+          <p>Please log in to view your payment history</p>
+        </div>
+
+        {/* Authentication Modals */}
+        <AuthModals
+          showLogin={showLoginModal}
+          showRegister={showRegisterModal}
+          onCloseAll={handleCloseAuthModals}
+          onAuthSuccess={handleAuthSuccess}
+          onSwitchToRegister={handleSwitchToRegister}
+          onSwitchToLogin={handleSwitchToLogin}
+        />
+      </div>
     );
   }
+
+  // Fix: Get meta from the correct location in the API response
+  const meta = payment?.meta || {};
+  
+  const paymentData = isAuthenticated ? (
+    payment?.payments?.flatMap(
+      (payment) =>
+        payment.paid_orders?.map((order) => ({
+          id: payment.id,
+          customerName: order.customer?.name,
+          customerEmail: order.customer?.email,
+          orderId: order.id,
+          phoneNumber: order.customer?.phone_number,
+          orderDate: order.created_at,
+          orderStatus: order.status,
+          paymentMethod: payment.payment_method,
+          status: payment.status,
+          notes: order.notes,
+          products: order.product,
+          amount: payment.amount,
+          transactionId: payment.transaction_id,
+          paymentDate: payment.created_at,
+          orderNumber: order.order_number,
+          totalPrice: order.total_price,
+          // Add formatted date for filtering
+          date: new Date(payment.created_at).toLocaleDateString(),
+          // Add timestamp for sorting
+          timestamp: new Date(payment.created_at).getTime(),
+        })) || []
+    )
+    // Sort by most recent first (descending order)
+    .sort((a, b) => b.timestamp - a.timestamp) || []
+  ) : [];
 
   return (
     <div className="payment-history">
@@ -505,8 +607,8 @@ const PaymentHistory = () => {
         />
       )}
       
-      {/* Show pagination only if there are multiple pages */}
-      {meta && meta.total_pages > 1 && (
+      {/* Show pagination only if there are multiple pages and user is authenticated */}
+      {isAuthenticated && meta && meta.total_pages > 1 && (
         <Pagination
           currentPage={meta.current_page || currentPage}
           totalPages={meta.total_pages}
@@ -517,6 +619,16 @@ const PaymentHistory = () => {
           className={isPreviousData ? 'pagination-loading' : ''}
         />
       )}
+
+      {/* Authentication Modals */}
+      <AuthModals
+        showLogin={showLoginModal}
+        showRegister={showRegisterModal}
+        onCloseAll={handleCloseAuthModals}
+        onAuthSuccess={handleAuthSuccess}
+        onSwitchToRegister={handleSwitchToRegister}
+        onSwitchToLogin={handleSwitchToLogin}
+      />
     </div>
   );
 };

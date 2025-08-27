@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import '../styles/PaymentSuccessModal.css';
 
 const PaymentSuccessModal = ({ onClose }) => {
-  // Close modal automatically after 3 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
       onClose();
