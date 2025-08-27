@@ -135,7 +135,11 @@ const ProductDetails = ({ product, onCloseModal, onBuyNow, onProductUpdate }) =>
               : 'Out of stock'}
           </p>
            
-          <div className="product-price">₦{parseFloat(product?.price || 0).toFixed(2)}</div>
+        {
+product?.discount_price ? <div className="discount-price"> ₦{parseFloat(product?.discount_price || 0).toFixed(2) } <span className='product-price'> ₦{product.price}</span></div> : <p className="discount-price">
+  ₦{parseFloat(product?.price || 0).toFixed(2)}
+</p>
+}
           
           <div className="product-description">
             <h3>Product Description</h3>

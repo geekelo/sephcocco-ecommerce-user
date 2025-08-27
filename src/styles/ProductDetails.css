@@ -43,13 +43,19 @@
     font-weight: 500;
   }
   
-  .product-price {
+.discount-price {
     font-size: 1.5rem;
-    font-weight: 600;
-    color: #111827;
-    margin: 0.75rem 0;
-  }
-  
+  font-weight: 600;
+  color: #111827;
+  margin: 0.75rem 0;
+}
+.product-price {
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-decoration: line-through;
+  color: red;
+  margin: 0.75rem 0;
+}
   .product-description {
     margin: 1rem 0;
   }

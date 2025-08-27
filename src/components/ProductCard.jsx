@@ -14,6 +14,7 @@ export const ProductCard = ({
     name,
     price,
     amount_in_stock,
+    discount_price,
     out_of_stock_status,
     likes,
     liked_by_user = false,
@@ -57,7 +58,12 @@ export const ProductCard = ({
 
       <div className="product-info">
         <h3 className="product-name">{name}</h3>
-        <div className="product-price">₦{parseFloat(price || 0).toFixed(2)}</div>
+        {
+discount_price ? <div className="discount-price"> ₦{parseFloat(discount_price || 0).toFixed(2) } <span className='product-price'> ₦{product.price}</span></div> : <p className="discount-price">
+  ₦{parseFloat(price || 0).toFixed(2)}
+</p>
+}
+        
         <div className="product-stock">
           <span className={inStock ? 'in-stock' : 'out-of-stock'}>
             {inStock ? 'In Stock' : 'Out of Stock'}
