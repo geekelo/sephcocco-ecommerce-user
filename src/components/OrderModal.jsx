@@ -9,7 +9,7 @@ import { useCreateOrder } from '../hooks/useCreateOrder';
 import { getActiveOutlet } from '../utils/getActiveOutlets';
 
 
-const OrderModal = ({ product, onClose,selectedOrders }) => {
+const OrderModal = ({ product, onClose,selectedOrders,setIsPaymentSuccessful }) => {
   const [quantity, setQuantity] = useState(1);
   console.log('ordd',product);
   
@@ -227,8 +227,15 @@ const OrderModal = ({ product, onClose,selectedOrders }) => {
                 product={product}
                 totalCost={totalCost}
                 orderId={createdOrderId}
-                onPaymentComplete={onClose}
+                onPaymentComplete={
+                  () => {
+      onClose()
+                    setIsPaymentSuccessful(true)
+                  }
+            
+                }
                 selectedOrders={selectedOrders}
+    
               />
             )}
           </div>

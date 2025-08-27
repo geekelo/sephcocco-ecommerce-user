@@ -8,7 +8,7 @@ const PaymentSuccessModal = ({ onClose }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       onClose();
-    }, 5000);
+    }, 1000);
     
     return () => clearTimeout(timer);
   }, [onClose]);

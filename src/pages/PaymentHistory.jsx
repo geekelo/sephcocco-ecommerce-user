@@ -1,7 +1,14 @@
-// import React from 'react';
+import React from "react";
+import { MobilePaymentHistoryCard } from "../components/MobilePaymentHistory";
+import { DesktopPaymentHistoryTable } from "../components/DesktopPaymentHistory";
+import "../styles/PaymentHistory.css";
+import { useViewPayment } from "../hooks/useViewPayment";
+import { getActiveOutlet } from "../utils/getActiveOutlets";
+import { useState } from "react";
+import { motion } from 'framer-motion';
+import Pagination from "../components/Pagination";
 
-// import '../styles/PaymentHistory.css';
-
+// PaymentHistorySkeleton component
 const PaymentHistorySkeleton = ({ isMobile = false }) => {
   // Animation variants for skeleton
   const shimmerVariants = {
@@ -397,18 +404,10 @@ const PaymentHistorySkeleton = ({ isMobile = false }) => {
   );
 };
 
-import React from "react";
-import { MobilePaymentHistoryCard } from "../components/MobilePaymentHistory";
-import { DesktopPaymentHistoryTable } from "../components/DesktopPaymentHistory";
-import { payments } from "../constants/payments";
-import "../styles/PaymentHistory.css";
-import { useViewPayment } from "../hooks/useViewPayment";
-import { getActiveOutlet } from "../utils/getActiveOutlets";
-import { useState } from "react";
-import { motion } from 'framer-motion';
-
+// Main PaymentHistory component
 const PaymentHistory = () => {
   const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
+  
   const [filters, setFilters] = useState({
     search_terms: "",
     status: "",
@@ -416,17 +415,20 @@ const PaymentHistory = () => {
     end_date: "",
   });
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10; // Define itemsPerPage
+  const itemsPerPage = 10;
 
   const activeOutlet = getActiveOutlet();
 
-  const { data: payment, isLoading } = useViewPayment(
+  const { data: payment, isLoading, isPreviousData } = useViewPayment(
     activeOutlet,
     filters,
     currentPage,
     itemsPerPage
   );
 
+  // Fix: Get meta from the correct location in the API response
+  const meta = payment?.meta || {};
+  
   const paymentData =
     payment?.payments?.flatMap(
       (payment) =>
@@ -451,6 +453,13 @@ const PaymentHistory = () => {
           date: new Date(payment.created_at).toLocaleDateString(),
         })) || []
     ) || [];
+
+  // Handle page changes
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    // Optional: scroll to top when page changes
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Handle filter changes from child components
   const handleFilterChange = (newFilters) => {
@@ -477,7 +486,7 @@ const PaymentHistory = () => {
 
   if (isLoading) {
     return (
-     <PaymentHistorySkeleton isMobile={isMobile} />
+      <PaymentHistorySkeleton isMobile={isMobile} />
     );
   }
 
@@ -493,6 +502,19 @@ const PaymentHistory = () => {
         <DesktopPaymentHistoryTable
           payments={paymentData}
           onFilterChange={handleFilterChange}
+        />
+      )}
+      
+      {/* Show pagination only if there are multiple pages */}
+      {meta && meta.total_pages > 1 && (
+        <Pagination
+          currentPage={meta.current_page || currentPage}
+          totalPages={meta.total_pages}
+          totalItems={meta.total_count}
+          itemsPerPage={itemsPerPage}
+          name='Payment history'
+          onPageChange={handlePageChange}
+          className={isPreviousData ? 'pagination-loading' : ''}
         />
       )}
     </div>

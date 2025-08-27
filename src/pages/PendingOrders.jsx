@@ -1,8 +1,24 @@
-// import React from "react";
-// import { motion } from 'framer-motion';
-// import { ArrowLeft, ShoppingCart } from 'lucide-react';
-// import '../styles/PendingOrders.css';
+import React, { useEffect, useMemo, useState } from "react";
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, ShoppingCart } from 'lucide-react';
+import { DeliveryOrderItem } from "../components/DeliveryOrderItem";
+import { PendingOrderItem } from "../components/PendingOrderItem";
+import Pagination from "../components/Pagination";
+import '../styles/PendingOrders.css';
 
+import ProductModal from "../components/ProductModal";
+import { useNavigate } from "react-router-dom";
+import OrderModal from "../components/OrderModal";
+import PaymentModal from "../components/PaymentModal";
+import PaymentSuccessModal from "../components/PaymentSuccessModal";
+import { useGetPendingOrder } from "../hooks/useGetPendingOrder";
+import { getActiveOutlet } from "../utils/getActiveOutlets";
+import { useDeleteOrder } from "../hooks/useDeleteOrder";
+import { useUpdateOrder } from "../hooks/useUpdateOrder";
+import { useGetDeliveryOrder } from "../hooks/useGetDeliveryOrder";
+import { useGetPaidOrder } from "../hooks/useGetPaidOrder";
+
+// PendingOrdersSkeleton component
 const PendingOrdersSkeleton = ({ isMobile = false }) => {
   // Animation variants for skeleton
   const shimmerVariants = {
@@ -298,25 +314,6 @@ const PendingOrdersSkeleton = ({ isMobile = false }) => {
   );
 };
 
-import React, { useEffect, useMemo, useState } from "react";
-import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ShoppingCart } from 'lucide-react';
-import { DeliveryOrderItem } from "../components/DeliveryOrderItem";
-import { PendingOrderItem } from "../components/PendingOrderItem";
-import '../styles/PendingOrders.css';
-
-import ProductModal from "../components/ProductModal";
-import { useNavigate } from "react-router-dom";
-import OrderModal from "../components/OrderModal";
-import PaymentModal from "../components/PaymentModal";
-import PaymentSuccessModal from "../components/PaymentSuccessModal";
-import {  useGetPendingOrder } from "../hooks/useGetPendingOrder";
-import { getActiveOutlet } from "../utils/getActiveOutlets";
-import { useDeleteOrder } from "../hooks/useDeleteOrder";
-import { useUpdateOrder } from "../hooks/useUpdateOrder";
-import { useGetDeliveryOrder } from "../hooks/useGetDeliveryOrder";
-import { useGetPaidOrder } from "../hooks/useGetPaidOrder";
-
 const PendingOrders = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(null);
@@ -330,13 +327,19 @@ const PendingOrders = () => {
   const [checkedOrders, setCheckedOrders] = useState({});
   const [orderQuantities, setOrderQuantities] = useState({});
 
+  // Pagination states for each tab
+  const [pendingPage, setPendingPage] = useState(1);
+  const [paidPage, setPaidPage] = useState(1);
+  const [deliveryPage, setDeliveryPage] = useState(1);
+  const itemsPerPage = 10;
+
   const navigate = useNavigate();
   const activeOutlet = getActiveOutlet();
   
-  // Separate hooks for different order types
-  const { data: pendingData, refetch: refetchPending, isLoading: isLoadingPending } = useGetPendingOrder(activeOutlet);
-  const { data: paidData, refetch: refetchPaid, isLoading: isLoadingPaid } = useGetPaidOrder(activeOutlet);
-  const { data: deliveryData, refetch: refetchDelivery, isLoading: isLoadingDelivery } = useGetDeliveryOrder(activeOutlet);
+  // Separate hooks for different order types with pagination
+  const { data: pendingData, refetch: refetchPending, isLoading: isLoadingPending, isPreviousData: isPendingPreviousData } = useGetPendingOrder(activeOutlet, pendingPage, itemsPerPage);
+  const { data: paidData, refetch: refetchPaid, isLoading: isLoadingPaid, isPreviousData: isPaidPreviousData } = useGetPaidOrder(activeOutlet, paidPage, itemsPerPage);
+  const { data: deliveryData, refetch: refetchDelivery, isLoading: isLoadingDelivery, isPreviousData: isDeliveryPreviousData } = useGetDeliveryOrder(activeOutlet, deliveryPage, itemsPerPage);
   
   const deleteOrderMutation = useDeleteOrder();
   const updateOrderMutation = useUpdateOrder();
@@ -358,6 +361,38 @@ const PendingOrders = () => {
     });
     setOrderQuantities(initialQuantities);
   }, [pendingData]);
+
+  // Reset to first page when switching tabs
+  useEffect(() => {
+    switch(activeTab) {
+      case "pending":
+        if (pendingPage !== 1) setPendingPage(1);
+        break;
+      case "paid":
+        if (paidPage !== 1) setPaidPage(1);
+        break;
+      case "delivering":
+        if (deliveryPage !== 1) setDeliveryPage(1);
+        break;
+    }
+  }, [activeTab]);
+
+  // Handle page changes for each tab
+  const handlePageChange = (page) => {
+    switch(activeTab) {
+      case "pending":
+        setPendingPage(page);
+        break;
+      case "paid":
+        setPaidPage(page);
+        break;
+      case "delivering":
+        setDeliveryPage(page);
+        break;
+    }
+    // Optional: scroll to top when page changes
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Handle delete
   const handleDeleteOrder = (orderId) => {
@@ -416,13 +451,33 @@ const PendingOrders = () => {
     return { selectedItemsCount: count, totalPrice: total };
   }, [pendingData, checkedOrders, orderQuantities]);
 
-  // Get current data based on active tab
+  // Get current data and meta based on active tab
   const getCurrentData = () => {
     switch(activeTab) {
-      case "pending": return pendingData?.orders;
-      case "paid": return paidData?.orders;
-      case "delivering": return deliveryData?.orders;
-      default: return [];
+      case "pending": return { data: pendingData?.orders, meta: pendingData?.meta };
+      case "paid": return { data: paidData?.orders, meta: paidData?.meta };
+      case "delivering": return { data: deliveryData?.orders, meta: deliveryData?.meta };
+      default: return { data: [], meta: {} };
+    }
+  };
+
+  // Get current page for active tab
+  const getCurrentPage = () => {
+    switch(activeTab) {
+      case "pending": return pendingPage;
+      case "paid": return paidPage;
+      case "delivering": return deliveryPage;
+      default: return 1;
+    }
+  };
+
+  // Get current loading state
+  const getCurrentPreviousData = () => {
+    switch(activeTab) {
+      case "pending": return isPendingPreviousData;
+      case "paid": return isPaidPreviousData;
+      case "delivering": return isDeliveryPreviousData;
+      default: return false;
     }
   };
 
@@ -431,9 +486,8 @@ const PendingOrders = () => {
   if (isLoading) {
     return <PendingOrdersSkeleton />;
   }
-console.log('ssdds',pendingData?.orders?.filter(order => checkedOrders[order.id]));
 
-  const currentData = getCurrentData();
+  const { data: currentData, meta } = getCurrentData();
 
   return (
     <div className="orders-container full-width">
@@ -454,19 +508,19 @@ console.log('ssdds',pendingData?.orders?.filter(order => checkedOrders[order.id]
             className={`tab-button ${activeTab === "pending" ? "active" : ""}`} 
             onClick={() => setActiveTab("pending")}
           >
-            Unpaid {pendingData?.orders?.length > 0 && `(${pendingData?.orders?.length})`}
+            Unpaid {pendingData?.meta?.total_count > 0 && `(${pendingData?.meta?.total_count})`}
           </button>
           <button 
             className={`tab-button ${activeTab === "paid" ? "active" : ""}`} 
             onClick={() => setActiveTab("paid")}
           >
-            Paid {paidData?.orders?.length > 0 && `(${paidData?.orders?.length})`}
+            Paid {paidData?.meta?.total_count > 0 && `(${paidData?.meta?.total_count})`}
           </button>
           <button 
             className={`tab-button ${activeTab === "delivering" ? "active" : ""}`} 
             onClick={() => setActiveTab("delivering")}
           >
-            In delivery {deliveryData?.orders?.length > 0 && `(${deliveryData?.orders?.length})`}
+            In delivery {deliveryData?.meta?.total_count > 0 && `(${deliveryData?.meta?.total_count})`}
           </button>
         </div>
 
@@ -522,6 +576,19 @@ console.log('ssdds',pendingData?.orders?.filter(order => checkedOrders[order.id]
             </motion.div>
           </AnimatePresence>
         </div>
+
+        {/* Pagination */}
+        {meta && meta.total_pages > 1 && (
+          <Pagination
+            currentPage={meta.current_page || getCurrentPage()}
+            totalPages={meta.total_pages}
+            totalItems={meta.total_count}
+            name='Orders'
+            itemsPerPage={itemsPerPage}
+            onPageChange={handlePageChange}
+            className={getCurrentPreviousData() ? 'pagination-loading' : ''}
+          />
+        )}
 
         {/* Selected Items & Payment (only for pending tab) */}
         {activeTab === "pending" && selectedItemsCount > 0 && (
@@ -586,4 +653,5 @@ console.log('ssdds',pendingData?.orders?.filter(order => checkedOrders[order.id]
     </div>
   );
 };
+
 export default PendingOrders;

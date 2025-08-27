@@ -1,8 +1,13 @@
 import { apiClient } from "./axios";
 
-export const getDeliveryOrder = async (active_outlet ) => {
+export const getDeliveryOrder = async (active_outlet,page, per_page ) => {
   try {
-    const data = await apiClient().get(`api/v1/${active_outlet}/sephcocco_${active_outlet}_orders/delivering`);
+         const params = {
+
+      page,
+      per_page,
+    };
+    const data = await apiClient().get(`api/v1/${active_outlet}/sephcocco_${active_outlet}_orders/delivering`,{params});
     return data.data;
   } catch (err) {
     console.error(err);

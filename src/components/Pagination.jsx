@@ -5,6 +5,7 @@ import '../styles/Pagination.css';
 const Pagination = ({ 
   currentPage, 
   totalPages, 
+  name,
   totalItems, 
   itemsPerPage, 
   onPageChange,
@@ -73,7 +74,7 @@ const Pagination = ({
       {showInfo && (
         <div className="pagination-info">
           <span className="pagination-text">
-            Showing {startItem}-{endItem} of {totalItems} products
+            Showing {startItem}-{endItem} of {totalItems} {name}
           </span>
         </div>
       )}

@@ -17,12 +17,13 @@ import { useSearch } from '../components/SearchContext';
 import { useLikedProduct } from '../hooks/useLikedProduct';
 import { useUnlikedProduct } from '../hooks/useUnlikedProduct';
 import { getActiveUser } from '../utils/getActiveUser';
+import PaymentSuccessModal from '../components/PaymentSuccessModal';
 
 export default function Product() {
   const [activeOutlet, setActiveOutlet] = useState(getActiveOutlet());
   const activeUser = getActiveUser();
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(20);
+  const itemsPerPage = 10;
   
   // Get global search state
   const { 
@@ -44,7 +45,7 @@ export default function Product() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [pendingOrderProduct, setPendingOrderProduct] = useState(null);
-  
+    const [isPaymentSuccessful, setIsPaymentSuccessful] = useState(false);
   // Fixed: Initialize checkedOrders as an object to track selected products
   const [checkedOrders, setCheckedOrders] = useState({});
   
@@ -441,6 +442,7 @@ console.log('okkd',products);
                 totalItems={meta.total_count}
                 itemsPerPage={itemsPerPage}
                 onPageChange={handlePageChange}
+                name='Products'
                 className={isPreviousData ? 'pagination-loading' : ''}
               />
             )}
@@ -477,6 +479,7 @@ console.log('okkd',products);
           // Fixed: Pass the properly constructed selectedOrders array
           selectedOrders={selectedOrders}
           product={selectedProduct}
+          setIsPaymentSuccessful={setIsPaymentSuccessful}
           onClose={() => {
             setIsOrderModalOpen(false);
             setSelectedProduct(null);
@@ -492,6 +495,12 @@ console.log('okkd',products);
         onCloseAll={handleCloseAuthModals}
         onAuthSuccess={handleAuthSuccess}
       />
+       {isPaymentSuccessful && (
+        <>
+          <div className="payment-success-backdrop" />
+          <PaymentSuccessModal onClose={() => setIsPaymentSuccessful(false)} />
+        </>
+      )}
     </>
   );
 }

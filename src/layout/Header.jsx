@@ -7,21 +7,73 @@ import {
   X,
   CircleHelp,
   CircleUserRound,
+  LogOut,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../styles/Header.css';
 import SearchFilter from '../components/SearchFilter';
-import { Link, useLocation } from 'react-router-dom';
-import Cookies from 'js-cookie'; // Add this import
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 import { useViewProductCategories } from '../hooks/useGetProductCategories';
 import { getActiveOutlet } from '../utils/getActiveOutlets';
 import { useSearch } from '../components/SearchContext';
 
+// Logout Modal Component
+const LogoutModal = ({ isOpen, onClose, onConfirm }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="logout-modal-overlay">
+      <motion.div
+        className="logout-modal"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.9 }}
+        transition={{ duration: 0.2 }}
+      >
+        <div className="logout-modal-header">
+          <h3>Confirm Logout</h3>
+          <button className="logout-modal-close" onClick={onClose}>
+            <X size={20} />
+          </button>
+        </div>
+        
+        <div className="logout-modal-body">
+          <p>Are you sure you want to log out of your account?</p>
+        </div>
+        
+        <div className="logout-modal-footer">
+          <button 
+            className="logout-cancel-btn" 
+            onClick={onClose}
+          >
+            Cancel
+          </button>
+          <button 
+            className="logout-confirm-btn" 
+            onClick={onConfirm}
+          >
+            <LogOut size={16} />
+            Logout
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
 const Header = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const currentPath = location.pathname;
   const [activeOutlet, setActiveOutlet] = useState(getActiveOutlet());
+  
+  // Logout modal state
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  
+  // Check if user is logged in by checking localStorage token
+  const isLoggedIn = !!localStorage.getItem('token');
   
   // Get search context
   const { updateSearch, updateSort, updateCategory, clearAllFilters } = useSearch();
@@ -32,6 +84,21 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [storeDropdownOpen, setStoreDropdownOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+
+  // Handle logout functionality
+  const handleLogout = () => {
+
+    // Clear localStorage if you store any user data there
+    localStorage.clear();
+    
+
+    
+    // Close modal
+    setIsLogoutModalOpen(false);
+
+    alert('Logged out successfully');
+      window.location.reload();
+  };
 
   // Updated handleStoreChange function
   const handleStoreChange = (store) => {
@@ -242,12 +309,26 @@ const Header = () => {
             />
           )}
           <div className="header-icons">
-            <button className="mobile-icon-button" aria-label="Help" title="Help">
+            {/* Commented out help and user profile icons */}
+            {/* <button className="mobile-icon-button" aria-label="Help" title="Help">
               <CircleHelp size={24} />
             </button>
             <button className="mobile-icon-button" aria-label="User Profile" title="User Profile">
               <CircleUserRound size={24} />
-            </button>
+            </button> */}
+            
+            {/* Logout button - only show if logged in */}
+            {isLoggedIn && (
+              <button 
+                className="logout-button desktop-logout-btn" 
+                aria-label="Logout" 
+                title="Logout"
+                onClick={() => setIsLogoutModalOpen(true)}
+              >
+                <LogOut size={20} />
+                <span className="logout-text">Logout</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -326,14 +407,39 @@ const Header = () => {
 
               {/* User Actions */}
               <div className="mobile-user-actions">
-                <button className="mobile-icon-button" aria-label="Help" title="Help">
+                {/* Commented out help and user profile icons */}
+                {/* <button className="mobile-icon-button" aria-label="Help" title="Help">
                   <CircleHelp size={24} />
                 </button>
                 <button className="mobile-icon-button" aria-label="User Profile" title="User Profile">
                   <CircleUserRound size={24} />
-                </button>
+                </button> */}
+                
+                {/* Logout button for mobile - only show if logged in */}
+                {isLoggedIn && (
+                  <button 
+                    className="mobile-icon-button logout-button" 
+                    aria-label="Logout" 
+                    title="Logout"
+                    onClick={() => setIsLogoutModalOpen(true)}
+                  >
+                    <LogOut size={24} />
+                    <span className="logout-text">Logout</span>
+                  </button>
+                )}
               </div>
             </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Logout Modal */}
+        <AnimatePresence>
+          {isLogoutModalOpen && (
+            <LogoutModal
+              isOpen={isLogoutModalOpen}
+              onClose={() => setIsLogoutModalOpen(false)}
+              onConfirm={handleLogout}
+            />
           )}
         </AnimatePresence>
       </div>
