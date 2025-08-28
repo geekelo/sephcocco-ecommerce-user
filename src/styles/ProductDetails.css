@@ -52,6 +52,7 @@
 .product-price {
   font-size: 1.2rem;
   font-weight: 600;
+  opacity: 0.3;
   text-decoration: line-through;
   color: red;
   margin: 0.75rem 0;

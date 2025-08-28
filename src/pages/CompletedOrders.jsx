@@ -266,8 +266,7 @@ const CompletedOrders = () => {
     console.log('❌ Auth modals closed without authentication');
     setShowLoginModal(false);
     setShowRegisterModal(false);
-    // Redirect to products page if user closes auth modal without logging in
-    navigate('/products');
+
   };
 
   const handleSwitchToRegister = () => {
