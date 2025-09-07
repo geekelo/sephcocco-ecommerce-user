@@ -31,7 +31,7 @@ const OrderDetails = () => {
   const order =
     deliveryData?.orders?.find((o) => o.id.toString() === orderId) || paidData?.orders?.find((o) => o.id.toString() === orderId);
 const {data: riders, isLoading: isLoadingRiders} = useRiders()
-console.log('dd',riders);
+console.log('orderss',order);
 
   // Fetch tracking info only when needed
   const { data: trackData, isLoading: isTrackingLoading } = useTrackOrder(
@@ -41,6 +41,24 @@ console.log('dd',riders);
 
   const handleBack = () => {
     navigate(-1);
+  };
+
+  // Helper function to format payment details
+  const formatPaymentDetails = (paymentDetails) => {
+    if (!paymentDetails || typeof paymentDetails !== 'object') {
+      return 'N/A';
+    }
+    
+    // Extract key information from payment details object
+    const { payment_method, status, amount, transaction_id } = paymentDetails;
+    
+    const details = [];
+    if (payment_method) details.push(`Method: ${payment_method}`);
+    if (status) details.push(`Status: ${status}`);
+    if (amount) details.push(`Amount: ₦${amount}`);
+    if (transaction_id) details.push(`Transaction ID: ${transaction_id}`);
+    
+    return details.length > 0 ? details.join(', ') : 'N/A';
   };
 
   if (isLoadingDelivery || isLoadingPaid) {
@@ -75,6 +93,7 @@ console.log('dd',riders);
         name={order.product?.name}
         image={order.product?.main_image_url}
         price={order.unit_price}
+          totalPrice={order.total_price}
         rating={order.rating ?? 0}
         ratingCount={order.ratingCount ?? 0}
         status={order.status}
@@ -91,29 +110,32 @@ console.log('dd',riders);
             {order.additional_notes ||
               'No additional notes provided for this order.'}
           </p>
-                {/* Information Sections */}
-      <div className="info-sections-container">
-        <InfoSection
-          title="Payment Information"
-          items={[
-            { label: 'Payment Method:', value: 'N/A' },
-            {
-              label: 'Payment Details:',
-              value: order.payment_details || 'N/A',
-            },
-            { label: 'Total Price:', value: ` ₦${order.total_price}` },
-          ]}
-        />
+          {/* Information Sections */}
+          <div className="info-sections-container">
+            <InfoSection
+              title="Payment Information"
+              items={[
+                { 
+                  label: 'Payment Method:', 
+                  value: order.payment_details?.payment_method || 'N/A' 
+                },
+                {
+                  label: 'Payment Details:',
+                  value: formatPaymentDetails(order.payment_details),
+                },
+                { label: 'Total Price:', value: `₦${order.total_price}` },
+              ]}
+            />
 
-        <InfoSection
-          title="Delivery Information"
-          items={[
-            { label: 'Delivery Method:', value: 'Door step Delivery' },
-            { label: 'Shipping Address:', value: order.address },
-            { label: 'Phone Number:', value: order.phone_number },
-          ]}
-        />
-      </div>
+            <InfoSection
+              title="Delivery Information"
+              items={[
+                { label: 'Delivery Method:', value: 'Door step Delivery' },
+                { label: 'Shipping Address:', value: order.address },
+                { label: 'Phone Number:', value: order.phone_number },
+              ]}
+            />
+          </div>
         </div>
       ) : (
         <div className="tracking-info-section">
@@ -131,8 +153,6 @@ console.log('dd',riders);
           )}
         </div>
       )}
-
-
 
       {/* Action Buttons */}
       <div className="order-action-buttons">

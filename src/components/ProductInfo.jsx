@@ -5,7 +5,7 @@ import '../styles/ProductInfo.css';
 import LikeButton from './LikeButton';
 import { OrderStatusBadge } from './OrderStatusBadge';
 
-const ProductInfo = ({ name, image, onTrackOrder, price, rating, ratingCount, status,likes,isFavorite }) => {
+const ProductInfo = ({ name, image, totalPrice, onTrackOrder, price, rating, ratingCount, status,likes,isFavorite }) => {
 
     const handleTrackOrder = () => {
         // Implement order tracking functionality
@@ -35,7 +35,8 @@ const ProductInfo = ({ name, image, onTrackOrder, price, rating, ratingCount, st
         <div className="product-status-row">
           <OrderStatusBadge status={status} />
         </div>
-        
+                <div style={{color: '#000'}}>Unit Price: ₦{parseFloat(price).toFixed(2)}</div>
+          <div style={{color: '#000'}}>Total Price: ₦{parseFloat(totalPrice).toFixed(2)}</div>
         <div className="product-rating">
           <div className="stars-container">
           <LikeButton 
@@ -48,7 +49,8 @@ const ProductInfo = ({ name, image, onTrackOrder, price, rating, ratingCount, st
           <span className="rating-count">({ratingCount || 0})</span>
         </div>
         
-        <div className="product-price">₦{parseFloat(price).toFixed(2)}</div>
+
+        
       </div>
       <div className="order-primary-actions">
           {/* <button className="discard-button" onClick={handleDiscardOrder}>
