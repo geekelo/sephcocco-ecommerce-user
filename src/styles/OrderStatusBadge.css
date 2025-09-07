@@ -21,8 +21,8 @@
     background-color: #f59e0b;
   }
   
-  .status-badge-arrived {
-    background-color: #16a34a;
+  .status-badge-in-transit {
+    background-color: #de06d0;
   }
   
   .status-badge-awaiting-payment {

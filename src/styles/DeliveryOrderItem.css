@@ -23,7 +23,7 @@
   border-left-color: #9333ea; /* Green for delivering */
 }
 
-.delivery-order-item.border-shipped {
+.delivery-order-item.border-in-transit {
   border-left-color: #2f54eb; /* Blue for shipped */
 }
 

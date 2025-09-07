@@ -51,6 +51,10 @@
   letter-spacing: 0.5px;
 }
 
+.stage-badge-font {
+  color: #000 !important;
+}
+
 .status-completed {
   background-color: #d4edda;
   color: #155724;

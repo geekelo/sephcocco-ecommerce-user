@@ -4,10 +4,11 @@ import { motion } from 'framer-motion';
 import '../styles/OrderItem.css'
 import { OrderStatusBadge } from "./OrderStatusBadge";
 import { Link } from "react-router-dom";
+import { getBorderColorClass } from "../utils/getBorderColorClass";
 export const OrderItem = ({ order, index }) => {
     return (
       <motion.div 
-        className="order-item"
+        className={`order-item ${getBorderColorClass(order.status)}`}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: index * 0.1 }}
@@ -23,7 +24,7 @@ export const OrderItem = ({ order, index }) => {
         </div>
         
         <div className="order-actions">
-          <div className="price">${order.total_cost}</div>
+          <div className="price">${order.total_price || order.total_cost}</div>
           <Link to={`/order/${order.id}`} className="see-more">
             See More Details <ChevronRight size={16} />
           </Link>

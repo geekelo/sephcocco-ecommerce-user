@@ -1,17 +1,23 @@
 export const getBorderColorClass = (status) => {
-  switch (status) {
-    case 'Processing Order':
+  // Normalize status to handle case variations
+  const normalizedStatus = status?.toLowerCase();
+  
+  switch (normalizedStatus) {
+    case 'processing order':
       return 'border-processing';
-    case 'Processing Payment':
+    case 'processing payment':
       return 'border-payment';
-    case 'Awaiting Payment Confirmation':
+    case 'awaiting payment confirmation':
       return 'border-awaiting';
-    case "Delivering":
+    case "delivering":
       return "border-delivering";
-    case "Shipped":
-      return "border-shipped";
-    case "Out for Delivery":
+    case "in transit":
+      return "border-in-transit";
+    case "out for delivery":
       return "border-out-delivery";
+    case "completed":
+    case "delivered":
+      return "border-completed";
     default:
       return "border-default";
   }

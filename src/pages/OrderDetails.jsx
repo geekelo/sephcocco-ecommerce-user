@@ -10,6 +10,7 @@ import OrderDetailsSkeleton from '../components/OrderDetailsSkeleton';
 import { useTrackOrder } from '../hooks/useTrackOrder';
 import { useRiders } from '../hooks/useRiders';
 import { useGetPaidOrder } from '../hooks/useGetPaidOrder';
+import { useGetCompletedOrder } from '../hooks/userGetCompletedOrder';
 
 const OrderDetails = () => {
   const navigate = useNavigate();
@@ -25,13 +26,21 @@ const OrderDetails = () => {
     data: paidData,
     isLoading: isLoadingPaid,
   } = useGetPaidOrder(activeOutlet);
+
+  const {
+    data: completedData,
+    isLoading: isLoadingCompleted,
+  } = useGetCompletedOrder(activeOutlet);
+
   const [showTracking, setShowTracking] = useState(false);
 
-  // Find the order by ID from API response
+  // Find the order by ID from API response - check all order types
   const order =
-    deliveryData?.orders?.find((o) => o.id.toString() === orderId) || paidData?.orders?.find((o) => o.id.toString() === orderId);
+    deliveryData?.orders?.find((o) => o.id.toString() === orderId) || 
+    paidData?.orders?.find((o) => o.id.toString() === orderId) ||
+    completedData?.orders?.find((o) => o.id.toString() === orderId);
+
 const {data: riders, isLoading: isLoadingRiders} = useRiders()
-console.log('orderss',order);
 
   // Fetch tracking info only when needed
   const { data: trackData, isLoading: isTrackingLoading } = useTrackOrder(
@@ -61,7 +70,71 @@ console.log('orderss',order);
     return details.length > 0 ? details.join(', ') : 'N/A';
   };
 
-  if (isLoadingDelivery || isLoadingPaid) {
+  // Helper function to generate default stages based on order status
+  const generateDefaultStages = (order) => {
+    if (!order) return [];
+    
+    const stages = [];
+    const now = new Date();
+    
+    // Always add order placed stage
+    stages.push({
+      status: 'Order Placed',
+      date: order.created_at || order.order_date || now.toISOString()
+    });
+    
+    // Add stages based on current status
+    const status = order.status?.toLowerCase();
+    
+    if (status === 'paid' || status === 'processing' || status === 'confirmed') {
+      stages.push({
+        status: 'Payment Confirmed',
+        date: order.payment_confirmed_at || now.toISOString()
+      });
+      stages.push({
+        status: 'Processing Order',
+        date: order.processing_at || now.toISOString()
+      });
+    }
+    
+    if (status === 'delivering' || status === 'shipped') {
+      stages.push({
+        status: 'Payment Confirmed',
+        date: order.payment_confirmed_at || now.toISOString()
+      });
+      stages.push({
+        status: 'Processing Order',
+        date: order.processing_at || now.toISOString()
+      });
+      stages.push({
+        status: 'Shipped',
+        date: order.shipped_at || now.toISOString()
+      });
+    }
+    
+    if (status === 'completed' || status === 'delivered' || status === 'arrived') {
+      stages.push({
+        status: 'Payment Confirmed',
+        date: order.payment_confirmed_at || now.toISOString()
+      });
+      stages.push({
+        status: 'Processing Order',
+        date: order.processing_at || now.toISOString()
+      });
+      stages.push({
+        status: 'Shipped',
+        date: order.shipped_at || now.toISOString()
+      });
+      stages.push({
+        status: 'Delivered',
+        date: order.delivered_at || order.completed_at || now.toISOString()
+      });
+    }
+    
+    return stages;
+  };
+
+  if (isLoadingDelivery || isLoadingPaid || isLoadingCompleted) {
     return <OrderDetailsSkeleton />;
   }
 
@@ -135,9 +208,11 @@ console.log('orderss',order);
                 { label: 'Phone Number:', value: order.phone_number },
                 { 
                   label: 'Order Stages:', 
-                  value: order.stages, 
+                  value: order.stages && Array.isArray(order.stages) && order.stages.length > 0 
+                    && order.stages,
+                   
                   isStages: true 
-                }, // Add stages here
+                },
               ]}
             />
           </div>

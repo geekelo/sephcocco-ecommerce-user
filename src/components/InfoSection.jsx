@@ -54,15 +54,35 @@ const InfoSection = ({ title, items }) => {
 
   // Function to render stages with dates
   const renderStages = (stages) => {
-    if (!stages || !Array.isArray(stages) || stages.length === 0) {
+    // Handle different data types
+    if (!stages) {
+      return <span>No stages available</span>;
+    }
+    
+    // If stages is a string, try to parse it or display as is
+    if (typeof stages === 'string') {
+      return <span>{stages}</span>;
+    }
+    
+    // If stages is not an array, try to convert it
+    let stagesArray = stages;
+    if (!Array.isArray(stages)) {
+      if (typeof stages === 'object' && stages !== null) {
+        stagesArray = [stages];
+      } else {
+        return <span>No stages available</span>;
+      }
+    }
+    
+    if (stagesArray.length === 0) {
       return <span>No stages available</span>;
     }
     
     return (
       <div className="stages-container">
-        {stages.map((stageObj, index) => (
+        {stagesArray.map((stageObj, index) => (
           <div key={index} className="stage-item">
-            <span className={`status-badge ${getStageClass(stageObj.status)}`}>
+            <span className={`status-badge stage-badge-font ${getStageClass(stageObj.status)}`}>
               {capitalizeText(stageObj.status)} -  {formatStageDate(stageObj.date)}
             </span>
          
