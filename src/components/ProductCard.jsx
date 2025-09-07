@@ -59,9 +59,7 @@ export const ProductCard = ({
       <div className="product-info">
         <h3 className="product-name">{name}</h3>
         {
-discount_price ? <div className="discount-price"> ₦{parseFloat(discount_price || 0).toFixed(2) } <span className='product-price'> ₦{product.price}</span></div> : <p className="discount-price">
-  ₦{parseFloat(price || 0).toFixed(2)}
-</p>
+<div className="discount-price"> ₦{parseFloat(price || 0).toFixed(2) } <span className='product-price'> ₦{product.discount_price}</span></div>
 }
         
         <div className="product-stock">
