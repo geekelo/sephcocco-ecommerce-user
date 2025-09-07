@@ -81,8 +81,8 @@ export const PaymentHistoryFilter = ({ onFilterChange }) => {
             >
               <option value="">All Statuses</option>
                 <option value="pending">Pending</option>
-              <option value="paid">Awaiting confirmation</option>
-              <option value="payment confirmed">Confirmed</option>
+              <option value="paid">Awaiting Confirmation</option>
+              <option value="payment confirmed">Payment Confirmed</option>
               <option value="declined">Declined</option>
               <option value="cancelled">Cancelled</option>
             </select>

@@ -1,16 +1,16 @@
 export const getStatusClass = (status) => {
     switch (status) {
-      case 'Delivering':
+      case 'delivering':
         return 'status-badge-delivering';
-      case 'Processing Order':
+      case 'pending':
         return 'status-badge-processing-order';
-      case 'Processing Payment':
+      case 'paid':
         return 'status-badge-processing-payment';
       case 'Arrived':
         return 'status-badge-arrived';
-      case 'Awaiting Payment Confirmation':
+      case 'awaiting payment approval':
         return 'status-badge-awaiting-payment';
-      case 'Completed':
+      case 'completed':
         return 'status-badge-completed';
       default:
         return 'status-badge-default';
