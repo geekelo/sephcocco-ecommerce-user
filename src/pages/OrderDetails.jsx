@@ -93,7 +93,7 @@ console.log('orderss',order);
         name={order.product?.name}
         image={order.product?.main_image_url}
         price={order.unit_price}
-          totalPrice={order.total_price}
+        totalPrice={order.total_price}
         rating={order.rating ?? 0}
         ratingCount={order.ratingCount ?? 0}
         status={order.status}
@@ -133,6 +133,11 @@ console.log('orderss',order);
                 { label: 'Delivery Method:', value: 'Door step Delivery' },
                 { label: 'Shipping Address:', value: order.address },
                 { label: 'Phone Number:', value: order.phone_number },
+                { 
+                  label: 'Order Stages:', 
+                  value: order.stages, 
+                  isStages: true 
+                }, // Add stages here
               ]}
             />
           </div>
