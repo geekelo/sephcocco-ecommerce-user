@@ -3,8 +3,10 @@ export const getBorderColorClass = (status) => {
   const normalizedStatus = status?.toLowerCase();
   
   switch (normalizedStatus) {
-    case 'processing order':
+    case 'paid':
       return 'border-processing';
+    case 'payment confirmed':
+      return 'border-payment-confirmed';
     case 'processing payment':
       return 'border-payment';
     case 'awaiting payment confirmation':
@@ -16,6 +18,7 @@ export const getBorderColorClass = (status) => {
     case "out for delivery":
       return "border-out-delivery";
     case "completed":
+      return "border-completed";
     case "delivered":
       return "border-completed";
     default:
