@@ -8,6 +8,7 @@ import '../styles/ProductDetails.css';
 import { HelpCircle } from 'lucide-react';
 import { useLikedProduct } from '../hooks/useLikedProduct';
 import { useUnlikedProduct } from '../hooks/useUnlikedProduct';
+import { useCreateOrder } from '../hooks/useCreateOrder';
 import { getActiveOutlet } from '../utils/getActiveOutlets';
 import { useNavigate } from 'react-router-dom';
 
@@ -24,6 +25,9 @@ const ProductDetails = ({ product, onCloseModal, onBuyNow, onProductUpdate }) =>
   // Like/Unlike mutations
   const likeProductMutation = useLikedProduct();
   const unlikeProductMutation = useUnlikedProduct();
+  
+  // Create order mutation
+  const createOrderMutation = useCreateOrder();
    
   const shortDescription = product?.short_description || "No description available";
   const longDescription = product?.long_description || null;
@@ -95,10 +99,47 @@ const ProductDetails = ({ product, onCloseModal, onBuyNow, onProductUpdate }) =>
     console.log('=== END LIKE TOGGLE DEBUG ===');
   };
 
-  const handlePendingOrder = () => {
-    setIsPending(true);
-    // Here you would typically update this on the backend
-    console.log(`Product ${product.id} added to pending orders`);
+  const handlePendingOrder = async () => {
+    if (!isLoggedIn) {
+      // Redirect to login or show login modal
+      navigate('/login');
+      return;
+    }
+
+    try {
+      setIsPending(true);
+      
+      const dynamicOrderKey = `sephcocco_${activeOutlet}_order`;
+      
+      const payload = {
+        [dynamicOrderKey]: {
+          [`sephcocco_${activeOutlet}_product_id`]: product.id,
+          quantity: 1, // Default quantity for pending orders
+          address: '', // Will be filled later when user completes the order
+          phone_number: '', // Will be filled later when user completes the order
+          additional_notes: 'Added to pending orders',
+        }
+      };
+      
+      console.log('Creating pending order with payload:', payload);
+      
+      const response = await createOrderMutation.mutateAsync({
+        active_outlet: activeOutlet,
+        payload
+      });
+      
+      console.log('✅ Pending order created successfully:', response);
+      
+      // Notify parent to refetch/update data
+      onProductUpdate?.();
+      
+    } catch (error) {
+      console.error('❌ Failed to create pending order:', error);
+      setIsPending(false); // Reset pending state on error
+      
+      // You could show a toast notification here
+      alert('Failed to add product to pending orders. Please try again.');
+    }
   };
 
   return (
@@ -160,6 +201,7 @@ const ProductDetails = ({ product, onCloseModal, onBuyNow, onProductUpdate }) =>
             closeProductModal={onCloseModal}
             onBuyNow={onBuyNow}
             isPending={isPending}
+            isCreatingOrder={createOrderMutation.isPending}
           />
         </div>
       </motion.div>
