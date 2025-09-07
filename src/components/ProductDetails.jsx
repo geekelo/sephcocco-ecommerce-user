@@ -136,9 +136,7 @@ const ProductDetails = ({ product, onCloseModal, onBuyNow, onProductUpdate }) =>
           </p>
            
         {
-product?.discount_price ? <div className="discount-price"> ₦{parseFloat(product?.discount_price || 0).toFixed(2) } <span className='product-price'> ₦{product.price}</span></div> : <p className="discount-price">
-  ₦{parseFloat(product?.price || 0).toFixed(2)}
-</p>
+ <div className="discount-price"> ₦{parseFloat(product?.price).toFixed(2) } <span className='product-price'> ₦{product.discount_price}</span></div>
 }
           
           <div className="product-description">
