@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useSearchParams, useParams,useNavigate } from 'react-router-dom';
 import '../styles/OrderDetails.css';
 import InfoSection from '../components/InfoSection';
 import ProductInfo from '../components/ProductInfo';
@@ -13,9 +13,16 @@ import { useGetPaidOrder } from '../hooks/useGetPaidOrder';
 import { useGetCompletedOrder } from '../hooks/userGetCompletedOrder';
 
 const OrderDetails = () => {
-  const navigate = useNavigate();
+ 
   const { orderId } = useParams();
   const activeOutlet = getActiveOutlet();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const fromTab = searchParams.get("tab") || "pending";
+
+  const handleBack = () => {
+    navigate(`/pending-orders?tab=${fromTab}`);
+  };
 
   const {
     data: deliveryData,
@@ -47,10 +54,6 @@ const {data: riders, isLoading: isLoadingRiders} = useRiders()
     order?.assigned_rider?.id,
     { enabled: showTracking } // only run if tracking is opened
   );
-
-  const handleBack = () => {
-    navigate(-1);
-  };
 
   // Helper function to format payment details
   const formatPaymentDetails = (paymentDetails) => {

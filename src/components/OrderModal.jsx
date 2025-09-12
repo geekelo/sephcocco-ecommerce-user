@@ -7,6 +7,7 @@ import PaymentMethod from './PaymentMethod';
 import MobileOrderResponsiveFix from './MobileOrderResponsiveFix';
 import { useCreateOrder } from '../hooks/useCreateOrder';
 import { getActiveOutlet } from '../utils/getActiveOutlets';
+import { useGetPendingOrder } from '../hooks/useGetPendingOrder';
 
 
 const OrderModal = ({ product, onClose,selectedOrders,setIsPaymentSuccessful }) => {
@@ -25,7 +26,13 @@ const OrderModal = ({ product, onClose,selectedOrders,setIsPaymentSuccessful }) 
 
   const createOrderMutation = useCreateOrder();
   const active_outlet = getActiveOutlet()
- 
+   const { 
+
+     refetch: refetchPending, 
+
+   } = useGetPendingOrder(
+     active_outlet
+   );
 
   // Prevent scrolling of the body when modal is open
   useEffect(() => {
@@ -99,7 +106,7 @@ const OrderModal = ({ product, onClose,selectedOrders,setIsPaymentSuccessful }) 
         payload
       });
       console.log(response);
-      
+      refetchPending();
       setCreatedOrderId(response.id);
       setTotalCost(response.total_cost);
       setOrderCreated(true);
@@ -231,6 +238,7 @@ const OrderModal = ({ product, onClose,selectedOrders,setIsPaymentSuccessful }) 
                   () => {
       onClose()
                     setIsPaymentSuccessful(true)
+
                   }
             
                 }

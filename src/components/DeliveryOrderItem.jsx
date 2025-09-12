@@ -5,7 +5,7 @@ import { OrderStatusBadge } from "./OrderStatusBadge";
 import { Link } from "react-router-dom";
 import { getBorderColorClass } from "../utils/getBorderColorClass";
 
-export const DeliveryOrderItem = ({ order, index, onClick, isSelected }) => {
+export const DeliveryOrderItem = ({ order, index, onClick, isSelected,activeTab }) => {
  
   return (
     <motion.div
@@ -27,7 +27,7 @@ export const DeliveryOrderItem = ({ order, index, onClick, isSelected }) => {
       
       <div className="delivery-order-actions">
         <div className="delivery-price">₦{order.total_cost}</div>
-        <Link to={`/order/${order.id}`} className="delivery-see-more">
+        <Link to={`/order/${order.id}?tab=${activeTab}`}   className="delivery-see-more">
           See More Details <ChevronRight size={16} />
         </Link>
       </div>

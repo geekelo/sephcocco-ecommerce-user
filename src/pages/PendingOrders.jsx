@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import OrderModal from "../components/OrderModal";
 import PaymentModal from "../components/PaymentModal";
 import PaymentSuccessModal from "../components/PaymentSuccessModal";
+import { useSearchParams } from 'react-router-dom';
 import { AuthModals } from '../components/AuthModal'; // Import auth modals
 import { useGetPendingOrder } from "../hooks/useGetPendingOrder";
 import { getActiveOutlet } from "../utils/getActiveOutlets";
@@ -324,7 +325,9 @@ const PendingOrders = () => {
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isPaymentSuccessful, setIsPaymentSuccessful] = useState(false);
-  const [activeTab, setActiveTab] = useState("pending");
+    const [searchParams] = useSearchParams();
+    const fromTab = searchParams.get("tab") || "pending";
+  const [activeTab, setActiveTab] = useState(fromTab);
 
   const [checkedOrders, setCheckedOrders] = useState({});
   const [orderQuantities, setOrderQuantities] = useState({});
@@ -340,6 +343,7 @@ const PendingOrders = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
 
   const navigate = useNavigate();
   
@@ -482,6 +486,11 @@ const PendingOrders = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setSearchParams({ tab }); // update query param
+  };
   // Handle delete
   const handleDeleteOrder = (orderId) => {
     if (!isAuthenticated) {
@@ -675,19 +684,19 @@ if (!activeOutlet) {
         <div className="order-tabs">
           <button 
             className={`tab-button ${activeTab === "pending" ? "active" : ""}`} 
-            onClick={() => setActiveTab("pending")}
+             onClick={() => handleTabChange("pending")}
           >
             Unpaid {pendingData?.meta?.total_count > 0 && `(${pendingData?.meta?.total_count})`}
           </button>
           <button 
             className={`tab-button ${activeTab === "paid" ? "active" : ""}`} 
-            onClick={() => setActiveTab("paid")}
+            onClick={() => handleTabChange("paid")}
           >
             Paid {paidData?.meta?.total_count > 0 && `(${paidData?.meta?.total_count})`}
           </button>
           <button 
             className={`tab-button ${activeTab === "delivering" ? "active" : ""}`} 
-            onClick={() => setActiveTab("delivering")}
+           onClick={() => handleTabChange("delivering")}
           >
             In delivery {deliveryData?.meta?.total_count > 0 && `(${deliveryData?.meta?.total_count})`}
           </button>
@@ -734,6 +743,7 @@ if (!activeOutlet) {
                       index={index}
                       onClick={() => setCurrentOrder(order)}
                       isSelected={currentOrder?.id === order.id}
+                      activeTab={activeTab}
                     />
                   ))
                 ) : (

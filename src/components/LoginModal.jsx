@@ -47,7 +47,7 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister, onSuccess }) =
       
       const response = await login(payload);
       console.log(response);
-   if (response?.user?.emailVerified) {
+   if (response?.user?.email_confirmed) {
        // Normal login flow
        localStorage.setItem("token", response?.token);
        localStorage.setItem("userId", response?.user?.id);
