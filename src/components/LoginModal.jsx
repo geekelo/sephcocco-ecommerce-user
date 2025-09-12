@@ -47,16 +47,19 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister, onSuccess }) =
       
       const response = await login(payload);
       console.log(response);
-      
-      if (response?.message) {
-        localStorage.setItem('token', response?.token);
-        localStorage.setItem('userId', response?.user?.id);
-        localStorage.setItem('userEmail', response?.user?.email);
-        localStorage.setItem('pay-ref', response?.user?.payment_ref)
-        // Cookies.set('userId', response?.user?.id, { expires: 1 });
-        onSuccess && onSuccess();
-        onClose();
-      }
+   if (response?.user?.emailVerified) {
+       // Normal login flow
+       localStorage.setItem("token", response?.token);
+       localStorage.setItem("userId", response?.user?.id);
+       localStorage.setItem("userEmail", response?.user?.email);
+      localStorage.setItem("pay-ref", response?.user?.payment_ref);
+      onSuccess && onSuccess();
+     onClose();
+     setEmail('')
+    } else {
+      // If not verified → trigger OTP flow
+      onSuccess && onSuccess(response?.user?.email);
+   }
     } catch (error) {
       console.error("Login failed:", error);
       setApiError(error?.response?.data?.error || "Login failed. Please try again.");

@@ -266,7 +266,7 @@ export default function PaymentMethod({address, totalCost, selectedOrders, produ
                 <div className="payment-option-icon">
                   <Landmark size={24} />
                 </div>
-                <div className="payment-option-label">Bank Transfer</div>
+                <div className="payment-option-label">Bank Transfer / Cash </div>
                 {paymentMethod === 'bank' && (
                   <div className="payment-selected">
                     <CheckCircle size={20} />

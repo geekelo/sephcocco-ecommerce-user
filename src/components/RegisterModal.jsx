@@ -58,6 +58,11 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin, onSuccess }) =
           error = "Phone number is required";
         }
         break;
+           case "whatsapp_number":
+        if (value.trim() === "") {
+          error = "WhatsApp number is required";
+        }
+        break;
     }
 
     setValidationErrors(prev => ({
@@ -95,7 +100,7 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin, onSuccess }) =
       if (response?.message) {
         // Don't set token yet - user needs to login after registration
         // The toast will be handled by the calling component
-        onSuccess && onSuccess();
+         onSuccess && onSuccess(formValues.email);
       }
     } catch (error) {
       console.error('Registration failed:', error);
@@ -215,10 +220,14 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin, onSuccess }) =
                 id="whatsapp_number"
                 name="whatsapp_number"
                 type="tel"
+                onBlur={handleBlur}
                 value={formValues.whatsapp_number}
                 onChange={handleInputChange}
                 placeholder="Enter WhatsApp number"
               />
+              {validationErrors.whatsapp_number && (
+                <p className="error-message">{validationErrors.whatsapp_number}</p>
+              )}
             </div>
 
             {formErrors.general && (
