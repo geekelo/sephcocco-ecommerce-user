@@ -4,6 +4,7 @@ import { useSearchParams, useParams,useNavigate } from 'react-router-dom';
 import '../styles/OrderDetails.css';
 import InfoSection from '../components/InfoSection';
 import ProductInfo from '../components/ProductInfo';
+import OrderStages from '../components/OrderStages';
 import { getActiveOutlet } from '../utils/getActiveOutlets';
 import { useGetDeliveryOrder } from '../hooks/useGetDeliveryOrder';
 import OrderDetailsSkeleton from '../components/OrderDetailsSkeleton';
@@ -178,6 +179,12 @@ const {data: riders, isLoading: isLoadingRiders} = useRiders()
         onTrackOrder={() => setShowTracking(true)}
       />
 
+      <OrderStages 
+        stages={order.stages && Array.isArray(order.stages) && order.stages.length > 0 
+          ? order.stages 
+          : generateDefaultStages(order)} 
+      />
+
       {/* Product Description OR Tracking */}
       {!showTracking ? (
         <div className="product-description-section">
@@ -186,6 +193,7 @@ const {data: riders, isLoading: isLoadingRiders} = useRiders()
             {order.additional_notes ||
               'No additional notes provided for this order.'}
           </p>
+          <br />
           {/* Information Sections */}
           <div className="info-sections-container">
             <InfoSection
@@ -209,13 +217,6 @@ const {data: riders, isLoading: isLoadingRiders} = useRiders()
                 { label: 'Delivery Method:', value: 'Door step Delivery' },
                 { label: 'Shipping Address:', value: order.address },
                 { label: 'Phone Number:', value: order.phone_number },
-                { 
-                  label: 'Order Stages:', 
-                  value: order.stages && Array.isArray(order.stages) && order.stages.length > 0 
-                    && order.stages,
-                   
-                  isStages: true 
-                },
               ]}
             />
           </div>
