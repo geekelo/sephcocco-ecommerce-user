@@ -12,13 +12,21 @@ import { useCreateOrder } from '../hooks/useCreateOrder';
 import { getActiveOutlet } from '../utils/getActiveOutlets';
 import { useNavigate } from 'react-router-dom';
 
-const ProductDetails = ({ product, onCloseModal, onBuyNow, onProductUpdate }) => {
+const ProductDetails = ({ 
+  product, 
+  onCloseModal, 
+  onBuyNow, 
+  onProductUpdate,
+  onShowAuthModal,
+  isAuthenticated
+}) => {
   const [selectedImage, setSelectedImage] = useState(product?.main_image_url);
   const [isPending, setIsPending] = useState(false);
   
   // Check if user is logged in
   const isLoggedIn = localStorage.getItem('token') !== null;
   const navigate = useNavigate()
+  
   // Get current active outlet
   const activeOutlet = getActiveOutlet();
   
@@ -38,17 +46,17 @@ const ProductDetails = ({ product, onCloseModal, onBuyNow, onProductUpdate }) =>
 
   // Handle Like Product
   const handleLikeProduct = async () => {
-    if (!isLoggedIn) return;
+    if (!isLoggedIn) {
+      // Show auth modal instead of returning early
+      onShowAuthModal?.();
+      return;
+    }
 
     try {
-    
-      
-       await likeProductMutation.mutateAsync({
+      await likeProductMutation.mutateAsync({
         active_outlet: activeOutlet,
         productId: product.id
       });
-      
-  
       
       // Notify parent to refetch/update data
       onProductUpdate?.();
@@ -61,30 +69,33 @@ const ProductDetails = ({ product, onCloseModal, onBuyNow, onProductUpdate }) =>
 
   // Handle Unlike Product
   const handleUnlikeProduct = async () => {
-    if (!isLoggedIn) return;
+    if (!isLoggedIn) {
+      // Show auth modal instead of returning early
+      onShowAuthModal?.();
+      return;
+    }
 
     try {
-  
-      
-       await unlikeProductMutation.mutateAsync({
+      await unlikeProductMutation.mutateAsync({
         active_outlet: activeOutlet,
         productId: product.id
       });
-      
-   
       
       // Notify parent to refetch/update data
       onProductUpdate?.();
       console.log('Product unliked successfully');
     } catch (error) {
-
+      console.error('Failed to unlike product:', error);
     }
   };
 
   // Handle Like Toggle - determines whether to like or unlike
   const handleLikeToggle = async () => {
-    if (!isLoggedIn) return;
-
+    if (!isLoggedIn) {
+      // Show auth modal instead of returning early
+      onShowAuthModal?.();
+      return;
+    }
 
     if (product.liked_by_user) {
       // If already liked, unlike it
@@ -101,8 +112,8 @@ const ProductDetails = ({ product, onCloseModal, onBuyNow, onProductUpdate }) =>
 
   const handlePendingOrder = async () => {
     if (!isLoggedIn) {
-      // Redirect to login or show login modal
-      navigate('/login');
+      // Show auth modal instead of navigating to login
+      onShowAuthModal?.();
       return;
     }
 
@@ -158,16 +169,14 @@ const ProductDetails = ({ product, onCloseModal, onBuyNow, onProductUpdate }) =>
         <div className="product-details-info">
           <div className="product-header">
             <h1 className="product-name">{product.name}</h1>
-            {/* Only show like button if user is logged in */}
-            {isLoggedIn && (
-              <LikeButton 
-                initialLikes={product.likes}
-                isLiked={product.liked_by_user}
-                onLike={handleLikeToggle}
-                disabled={false}
-                isLoading={likeProductMutation.isPending || unlikeProductMutation.isPending}
-              />
-            )}
+           
+            <LikeButton 
+              initialLikes={product.likes}
+              isLiked={product.liked_by_user}
+              onLike={handleLikeToggle}
+              disabled={false}
+              isLoading={likeProductMutation.isPending || unlikeProductMutation.isPending}
+            />
           </div>
            
           <p className="stock-status">
@@ -176,9 +185,10 @@ const ProductDetails = ({ product, onCloseModal, onBuyNow, onProductUpdate }) =>
               : 'Out of stock'}
           </p>
            
-        {
- <div className="discount-price"> ₦{parseFloat(product?.price).toFixed(2) } <span className='product-price'> ₦{product.discount_price}</span></div>
-}
+          <div className="discount-price">
+            ₦{parseFloat(product?.price).toFixed(2)} 
+            <span className='product-price'> ₦{product.discount_price}</span>
+          </div>
           
           <div className="product-description">
             <h3>Product Description</h3>
@@ -202,6 +212,8 @@ const ProductDetails = ({ product, onCloseModal, onBuyNow, onProductUpdate }) =>
             onBuyNow={onBuyNow}
             isPending={isPending}
             isCreatingOrder={createOrderMutation.isPending}
+              onShowAuthModal={onShowAuthModal}
+  isAuthenticated={isAuthenticated}
           />
         </div>
       </motion.div>

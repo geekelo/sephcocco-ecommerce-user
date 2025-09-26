@@ -4,14 +4,20 @@ import { motion, AnimatePresence } from 'framer-motion';
 import '../styles/ProductModal.css';
 import ProductDetails from './ProductDetails';
 import SimilarDiscounts from './SimilarDiscounts';
-import { allProducts } from '../constants/productData';
-import { useViewAllProduct } from '../hooks/useGetAllProduct';
+import { AuthModals } from './AuthModal'; 
 import { getActiveOutlet } from '../utils/getActiveOutlets';
 
-const ProductModal = ({ product, onClose, onBuyNow,onProductUpdate }) => {
+const ProductModal = ({ product, onClose, onBuyNow, onProductUpdate }) => {
   const [activeOutlet, setActiveOutlet] = useState(getActiveOutlet());
   const [currentProduct, setCurrentProduct] = useState(product);
-  // const { data: productsData } = useViewAllProduct(activeOutlet);
+  
+  // Auth modal states
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
+  
+  // Check authentication status
+  const isAuthenticated = localStorage.getItem('token') !== null;
+  
   // Prevent scrolling of the body when the modal is open
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -32,22 +38,28 @@ const ProductModal = ({ product, onClose, onBuyNow,onProductUpdate }) => {
       window.removeEventListener('keydown', handleEsc);
     };
   }, [onClose]);
-console.log(currentProduct);
 
-  // Find products in the same category for similar discounts
-  // const getSimilarProducts = () => {
-  //   if (!currentProduct || !currentProduct.categories || currentProduct.discount_price == null) return [];
-  
-  //   // Define acceptable range for "similar" discount
-  //   const discountThreshold = 5; // for ±5% tolerance (adjust as needed)
-  
-  //   return productsData?.products?.filter(p => 
-    
-  //     Math.abs(p.discount_price - currentProduct.discount_price) <= discountThreshold
-  //   );
-  // };
-  // console.log('okk',getSimilarProducts());
-  
+  console.log(currentProduct);
+
+  // Handle showing auth modal
+  const handleShowAuthModal = () => {
+    setShowLoginModal(true);
+  };
+
+  // Handle auth success
+  const handleAuthSuccess = () => {
+    setShowLoginModal(false);
+    setShowRegisterModal(false);
+    // Optionally refetch product data or update UI
+    onProductUpdate?.();
+  };
+
+  // Handle closing auth modals
+  const handleCloseAuthModals = () => {
+    setShowLoginModal(false);
+    setShowRegisterModal(false);
+  };
+
   return (
     <AnimatePresence>
       <motion.div 
@@ -78,16 +90,16 @@ console.log(currentProduct);
             onCloseModal={onClose}
             onBuyNow={onBuyNow}
             onProductUpdate={onProductUpdate}
+            onShowAuthModal={handleShowAuthModal}
+            isAuthenticated={isAuthenticated}
           />
           
+          {/* Uncomment when you want to add similar discounts back */}
           {/* <SimilarDiscounts
             products={getSimilarProducts()}
             currentProduct={currentProduct}
             onProductChange={(product) => {
-              // Create a smooth transition effect when changing products
               setCurrentProduct(product);
-              
-              // Scroll to top when changing products
               window.scrollTo({
                 top: 0,
                 behavior: 'smooth'
@@ -95,6 +107,14 @@ console.log(currentProduct);
             }}
           /> */}
         </motion.div>
+
+        {/* Auth Modals */}
+        <AuthModals
+          showLogin={showLoginModal}
+          showRegister={showRegisterModal}
+          onCloseAll={handleCloseAuthModals}
+          onAuthSuccess={handleAuthSuccess}
+        />
       </motion.div>
     </AnimatePresence>
   );
