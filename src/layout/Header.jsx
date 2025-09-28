@@ -242,7 +242,7 @@ const Header = () => {
         {/* Mobile Toggle */}
         <div className="mobile-menu-icon">
           <button onClick={toggleMenu} className="menu-toggle-button">
-            {isMenuOpen ? <X size={20} color="#ff4500" /> : <Menu size={20} />}
+            {isMenuOpen ? <X size={20} color="#ff4500" /> : <Menu size={20} color="#ff4500"/>}
           </button>
         </div>
 

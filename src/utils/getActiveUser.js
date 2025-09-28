@@ -1,7 +1,7 @@
 
 
 export const getActiveUser = () => {
-  const userId = localStorage.getItem('userId') || localStorage.getItem('user_id');
+  const userId = localStorage.getItem('userId');
   const userRole = localStorage.getItem('userRole');
   const userEmail = localStorage.getItem('userEmail');
   const userName = localStorage.getItem('userName');
