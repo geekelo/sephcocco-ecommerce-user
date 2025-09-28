@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import ImageGallery from './ImageGallery';
 import LikeButton from './LikeButton';
@@ -22,6 +22,7 @@ const ProductDetails = ({
 }) => {
   const [selectedImage, setSelectedImage] = useState(product?.main_image_url);
   const [isPending, setIsPending] = useState(false);
+  const [isAddedToPending, setIsAddedToPending] = useState(false);
   
   // Check if user is logged in
   const isLoggedIn = localStorage.getItem('token') !== null;
@@ -36,6 +37,8 @@ const ProductDetails = ({
   
   // Create order mutation
   const createOrderMutation = useCreateOrder();
+
+
    
   const shortDescription = product?.short_description || "No description available";
   const longDescription = product?.long_description || null;
@@ -119,6 +122,7 @@ const ProductDetails = ({
 
     try {
       setIsPending(true);
+      setIsAddedToPending(false); // Reset success state
       
       const dynamicOrderKey = `sephcocco_${activeOutlet}_order`;
       
@@ -141,15 +145,19 @@ const ProductDetails = ({
       
       console.log('✅ Pending order created successfully:', response);
       
+      // Set success state
+      setIsAddedToPending(true);
+      
       // Notify parent to refetch/update data
       onProductUpdate?.();
       
     } catch (error) {
       console.error('❌ Failed to create pending order:', error);
-      setIsPending(false); // Reset pending state on error
       
       // You could show a toast notification here
       alert('Failed to add product to pending orders. Please try again.');
+    } finally {
+      setIsPending(false); // Reset pending state
     }
   };
 
@@ -210,10 +218,10 @@ const ProductDetails = ({
             product={product}
             closeProductModal={onCloseModal}
             onBuyNow={onBuyNow}
-            isPending={isPending}
             isCreatingOrder={createOrderMutation.isPending}
-              onShowAuthModal={onShowAuthModal}
-  isAuthenticated={isAuthenticated}
+            isAddedToPending={isAddedToPending}
+            onShowAuthModal={onShowAuthModal}
+            isAuthenticated={isAuthenticated}
           />
         </div>
       </motion.div>

@@ -378,7 +378,7 @@ const PendingOrders = () => {
     activeOutlet, 
     pendingPage, 
     itemsPerPage,
-    { enabled: isAuthenticated } // Only fetch if authenticated
+    { enabled: isAuthenticated }
   );
   
   const { 

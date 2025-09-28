@@ -18,6 +18,7 @@ import { useLikedProduct } from '../hooks/useLikedProduct';
 import { useUnlikedProduct } from '../hooks/useUnlikedProduct';
 import { getActiveUser } from '../utils/getActiveUser';
 import PaymentSuccessModal from '../components/PaymentSuccessModal';
+import { useGetPendingOrder } from "../hooks/useGetPendingOrder";
 
 export default function Product() {
   const [activeOutlet, setActiveOutlet] = useState(getActiveOutlet());
@@ -45,7 +46,8 @@ export default function Product() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [pendingOrderProduct, setPendingOrderProduct] = useState(null);
-    const [isPaymentSuccessful, setIsPaymentSuccessful] = useState(false);
+  const [isPaymentSuccessful, setIsPaymentSuccessful] = useState(false);
+  
   // Fixed: Initialize checkedOrders as an object to track selected products
   const [checkedOrders, setCheckedOrders] = useState({});
   
@@ -65,7 +67,15 @@ export default function Product() {
     refetch: refetchCategories 
   } = useViewProductCategories(activeOutlet);
 
-  console.log('prod', productsData);
+  // Add pending orders hook for refetching
+  const { refetch: refetchPendingOrders } = useGetPendingOrder(
+    activeOutlet, 
+    1,
+    10,
+    { enabled: false } 
+  );
+
+;
 
   // Like/Unlike mutations
   const likeProductMutation = useLikedProduct();
@@ -303,6 +313,12 @@ export default function Product() {
     setIsOrderModalOpen(true);
   };
 
+  // Updated to include pending orders refetch
+  const handleProductUpdate = () => {
+    refetch();
+    refetchPendingOrders();
+  };
+
   const handleAuthSuccess = () => {
     if (pendingOrderProduct) {
       setSelectedProduct(pendingOrderProduct);
@@ -336,7 +352,8 @@ export default function Product() {
   const selectedOrders = useMemo(() => {
     return products.filter(product => checkedOrders[product.id]);
   }, [products, checkedOrders]);
-console.log('okkd',products);
+
+  console.log('okkd',products);
 
   // Loading state
   if (isLoading && !isPreviousData) {
@@ -468,9 +485,7 @@ console.log('okkd',products);
             setSelectedProduct(null);
           }}
           onBuyNow={handleBuyNow}
-          onProductUpdate={() => {
-            refetch();
-          }}
+          onProductUpdate={handleProductUpdate} 
         />
       )}
            
@@ -495,7 +510,7 @@ console.log('okkd',products);
         onCloseAll={handleCloseAuthModals}
         onAuthSuccess={handleAuthSuccess}
       />
-       {isPaymentSuccessful && (
+      {isPaymentSuccessful && (
         <>
           <div className="payment-success-backdrop" />
           <PaymentSuccessModal onClose={() => setIsPaymentSuccessful(false)} />

@@ -7,7 +7,7 @@
   flex-direction: column;
   position: relative;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
- 
+  height: 100%; /* Allow flexible height */
 }
    
 .product-card:hover {
@@ -19,6 +19,7 @@
   position: relative;
   padding-top: 60%; /* Aspect Ratio */
   overflow: hidden;
+  flex-shrink: 0; /* Prevent image container from shrinking */
 }
    
 .product-image {
@@ -63,6 +64,9 @@
 .product-info {
   padding: 1rem;
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Allow content to shrink */
 }
    
 .product-name {
@@ -70,14 +74,21 @@
   font-weight: 500;
   margin: 0 0 0.5rem;
   color: #333;
+  /* Add text truncation for very long names */
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Limit to 2 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
 }
    
 .discount-price {
-    font-size: 1.5rem;
+  font-size: 1.5rem;
   font-weight: 600;
   color: #111827;
   margin: 0.75rem 0;
 }
+
 .product-price {
   font-size: 1.2rem;
   font-weight: 200;
@@ -129,6 +140,8 @@
   width: 100%;
   font-size: 0.9rem;
   transition: background-color 0.2s ease;
+  margin-top: auto; /* Push button to bottom */
+  flex-shrink: 0; /* Prevent button from shrinking */
 }
    
 .add-to-cart-button:hover {
@@ -141,10 +154,19 @@
 }
 
 @media (max-width: 480px) {
- .product-card {
-  height: 350px
- }
- .product-name {
-  font-size: 1.2rem !important;
- }
+  .product-card {
+    /* Remove fixed height to allow flexible sizing */
+    min-height: 350px; /* Set minimum height instead */
+  }
+  
+  .product-name {
+    font-size: 1.2rem !important;
+    /* Ensure consistent line clamping on mobile */
+    -webkit-line-clamp: 2;
+  }
+  
+  .product-info {
+    /* Ensure proper spacing on mobile */
+    padding: 0.75rem;
+  }
 }
