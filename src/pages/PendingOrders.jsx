@@ -493,6 +493,7 @@ const PendingOrders = () => {
   };
   // Handle delete
   const handleDeleteOrder = (orderId) => {
+    try{
     if (!isAuthenticated) {
       setShowLoginModal(true);
       return;
@@ -504,7 +505,10 @@ const PendingOrders = () => {
         refetchPaid();
         refetchDelivery();
       }
-    });
+    });}
+    catch(e){
+      toast.error(e.response?.error)
+    }
   };
 
   // Handle quantity update → sync with API

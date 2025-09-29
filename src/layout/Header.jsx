@@ -380,7 +380,7 @@ const Header = () => {
                                   <button 
                                     key={idx} 
                                     onClick={() => handleStoreChange(store)}
-                                    className={`mobile-dropdown-item ${isStoreActive(store) ? 'active-link' : ''}`}
+                                    className={`mobile-dropdown-item`}
                                   >
                                     {store} {isStoreActive(store) && <span className="current-selection">✓</span>}
                                   </button>

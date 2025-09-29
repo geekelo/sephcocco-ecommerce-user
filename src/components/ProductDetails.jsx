@@ -171,7 +171,7 @@ const ProductDetails = ({
       >
         <ImageGallery
           images={product.other_image_urls}
-          selectedImage={selectedImage}
+          selectedImage={selectedImage || '/image.png'}
           onSelect={setSelectedImage}
         />
         <div className="product-details-info">
