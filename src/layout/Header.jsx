@@ -107,8 +107,8 @@ const Header = () => {
     // Map store names to outlet values
     const storeToOutletMap = {
       'Pharmacy': 'pharmacy',
-      'Lounge': 'lounge', 
-      'Restaurant': 'restaurant'
+      'De Choco Club': 'lounge', 
+      'Restaurant and Bar': 'restaurant'
     };
     
     const outletValue = storeToOutletMap[store];
