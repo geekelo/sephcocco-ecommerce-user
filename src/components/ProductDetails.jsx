@@ -155,7 +155,7 @@ const ProductDetails = ({
       console.error('❌ Failed to create pending order:', error);
       
       // You could show a toast notification here
-      alert('Failed to add product to pending orders. Please try again.');
+      alert(error?.message || 'Failed to add product to pending orders. Please try again.');
     } finally {
       setIsPending(false); // Reset pending state
     }
