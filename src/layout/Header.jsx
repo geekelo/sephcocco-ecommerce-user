@@ -146,7 +146,7 @@ const Header = () => {
     { name: 'Payment History', href: '/payment-history' },
   ];
 
-  const storeOptions = ['Pharmacy', 'Lounge', 'Restaurant'];
+  const storeOptions = ['Pharmacy', 'De Choco Club', 'Restaurant and Bar'];
   const filterOptions = ['Price: Low to High', 'Price: High to Low', 'Newest First','Categories', 'Rating'];
 
   // Check if a link is active based on current path
@@ -162,8 +162,8 @@ const Header = () => {
   const isStoreActive = (store) => {
     const storeToOutletMap = {
       'Pharmacy': 'pharmacy',
-      'Lounge': 'lounge', 
-      'Restaurant': 'restaurant'
+      'De Choco Club': 'lounge', 
+      'Restaurant and Bar': 'restaurant'
     };
     return storeToOutletMap[store] === activeOutlet;
   };
@@ -379,7 +379,9 @@ const Header = () => {
                                   .map((store, idx) => (
                                   <button 
                                     key={idx} 
-                                    onClick={() => handleStoreChange(store)}
+                                    onClick={() => {
+                                      handleStoreChange(store) 
+                                      setIsMenuOpen(false)}}
                                     className={`mobile-dropdown-item`}
                                   >
                                     {store} {isStoreActive(store) && <span className="current-selection">✓</span>}
@@ -395,6 +397,7 @@ const Header = () => {
                         <Link 
                           key={index} 
                           to={link.href} 
+                           onClick={() => setIsMenuOpen(false)}
                           className={`mobile-nav-link ${isLinkActive(link.href) ? 'active-link' : ''}`}
                         >
                           {link.name}
