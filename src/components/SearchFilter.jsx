@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, ChevronDown, ChevronRight } from 'lucide-react';
+import { Search, ChevronDown, ChevronRight, Grid3X3, ArrowUpDown, ArrowDownUp, Clock, Star, Filter } from 'lucide-react';
 import '../styles/SearchFilter.css';
 
 const SearchFilter = ({
@@ -76,7 +76,12 @@ const SearchFilter = ({
   const getDisplayText = () => {
     if (selectedCategory) return selectedCategory;
     if (currentSort) return currentSort;
-    return "Sort By";
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <Filter size={16} />
+        <span>Filter By</span>
+      </div>
+    );
   };
 
   return (

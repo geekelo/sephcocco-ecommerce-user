@@ -83,7 +83,7 @@ export default function Product() {
 
   const products = productsData?.products || [];
   const meta = productsData?.meta || {};
-  const filterOptions = ['Price: Low to High', 'Price: High to Low', 'Newest First', 'Categories', 'Rating'];
+  const filterOptions = ['Categories', 'Price: Low to High', 'Price: High to Low', 'Newest First', 'Rating'];
   const isLoading = productsLoading || categoriesLoading;
   const error = productsError || categoriesError;
 

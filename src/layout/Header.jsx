@@ -147,7 +147,7 @@ const Header = () => {
   ];
 
   const storeOptions = ['Pharmacy', 'De Choco Club', 'Restaurant and Bar'];
-  const filterOptions = ['Price: Low to High', 'Price: High to Low', 'Newest First','Categories', 'Rating'];
+  const filterOptions = ['Categories', 'Price: Low to High', 'Price: High to Low', 'Newest First', 'Rating'];
 
   // Check if a link is active based on current path
   const isLinkActive = (linkHref) => {
