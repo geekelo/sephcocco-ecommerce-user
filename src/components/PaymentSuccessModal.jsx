@@ -23,7 +23,7 @@ const PaymentSuccessModal = ({ onClose }) => {
         <div className="payment-success-icon">
           <CheckCircle size={50} />
         </div>
-        <h2>Payment Successful!</h2>
+        <h2>Payment Awaiting Approval!</h2>
         <p>Your orders have been confirmed and are being processed.</p>
       </motion.div>
     </div>

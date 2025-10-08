@@ -155,7 +155,8 @@ const ProductDetails = ({
       console.error('❌ Failed to create pending order:', error);
       
       // You could show a toast notification here
-      alert('Failed to add product to pending orders. Please try again.');
+      console.log(error);
+      alert(error?.response?.data?.error || 'Failed to add product to pending orders. Please try again.');
     } finally {
       setIsPending(false); // Reset pending state
     }
@@ -171,7 +172,7 @@ const ProductDetails = ({
       >
         <ImageGallery
           images={product.other_image_urls}
-          selectedImage={selectedImage}
+          selectedImage={selectedImage || '/image.png'}
           onSelect={setSelectedImage}
         />
         <div className="product-details-info">

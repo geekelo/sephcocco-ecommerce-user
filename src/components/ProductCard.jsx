@@ -40,7 +40,7 @@ export const ProductCard = ({
   return (
     <div className="product-card">
       <div className="product-image-container">
-        <img src={productImage} alt={name} className="product-image" />
+        <img src={productImage || '/image.png'} alt={name} className="product-image" />
         {/* Only show favorite button if user is logged in */}
         {isLoggedIn && (
           <button

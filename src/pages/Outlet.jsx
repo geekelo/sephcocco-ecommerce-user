@@ -118,7 +118,7 @@ const OutletPage = () => {
               alt="Icon" 
               className="icon"
             />
-                Our Restaurant 
+                Our Restaurant and Bar 
                 <ArrowRight className="arrow-icon" />
               </motion.button>
               
@@ -133,7 +133,7 @@ const OutletPage = () => {
               alt="Icon" 
               className="icon"
             />
-                Our Lounge
+                Our De Choco Club 
                 <ArrowRight className="arrow-icon" />
               </motion.button>
               

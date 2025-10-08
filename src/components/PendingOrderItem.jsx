@@ -17,7 +17,7 @@ export const PendingOrderItem = ({
   onToggleCheck,
   onDelete 
 }) => {
-  console.log('okk',order);
+
   
   // ✅ Only calculate display total based on parent-passed quantity
   const totalPrice = parseFloat(order.unit_price) * Number(quantity ?? 1);
@@ -70,7 +70,7 @@ export const PendingOrderItem = ({
               <button
                 className="quantity-btn quantity-decrease"
                 onClick={(e) => {
-                  e.stopPropagation();
+                  e.stopPropagation();  
                   onDecrease(order.id);
                 }}
               >
