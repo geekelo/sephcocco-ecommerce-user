@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   ChevronDown,
   User,
@@ -18,6 +18,7 @@ import Cookies from 'js-cookie';
 import { useViewProductCategories } from '../hooks/useGetProductCategories';
 import { getActiveOutlet } from '../utils/getActiveOutlets';
 import { useSearch } from '../components/SearchContext';
+import { getActiveUser } from '../utils/getActiveUser';
 
 // Logout Modal Component
 const LogoutModal = ({ isOpen, onClose, onConfirm }) => {
@@ -67,107 +68,47 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
-  const [activeOutlet, setActiveOutlet] = useState(getActiveOutlet());
   
-  // Logout modal state
+  // State management
+  const [showProfile, setShowProfile] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [storeDropdownOpen, setStoreDropdownOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   
-  // Check if user is logged in by checking localStorage token
+  const profileRef = useRef(null);
+  
+  // Get active outlet and user data
+  const [activeOutlet, setActiveOutlet] = useState(getActiveOutlet());
+  const activeUserData = getActiveUser();
+  
+  // Parse the full user object from localStorage
+  const fullUser = activeUserData.user ? JSON.parse(activeUserData.user) : null;
+  
+  // Check if user is logged in
   const isLoggedIn = !!localStorage.getItem('token');
   
   // Get search context
   const { updateSearch, updateSort, updateCategory, clearAllFilters } = useSearch();
   
-  // Fetch categories for the dropdown
+  // Fetch categories
   const { data: categories = [], refetch: refetchCategories } = useViewProductCategories(activeOutlet);
-  
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [storeDropdownOpen, setStoreDropdownOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
 
-  // Handle logout functionality
-  const handleLogout = () => {
-
-    // Clear localStorage if you store any user data there
-    localStorage.clear();
-    
-
-    
-    // Close modal
-    setIsLogoutModalOpen(false);
-
-    alert('Logged out successfully');
-      window.location.reload();
-  };
-
-  // Updated handleStoreChange function
-  const handleStoreChange = (store) => {
-    console.log('Selected store:', store);
-    
-    // Map store names to outlet values
-    const storeToOutletMap = {
-      'Pharmacy': 'pharmacy',
-      'De Choco Club': 'lounge', 
-      'Restaurant and Bar': 'restaurant'
+  // Close profile dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setShowProfile(false);
+      }
     };
-    
-    const outletValue = storeToOutletMap[store];
-    
-    if (outletValue) {
-      // Update the cookie
-      Cookies.set('userActiveOutlet', outletValue, { expires: 1 });
-      
-      // Update local state
-      setActiveOutlet(outletValue);
-      
-      // Clear all search filters when switching outlets
-      clearAllFilters();
-      
-      // Refetch categories for the new outlet
-      refetchCategories();
-      
-      // Close mobile menu if open
-      setIsMenuOpen(false);
-      setStoreDropdownOpen(false);
-      
-      // Trigger a custom event that the Product component can listen to
-      window.dispatchEvent(new CustomEvent('outletChanged', { 
-        detail: { newOutlet: outletValue } 
-      }));
+
+    if (showProfile) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
     }
-  };
+  }, [showProfile]);
 
-  const navLinks = [
-    { name: 'Products', href: '/products' },
-    { name: 'Pending', href: '/pending-orders' },
-    { name: 'Completed', href: '/completed-orders' },
-    { name: 'Messages', href: '/messages' },
-    { name: 'Stores', href: '#', isDropdown: true },
-    { name: 'Payment History', href: '/payment-history' },
-  ];
-
-  const storeOptions = ['Pharmacy', 'De Choco Club', 'Restaurant and Bar'];
-  const filterOptions = ['Price: Low to High', 'Price: High to Low', 'Newest First','Categories', 'Rating'];
-
-  // Check if a link is active based on current path
-  const isLinkActive = (linkHref) => {
-    if (linkHref === '#') return false;
-    if (currentPath === linkHref) return true;
-    if (linkHref === '/' && currentPath === '/') return true;
-    if (linkHref !== '/' && currentPath.startsWith(linkHref)) return true;
-    return false;
-  };
-
-  // Helper function to check if a store is currently active
-  const isStoreActive = (store) => {
-    const storeToOutletMap = {
-      'Pharmacy': 'pharmacy',
-      'De Choco Club': 'lounge', 
-      'Restaurant and Bar': 'restaurant'
-    };
-    return storeToOutletMap[store] === activeOutlet;
-  };
-
+  // Handle responsive behavior
   const handleResize = () => {
     const isMobileView = window.innerWidth <= 768;
     setIsMobile(isMobileView);
@@ -186,7 +127,7 @@ const Header = () => {
     window.addEventListener('resize', handleResize);
     
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [isMenuOpen]);
 
   // Listen for outlet changes from other components
   useEffect(() => {
@@ -202,6 +143,94 @@ const Header = () => {
     return () => window.removeEventListener('outletChanged', handleOutletChange);
   }, [activeOutlet, refetchCategories]);
 
+  // Format date for last login
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Never';
+    return new Date(dateString).toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  // Get user profile data
+  const getUserProfileData = () => {
+    return {
+      name: activeUserData.name || fullUser?.name || '',
+      email: activeUserData.email || fullUser?.email || '',
+      address: fullUser?.address || '',
+      whatsappNumber: fullUser?.whatsapp_number || '',
+      phoneNumber: fullUser?.phone_number || '',
+    };
+  };
+
+  const profileData = getUserProfileData();
+
+  // Handle logout
+  const handleLogout = () => {
+    localStorage.clear();
+    setIsLogoutModalOpen(false);
+    alert('Logged out successfully');
+    window.location.reload();
+  };
+
+  // Handle outlet/store change
+  const handleStoreChange = (store) => {
+    const storeToOutletMap = {
+      'Pharmacy': 'pharmacy',
+      'De Choco Club': 'lounge', 
+      'Restaurant and Bar': 'restaurant'
+    };
+    
+    const outletValue = storeToOutletMap[store];
+    
+    if (outletValue) {
+      Cookies.set('userActiveOutlet', outletValue, { expires: 1 });
+      setActiveOutlet(outletValue);
+      clearAllFilters();
+      refetchCategories();
+      setIsMenuOpen(false);
+      setStoreDropdownOpen(false);
+      
+      window.dispatchEvent(new CustomEvent('outletChanged', { 
+        detail: { newOutlet: outletValue } 
+      }));
+    }
+  };
+
+  const navLinks = [
+    { name: 'Products', href: '/products' },
+    { name: 'Pending', href: '/pending-orders' },
+    { name: 'Completed', href: '/completed-orders' },
+    { name: 'Messages', href: '/messages' },
+    { name: 'Stores', href: '#', isDropdown: true },
+    { name: 'Payment History', href: '/payment-history' },
+  ];
+
+  const storeOptions = ['Pharmacy', 'De Choco Club', 'Restaurant and Bar'];
+  const filterOptions = ['Price: Low to High', 'Price: High to Low', 'Newest First', 'Categories', 'Rating'];
+
+  // Check if a link is active
+  const isLinkActive = (linkHref) => {
+    if (linkHref === '#') return false;
+    if (currentPath === linkHref) return true;
+    if (linkHref === '/' && currentPath === '/') return true;
+    if (linkHref !== '/' && currentPath.startsWith(linkHref)) return true;
+    return false;
+  };
+
+  // Check if a store is active
+  const isStoreActive = (store) => {
+    const storeToOutletMap = {
+      'Pharmacy': 'pharmacy',
+      'De Choco Club': 'lounge', 
+      'Restaurant and Bar': 'restaurant'
+    };
+    return storeToOutletMap[store] === activeOutlet;
+  };
+
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   
   const toggleStoreDropdown = (e) => {
@@ -209,44 +238,101 @@ const Header = () => {
     setStoreDropdownOpen(prev => !prev);
   };
 
-  // Updated handlers to use global state
+  // Search handlers
   const handleSearch = (term) => {
-    console.log('Header: Searching for:', term);
     updateSearch(term);
   };
 
   const handleFilterChange = (filter) => {
-    console.log('Header: Filter changed to:', filter);
     updateSort(filter);
   };
 
   const handleCategoryChange = (category) => {
-    console.log('Header: Category changed to:', category);
     updateCategory(category);
   };
 
-  // Only show SearchFilter on Product page for desktop
   const showDesktopSearch = currentPath === '/products' || currentPath.startsWith('/products');
 
   return (
     <header className="header">
       <div className="header-wrapper">
-
-        {/* Logo */}
+        {/* Logo Section */}
         <div className="logo-section">
           <div className="logo-container-header">
             <img src="/logo.png" alt="Logo" className="logo" />
           </div>
         </div>
 
-        {/* Mobile Toggle */}
-        <div className="mobile-menu-icon">
+        {/* Mobile Menu Toggle and Avatar */}
+        <div className="mobile-header-actions">
+          {/* Mobile Avatar - Only show when logged in */}
+          {isLoggedIn && isMobile && (
+            <div className="mobile-avatar-wrapper" ref={profileRef}>
+              <button 
+                className="mobile-avatar-button"
+                onClick={() => setShowProfile(!showProfile)}
+              >
+                <User size={18} color="#666" />
+              </button>
+
+              {/* Mobile Profile Dropdown */}
+              {showProfile && (
+                <div className="mobile-profile-dropdown">
+                  <div className="profile-dropdown-header">
+                    <div className="profile-avatar">
+                      <User size={20} color="#666" />
+                    </div>
+                    <div className="profile-header-info">
+                      <h4>{profileData.name}</h4>
+                    </div>
+                  </div>
+                  
+                  <div className="profile-dropdown-content">
+                    <div className="profile-item">
+                      <label>Email</label>
+                      <span>{profileData.email}</span>
+                    </div>
+                    
+                    <div className="profile-item address">
+                      <label>Address</label>
+                      <span>{profileData.address}</span>
+                    </div>
+                    
+                    <div className="profile-item">
+                      <label>WhatsApp</label>
+                      <span>{profileData.whatsappNumber}</span>
+                    </div>
+                    
+                    <div className="profile-item phone">
+                      <label>Phone</label>
+                      <span>{profileData.phoneNumber}</span>
+                    </div>
+
+                    {/* Logout Button inside dropdown */}
+                    <div className="profile-item profile-logout-section">
+                      <button 
+                        className="profile-logout-button" 
+                        onClick={() => {
+                          setShowProfile(false);
+                          setIsLogoutModalOpen(true);
+                        }}
+                      >
+                        <LogOut size={16} />
+                        <span className='logout'>Logout</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          
           <button onClick={toggleMenu} className="menu-toggle-button">
-            {isMenuOpen ? <X size={20} color="#ff4500" /> : <Menu size={20} color="#ff4500"/>}
+            { <Menu size={20} color="#ff4500"/>}
           </button>
         </div>
 
-        {/* Desktop Nav */}
+        {/* Desktop Navigation */}
         <nav className="nav-section desktop-only">
           <div className="nav-links">
             {navLinks.map((link, index) => {
@@ -257,7 +343,6 @@ const Header = () => {
                       {link.name} <span className="dropdown-icon-wrapper"><ChevronDown size={16} className="dropdown-chevron" /></span>
                     </Link>
                     <div className="dropdown-menu">
-                      {/* Show current selection first */}
                       {storeOptions
                         .sort((a, b) => {
                           const aActive = isStoreActive(a);
@@ -295,7 +380,6 @@ const Header = () => {
 
         {/* Desktop Actions */}
         <div className="actions-section desktop-only">
-          {/* Only show SearchFilter on Products page */}
           {showDesktopSearch && (
             <SearchFilter
               placeholder="Search products..."
@@ -308,26 +392,75 @@ const Header = () => {
               className="desktop-search-filter"
             />
           )}
+          
           <div className="header-icons">
-            {/* Commented out help and user profile icons */}
-            {/* <button className="mobile-icon-button" aria-label="Help" title="Help">
-              <CircleHelp size={24} />
-            </button>
-            <button className="mobile-icon-button" aria-label="User Profile" title="User Profile">
-              <CircleUserRound size={24} />
-            </button> */}
-            
-            {/* Logout button - only show if logged in */}
+            {/* User Profile Section with Dropdown - Desktop Only */}
             {isLoggedIn && (
-              <button 
-                className="logout-button desktop-logout-btn" 
-                aria-label="Logout" 
-                title="Logout"
-                onClick={() => setIsLogoutModalOpen(true)}
-              >
-                <LogOut size={20} />
-                <span className="logout-text">Logout</span>
-              </button>
+              <div className="user-profile-section" ref={profileRef}>
+                <div 
+                  className="user-profile-header"
+                  onClick={() => setShowProfile(!showProfile)}
+                >
+                  <div className="avatar-header">
+                    <User size={16} color="#666" />
+                  </div>
+                  <span className="username">{profileData.name}</span>
+                  <ChevronDown 
+                    size={14} 
+                    className={`profile-chevron ${showProfile ? 'rotated' : ''}`}
+                  />
+                </div>
+
+                {/* Profile Dropdown */}
+                {showProfile && (
+                  <div className="profile-dropdown">
+                    <div className="profile-dropdown-header">
+                      <div className="profile-avatar">
+                        <User size={20} color="#666" />
+                      </div>
+                      <div className="profile-header-info">
+                        <h4>{profileData.name}</h4>
+                      </div>
+                    </div>
+                    
+                    <div className="profile-dropdown-content">
+                      <div className="profile-item">
+                        <label>Email</label>
+                        <span>{profileData.email}</span>
+                      </div>
+                      
+                      <div className="profile-item address">
+                        <label>Address</label>
+                        <span>{profileData.address}</span>
+                      </div>
+                      
+                      <div className="profile-item">
+                        <label>WhatsApp</label>
+                        <span>{profileData.whatsappNumber}</span>
+                      </div>
+                      
+                      <div className="profile-item phone">
+                        <label>Phone</label>
+                        <span>{profileData.phoneNumber}</span>
+                      </div>
+
+                      {/* Logout Button inside dropdown */}
+                      <div className="profile-item profile-logout-section">
+                        <button 
+                          className="profile-logout-button" 
+                          onClick={() => {
+                            setShowProfile(false);
+                            setIsLogoutModalOpen(true);
+                          }}
+                        >
+                          <LogOut size={16} />
+                          <span className='logout'>Logout</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -342,14 +475,21 @@ const Header = () => {
               exit={{ x: '-100%' }}
               transition={{ type: 'tween', duration: 0.3 }}
             >
-              {/* Logo on Mobile */}
+              {/* Mobile Menu Header */}
               <div className="mobile-menu-header">
                 <div className="logo-container-header">
                   <img src="/logo.png" alt="Logo" className="logo" />
                 </div>
+                <button 
+                  className="menu-toggle-button" 
+                  onClick={() => setIsMenuOpen(false)}
+                  aria-label="Close menu"
+                >
+                  <X size={24} color="#ff4500" />
+                </button>
               </div>
 
-              {/* Nav Links */}
+              {/* Mobile Navigation Links */}
               <div className="mobile-nav-links-container">
                 <div className="mobile-nav-links">
                   {navLinks.map((link, index) => {
@@ -380,9 +520,10 @@ const Header = () => {
                                   <button 
                                     key={idx} 
                                     onClick={() => {
-                                      handleStoreChange(store) 
-                                      setIsMenuOpen(false)}}
-                                    className={`mobile-dropdown-item`}
+                                      handleStoreChange(store);
+                                      setIsMenuOpen(false);
+                                    }}
+                                    className="mobile-dropdown-item"
                                   >
                                     {store} {isStoreActive(store) && <span className="current-selection">✓</span>}
                                   </button>
@@ -397,7 +538,7 @@ const Header = () => {
                         <Link 
                           key={index} 
                           to={link.href} 
-                           onClick={() => setIsMenuOpen(false)}
+                          onClick={() => setIsMenuOpen(false)}
                           className={`mobile-nav-link ${isLinkActive(link.href) ? 'active-link' : ''}`}
                         >
                           {link.name}
@@ -406,30 +547,6 @@ const Header = () => {
                     }
                   })}
                 </div>
-              </div>
-
-              {/* User Actions */}
-              <div className="mobile-user-actions">
-                {/* Commented out help and user profile icons */}
-                {/* <button className="mobile-icon-button" aria-label="Help" title="Help">
-                  <CircleHelp size={24} />
-                </button>
-                <button className="mobile-icon-button" aria-label="User Profile" title="User Profile">
-                  <CircleUserRound size={24} />
-                </button> */}
-                
-                {/* Logout button for mobile - only show if logged in */}
-                {isLoggedIn && (
-                  <button 
-                    className="mobile-icon-button logout-button" 
-                    aria-label="Logout" 
-                    title="Logout"
-                    onClick={() => setIsLogoutModalOpen(true)}
-                  >
-                    <LogOut size={24} />
-                    <span className="logout-text">Logout</span>
-                  </button>
-                )}
               </div>
             </motion.div>
           )}

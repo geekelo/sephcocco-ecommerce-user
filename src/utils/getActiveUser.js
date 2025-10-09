@@ -1,6 +1,7 @@
 
 
 export const getActiveUser = () => {
+  const user = localStorage.getItem("user")
   const userId = localStorage.getItem('userId');
   const userRole = localStorage.getItem('userRole');
   const userEmail = localStorage.getItem('userEmail');
@@ -11,6 +12,7 @@ export const getActiveUser = () => {
     id: userId,
     role: userRole,
     email: userEmail,
+    user: user,
     name: userName,
     token: token,
     isAdmin: userRole === 'admin',
