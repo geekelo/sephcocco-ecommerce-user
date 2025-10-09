@@ -50,12 +50,15 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister, onSuccess }) =
    if (response?.user?.email_confirmed) {
        // Normal login flow
        localStorage.setItem("token", response?.token);
+       localStorage.setItem("user", JSON.stringify(response?.user))
        localStorage.setItem("userId", response?.user?.id);
        localStorage.setItem("userEmail", response?.user?.email);
       localStorage.setItem("pay-ref", response?.user?.payment_ref);
       onSuccess && onSuccess();
      onClose();
-     setEmail('')
+     setEmail('');
+     // Refresh page after successful login
+     window.location.reload();
     } else {
       // If not verified → trigger OTP flow
       onSuccess && onSuccess(response?.user?.email);
