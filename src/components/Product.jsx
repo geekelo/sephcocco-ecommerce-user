@@ -33,7 +33,7 @@ export default function Product() {
   // Fetch products using the hook
   const { data: products = [], isLoading, error, refetch } = useViewAllProduct(activeOutlet, 1, 20, user?.id);
 
-  const filterOptions = ['Price: Low to High', 'Price: High to Low', 'Newest First', 'Categories', 'Rating'];
+  const filterOptions = ['Categories', 'Price: Low to High', 'Price: High to Low', 'Newest First', 'Rating'];
 
   // Sort and filter products
   const sortedAndFilteredProducts = useMemo(() => {
