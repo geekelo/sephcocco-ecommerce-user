@@ -525,7 +525,11 @@ const PendingOrders = () => {
     };
 
     updateOrderMutation.mutate({ active_outlet: activeOutlet, orderId, payload }, { 
-      onSuccess: refetchPending 
+      onSuccess: refetchPending,
+      onError: (error) => {
+        console.error('Failed to update order:', error);
+        alert(error?.response?.data?.error || 'Failed to update order. Please try again.');
+      }
     });
   };
 
