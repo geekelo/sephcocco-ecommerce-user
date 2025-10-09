@@ -122,6 +122,8 @@ const {
 
       onVerifySuccess && onVerifySuccess(response);
       onClose();
+      // Refresh page after successful OTP verification
+      window.location.reload();
     } catch (error) {
       console.error("OTP verification failed:", error);
       setApiError(error?.response?.data?.error || error?.message || "Invalid verification code. Please try again.");

@@ -56,7 +56,9 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister, onSuccess }) =
       localStorage.setItem("pay-ref", response?.user?.payment_ref);
       onSuccess && onSuccess();
      onClose();
-     setEmail('')
+     setEmail('');
+     // Refresh page after successful login
+     window.location.reload();
     } else {
       // If not verified → trigger OTP flow
       onSuccess && onSuccess(response?.user?.email);
