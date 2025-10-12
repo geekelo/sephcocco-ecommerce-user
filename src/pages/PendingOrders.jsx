@@ -529,6 +529,9 @@ const PendingOrders = () => {
       onError: (error) => {
         console.error('Failed to update order:', error);
         alert(error?.response?.data?.error || 'Failed to update order. Please try again.');
+        // Reset quantity to 0 for the failed order
+        const newQuantity = error?.response?.data?.amount_in_stock || 1;
+        setOrderQuantities(prev => ({ ...prev, [orderId]: `${newQuantity}` }));
       }
     });
   };
