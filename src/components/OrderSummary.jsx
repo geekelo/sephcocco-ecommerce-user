@@ -1,4 +1,4 @@
-import { Minus, Plus, Loader2 } from 'lucide-react'
+import { Minus, Plus, Loader2, MapPin } from 'lucide-react'
 import React from 'react'
 import '../styles/OrderSummary.css'
 
@@ -9,6 +9,11 @@ export default function OrderSummary({
   setNotes,
   quantity,
   setQuantity,
+  locations = [],
+  selectedLocation,
+  setSelectedLocation,
+  deliveryCost,
+  setDeliveryCost,
   address,
   phoneNumbers,
   notes,
@@ -18,13 +23,17 @@ export default function OrderSummary({
   isCreatingOrder
 }) {
   console.log('dd',product);
+  console.log('locations', locations);
   
   const decreaseQuantity = () => {
     if (quantity > 1 && !orderCreated) {
       setQuantity(quantity - 1);
     }
   };
-const totalCost = product?.price * quantity || 0;
+
+  const orderCost = product?.price * quantity || 0;
+  const totalCost = orderCost + deliveryCost;
+
   const increaseQuantity = () => {
     console.log('Increasing quantity from', quantity, 'to', quantity + 1);
     
@@ -33,7 +42,26 @@ const totalCost = product?.price * quantity || 0;
     }
   };
 
-  const isFormValid = address.trim() && phoneNumbers.trim();
+  // Handle location change
+const handleLocationChange = (e) => {
+  const locationId = e.target.value;
+  setSelectedLocation(locationId);
+
+  const selectedLoc = locations?.find(
+    (loc) => String(loc.id) === String(locationId)
+  );
+
+  if (selectedLoc) {
+    const cost = parseFloat(selectedLoc.logistics_price || 0);
+    console.log('Selected location:', selectedLoc.location, 'Cost:', cost);
+    setDeliveryCost(cost);
+  } else {
+    setDeliveryCost(0);
+  }
+};
+
+
+  const isFormValid = address.trim() && phoneNumbers.trim() && selectedLocation;
 
   const handleContinueClick = () => {
     if (orderCreated) {
@@ -58,7 +86,7 @@ const totalCost = product?.price * quantity || 0;
             <h4>{product.name}</h4>
             
             <div className="item-price-row">
-              <p className="item-price">₦{parseFloat(totalCost).toFixed(2)}</p>
+              <p className="item-price">₦{parseFloat(orderCost).toFixed(2)}</p>
               <div>
                 <p className="quantity-label">Total Quantity: <span className="quantity-value">{quantity}</span></p>
               </div>
@@ -98,6 +126,31 @@ const totalCost = product?.price * quantity || 0;
       
       <div className="checkout-section">
         <h3 className="section-title">Delivery Information</h3>
+        
+        {/* Location Dropdown */}
+        <div className="form-group">
+          <label htmlFor="location">
+            <MapPin size={16} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+            Delivery Location *
+          </label>
+          <select
+            id="location"
+            value={selectedLocation}
+            onChange={handleLocationChange}
+            required
+            disabled={orderCreated}
+            className="location-select"
+          >
+            <option value="">Select delivery location</option>
+            {locations.map((location) => (
+              <option key={location.id} value={location.id}>
+                {location.location} - ₦{parseFloat(location.logistics_price).toLocaleString()}
+              </option>
+            ))}
+          </select>
+       
+        </div>
+
         <div className="form-group">
           <label htmlFor="address">Delivery Address *</label>
           <textarea
@@ -136,6 +189,30 @@ const totalCost = product?.price * quantity || 0;
             disabled={orderCreated}
           />
         </div>
+      </div>
+
+      {/* Cost Breakdown Section */}
+      <div className="checkout-section cost-breakdown">
+        <h3 className="section-title">Cost Breakdown</h3>
+        <div className="cost-row">
+          <span className="cost-label">Order Cost ({quantity} item{quantity > 1 ? 's' : ''})</span>
+          <span className="cost-value">₦{orderCost.toLocaleString()}</span>
+        </div>
+        <div className="cost-row">
+          <span className="cost-label">Delivery Cost</span>
+          <span className="cost-value">
+            {deliveryCost > 0 ? `₦${deliveryCost.toLocaleString()}` : '₦0'}
+          </span>
+        </div>
+        <div className="cost-row total-cost">
+          <span className="cost-label">Total Cost</span>
+          <span className="cost-value">₦{totalCost.toLocaleString()}</span>
+        </div>
+        {/* {selectedLocation && deliveryCost > 0 && (
+          <p className="cost-formula">
+            ₦{orderCost.toLocaleString()} + ₦{deliveryCost.toLocaleString()} = ₦{totalCost.toLocaleString()}
+          </p>
+        )} */}
       </div>
       
       {/* Action button for both mobile and desktop */}

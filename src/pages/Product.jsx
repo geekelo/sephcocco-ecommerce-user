@@ -19,6 +19,7 @@ import { useUnlikedProduct } from '../hooks/useUnlikedProduct';
 import { getActiveUser } from '../utils/getActiveUser';
 import PaymentSuccessModal from '../components/PaymentSuccessModal';
 import { useGetPendingOrder } from "../hooks/useGetPendingOrder";
+import { useGetLocation } from '../hooks/useGetLocation';
 
 export default function Product() {
   const [activeOutlet, setActiveOutlet] = useState(getActiveOutlet());
@@ -66,6 +67,8 @@ export default function Product() {
     error: categoriesError, 
     refetch: refetchCategories 
   } = useViewProductCategories(activeOutlet);
+const {data: locations, isLoading: locationsLoading, error: locationsError} = useGetLocation()
+console.log('locations',locations);
 
   // Add pending orders hook for refetching
   const { refetch: refetchPendingOrders } = useGetPendingOrder(
@@ -494,6 +497,7 @@ export default function Product() {
           // Fixed: Pass the properly constructed selectedOrders array
           selectedOrders={selectedOrders}
           product={selectedProduct}
+          locations={locations}
           setIsPaymentSuccessful={setIsPaymentSuccessful}
           onClose={() => {
             setIsOrderModalOpen(false);

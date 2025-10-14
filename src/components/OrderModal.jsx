@@ -10,19 +10,24 @@ import { getActiveOutlet } from '../utils/getActiveOutlets';
 import { useGetPendingOrder } from '../hooks/useGetPendingOrder';
 
 
-const OrderModal = ({ product, onClose,selectedOrders,setIsPaymentSuccessful }) => {
+const OrderModal = ({ product, onClose,selectedOrders,setIsPaymentSuccessful,locations }) => {
   const [quantity, setQuantity] = useState(1);
 
   
   const [address, setAddress] = useState('');
   const [phoneNumbers, setPhoneNumbers] = useState('');
   const [notes, setNotes] = useState('');
+
+   const [deliveryCost, setDeliveryCost] = useState(0);
   const [showPaymentOnMobile, setShowPaymentOnMobile] = useState(false);
   const [orderCreated, setOrderCreated] = useState(false);
   const [createdOrderId, setCreatedOrderId] = useState(null);
-  const [totalCost, setTotalCost] = useState(null);
-  // Add error state
   const [errorMessage, setErrorMessage] = useState('');
+const [selectedLocation, setSelectedLocation] = useState('');
+  // Calculate costs
+  const orderCost = product?.price ? parseFloat(product.price) * quantity : 0;
+  const totalCost = orderCost + deliveryCost;
+  // Add error state
 
   const createOrderMutation = useCreateOrder();
   const active_outlet = getActiveOutlet()
@@ -108,7 +113,7 @@ const OrderModal = ({ product, onClose,selectedOrders,setIsPaymentSuccessful }) 
       console.log(response);
       refetchPending();
       setCreatedOrderId(response.id);
-      setTotalCost(response.total_cost);
+      // setTotalCost(response.total_cost);
       setOrderCreated(true);
       setShowPaymentOnMobile(true);
     } catch (error) {
@@ -217,7 +222,12 @@ const OrderModal = ({ product, onClose,selectedOrders,setIsPaymentSuccessful }) 
               setAddress={setAddress}
               setPhoneNumbers={setPhoneNumbers}
               setNotes={setNotes}
+              locations={locations}
               quantity={quantity}
+            selectedLocation={selectedLocation}
+  setSelectedLocation={setSelectedLocation}
+  deliveryCost={deliveryCost}
+  setDeliveryCost={setDeliveryCost}
               address={address}
               phoneNumbers={phoneNumbers}
               notes={notes}
