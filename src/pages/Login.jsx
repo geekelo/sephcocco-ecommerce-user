@@ -79,6 +79,8 @@ const handleSubmit = async (e) => {
       
       console.log("Login success:", response);
       navigate("/products");
+      // Refresh page after successful login
+      window.location.reload();
     }
 
   } catch (error) {
