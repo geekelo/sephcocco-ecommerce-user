@@ -13,7 +13,7 @@ import { useGetPendingOrder } from '../hooks/useGetPendingOrder';
 const OrderModal = ({ product, onClose,selectedOrders,setIsPaymentSuccessful,locations }) => {
   const [quantity, setQuantity] = useState(1);
 
-  
+  console.log("select",selectedOrders);
   const [address, setAddress] = useState('');
   const [phoneNumbers, setPhoneNumbers] = useState('');
   const [notes, setNotes] = useState('');

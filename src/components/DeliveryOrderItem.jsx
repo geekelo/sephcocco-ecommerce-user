@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { getBorderColorClass } from "../utils/getBorderColorClass";
 
 export const DeliveryOrderItem = ({ order, index, onClick, isSelected,activeTab }) => {
+ console.log("order",order);
  
   return (
     <motion.div

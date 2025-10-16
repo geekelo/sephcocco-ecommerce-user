@@ -116,7 +116,10 @@
   transition: background-color 0.2s;
   width: 100%;
 }
-
+.payment-checkout-button:disabled{
+  background-color: #cbd5e0;
+  cursor: not-allowed;
+}
 .payment-checkout-button:hover:not(:disabled) {
   background-color: #2c5282;
 }

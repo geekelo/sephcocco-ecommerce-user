@@ -409,7 +409,7 @@ const PaymentHistorySkeleton = ({ isMobile = false }) => {
 
 // Main PaymentHistory component
 const PaymentHistory = () => {
-  const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   
   const [filters, setFilters] = useState({
     search_terms: "",
@@ -513,7 +513,7 @@ const PaymentHistory = () => {
     setCurrentPage(1); // Reset to first page when filters change
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
     };
@@ -579,6 +579,8 @@ const PaymentHistory = () => {
           amount: payment.amount,
           transactionId: payment.transaction_id,
           paymentDate: payment.created_at,
+          deliveryAmount: payment.delivery_location?.logistics_price,
+          deliveryLocation: payment.delivery_location?.location,
           orderNumber: order.order_number,
           totalPrice: order.total_price,
           // Add formatted date for filtering

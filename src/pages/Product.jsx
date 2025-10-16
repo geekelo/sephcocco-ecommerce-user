@@ -20,6 +20,7 @@ import { getActiveUser } from '../utils/getActiveUser';
 import PaymentSuccessModal from '../components/PaymentSuccessModal';
 import { useGetPendingOrder } from "../hooks/useGetPendingOrder";
 import { useGetLocation } from '../hooks/useGetLocation';
+import { useViewPayment } from '../hooks/useViewPayment';
 
 export default function Product() {
   const [activeOutlet, setActiveOutlet] = useState(getActiveOutlet());
@@ -68,7 +69,11 @@ export default function Product() {
     refetch: refetchCategories 
   } = useViewProductCategories(activeOutlet);
 const {data: locations, isLoading: locationsLoading, error: locationsError} = useGetLocation()
+    const {refetch: refetchPayment } = useViewPayment(
+      activeOutlet,
 
+      { enabled: isAuthenticated }
+    );
 
   // Add pending orders hook for refetching
   const { refetch: refetchPendingOrders } = useGetPendingOrder(
@@ -320,6 +325,7 @@ const {data: locations, isLoading: locationsLoading, error: locationsError} = us
   const handleProductUpdate = () => {
     refetch();
     refetchPendingOrders();
+     refetchPayment();
   };
 
   const handleAuthSuccess = () => {
@@ -356,7 +362,7 @@ const {data: locations, isLoading: locationsLoading, error: locationsError} = us
     return products.filter(product => checkedOrders[product.id]);
   }, [products, checkedOrders]);
 
-  console.log('okkd',products);
+
 
   // Loading state
   if (isLoading && !isPreviousData) {

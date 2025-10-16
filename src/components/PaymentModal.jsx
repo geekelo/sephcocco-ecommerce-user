@@ -10,8 +10,8 @@ const PaymentModal = ({ selectedOrders,locations,totalCost, onClose, onPaymentCo
 
 
   const [quantity, setQuantity] = useState(1);
-  console.log('opddrdd',selectedOrders);
-  console.log('Total Cost:', totalCost);
+
+
   
   // If we have selected orders, set the initial quantity to the total
   useEffect(() => {

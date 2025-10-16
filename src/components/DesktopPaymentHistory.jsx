@@ -72,6 +72,7 @@ export const DesktopPaymentHistoryTable = ({ payments: allPayments, onFilterChan
     setTimeout(() => setCopiedIndex(null), 2000); // reset after 2s
   };
 
+
   return (
     <>
       <PaymentHistoryFilter onFilterChange={handleFilterChange} />
@@ -86,18 +87,26 @@ export const DesktopPaymentHistoryTable = ({ payments: allPayments, onFilterChan
           <thead>
             <tr>
               <th>Date</th>
-              <th>Amount</th>
+              
+               <th>Delivery Amount</th>
+               <th>Delivery Location</th>
+ <th>Item Amount</th>
+                <th>Total Amount</th>
               <th>Status</th>
               <th>Reference</th>
               <th>Payment method</th>
             </tr>
           </thead>
           <tbody>
-            {filteredPayments.length > 0 ? (
-              filteredPayments.map((payment, index) => (
+            {filteredPayments?.length > 0 ? (
+              filteredPayments?.map((payment, index) => (
                 <tr key={payment.id || index}>
                   <td>{new Date(payment.paymentDate || payment.date).toLocaleDateString()}</td>
-                  <td>₦{payment.amount}</td>
+        
+                   <td>₦{payment?.deliveryAmount}</td>
+                     <td>{payment?.deliveryLocation}</td>
+                       <td>{payment?.amount - payment?.deliveryAmount || 'N/A' }</td>
+                    <td>₦{payment?.amount}</td>
                   <td>
                     <span className={`status-badge ${payment.status.toLowerCase()}`}>
                       {payment.status.toLowerCase() === 'paid' ? 'Awaiting confirmation' : payment.status}

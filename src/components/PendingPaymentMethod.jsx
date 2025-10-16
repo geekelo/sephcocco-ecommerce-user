@@ -31,16 +31,16 @@ export default function PaymentPaymentMethod({
   const [showRegisterModal, setShowRegisterModal] = useState(false);
 
   const totalAmount = totalCost + deliveryCost;
-  console.log('pyaemt', selectedOrders);
+ 
   
   const { mutateAsync: payment } = usePayment();
   const { mutateAsync: paymentVerify } = usePaymentVerify();
-  console.log('Total Cost:', totalCost);
+
 
   const transactionId = localStorage.getItem('pay-ref');
   const activeOutlet = getActiveOutlet();
   const activeUser = localStorage.getItem('userEmail');
-  console.log('act', activeOutlet);
+  
 
   // Prevent page close during verification
   useEffect(() => {
@@ -223,6 +223,26 @@ const handleLocationChange = (e) => {
     <>
       <div className="payment-right-column">
         <div className="payment-checkout-section payment-method-section">
+              {/* Location Dropdown */}
+        <div className="form-group">
+           <h3 className="payment-section-title">  Delivery Location</h3>
+   
+          <select
+            id="location"
+            value={selectedLocation}
+            onChange={handleLocationChange}
+            required
+            className="location-select"
+          >
+            <option value="">Select delivery location</option>
+            {locations?.map((location) => (
+              <option key={location.id} value={location.id}>
+                {location.location} - ₦{parseFloat(location.logistics_price).toLocaleString()}
+              </option>
+            ))}
+          </select>
+       
+        </div>
           <h3 className="payment-section-title">Payment Method</h3>
           <div className="payment-options">
             <div
@@ -262,28 +282,7 @@ const handleLocationChange = (e) => {
             </div>
           </div>
         </div>
-    {/* Location Dropdown */}
-        <div className="form-group">
-          <label htmlFor="location">
-            {/* <MapPin size={16} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} /> */}
-            Delivery Location *
-          </label>
-          <select
-            id="location"
-            value={selectedLocation}
-            onChange={handleLocationChange}
-            required
-            className="location-select"
-          >
-            <option value="">Select delivery location</option>
-            {locations?.map((location) => (
-              <option key={location.id} value={location.id}>
-                {location.location} - ₦{parseFloat(location.logistics_price).toLocaleString()}
-              </option>
-            ))}
-          </select>
-       
-        </div>
+
         <div className="payment-checkout-section payment-total-section">
           <div className="payment-total-row">
             <span>Subtotal</span>
@@ -306,10 +305,10 @@ const handleLocationChange = (e) => {
         {paymentMethod === 'bank' ? (
           <button
             className="payment-checkout-button"
-            disabled={isProcessing || isVerifying}
+            disabled={isProcessing || isVerifying || selectedLocation === ''}
             onClick={handleBankPayment}
           >
-            {isProcessing ? 'Verifying Payment...' : 'I have paid'}
+            {isProcessing  ? 'Verifying Payment...' : 'I have paid'}
           </button>
         ) : paymentMethod === 'online' ? (
           <div className="">
@@ -319,7 +318,7 @@ const handleLocationChange = (e) => {
               reference={generatePaystackReference()}
               onSuccess={handlePaystackSuccess}
               onClose={handlePaystackClose}
-              disabled={isProcessing || isVerifying}
+              disabled={isProcessing || isVerifying || selectedLocation === ''}
             />
           </div>
         ) : (
@@ -327,7 +326,7 @@ const handleLocationChange = (e) => {
             className="payment-checkout-button payment-disabled"
             disabled
           >
-            Select Payment Method
+           {selectedLocation === '' ? 'Select Delivery Location' : 'Select Payment Method'}
           </button>
         )}
       </div>

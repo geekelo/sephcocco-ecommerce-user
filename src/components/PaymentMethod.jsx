@@ -14,7 +14,7 @@ export default function PaymentMethod({address, totalCost,orderCost, locations, 
   setSelectedLocation,
   deliveryCost,
   setDeliveryCost, selectedOrders, product, quantity, orderId, onPaymentComplete, userEmail}) {
-  console.log('Payment locations:', locations);
+
   
   const [paymentMethod, setPaymentMethod] = useState(null);
   const [showBankDetails, setShowBankDetails] = useState(false);
@@ -28,7 +28,7 @@ export default function PaymentMethod({address, totalCost,orderCost, locations, 
   
   const activeOutlet = getActiveOutlet()
   const activeUser = localStorage.getItem('userEmail')
-  console.log('Active outlet:', activeOutlet);
+
   
   const { mutateAsync: payment } = usePayment()
   const { mutateAsync: paymentVerify } = usePaymentVerify()
@@ -259,12 +259,10 @@ const handleLocationChange = (e) => {
       <div className="order-right-column">
 
         <div className="checkout-section payment-section">
-          <h3 className="section-title">Payment Method</h3>
-          
-          <div className="order-status-info">
+            <div className="order-status-info">
             <div className="order-id-container">
-              <p className='order-id'>
-                <strong>Order ID:</strong> {orderId}
+              {/* <p className='order-id'>
+                <strong>Order Number:</strong> {orderId}
                 <button 
                   className="copy-button-order"
                   onClick={handleCopyOrderId}
@@ -272,13 +270,37 @@ const handleLocationChange = (e) => {
                 >
                   {copied ? <Check size={16} color='#000' /> : <Copy size={16} color='#000' />}
                 </button>
-              </p>
+              </p> */}
             </div>
             <p><small>✅ Order created successfully</small></p>
             <p><small>📦 {orderInfo.displayText} (Qty: {orderInfo.totalItems})</small></p>
           </div>
+                     {/* Location Dropdown */}
+        <div className="form-group">
+               <h3 className="section-title">Delivery Location</h3>
+        
+          <select
+            id="location"
+            value={selectedLocation}
+            onChange={handleLocationChange}
+            required
+            className="location-select"
+          >
+            <option value="">Select delivery location</option>
+            {locations?.map((location) => (
+              <option key={location.id} value={location.id}>
+                {location.location} - ₦{parseFloat(location.logistics_price).toLocaleString()}
+              </option>
+            ))}
+          </select>
+       
+        </div>
+          <h3 className="section-title">Payment Method</h3>
+          
+        
           
           <div className="payment-options">
+     
             <div 
               className={`payment-option ${paymentMethod === 'bank' ? 'selected' : ''} ${isVerifying ? 'disabled' : ''}`}
               onClick={isVerifying ? undefined : handleBankTransfer}
@@ -316,28 +338,7 @@ const handleLocationChange = (e) => {
             </div>
           </div>
         </div>
-     {/* Location Dropdown */}
-        <div className="form-group">
-          <label htmlFor="location">
-            {/* <MapPin size={16} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} /> */}
-            Delivery Location *
-          </label>
-          <select
-            id="location"
-            value={selectedLocation}
-            onChange={handleLocationChange}
-            required
-            className="location-select"
-          >
-            <option value="">Select delivery location</option>
-            {locations?.map((location) => (
-              <option key={location.id} value={location.id}>
-                {location.location} - ₦{parseFloat(location.logistics_price).toLocaleString()}
-              </option>
-            ))}
-          </select>
-       
-        </div>
+ 
         <div className="checkout-section order-total-section">
           <div className="order-total-row">
             <span>Subtotal ({orderInfo.totalItems} item{orderInfo.totalItems > 1 ? 's' : ''})</span>
@@ -362,7 +363,7 @@ const handleLocationChange = (e) => {
           <button 
             className="checkout-button"
             onClick={handleBankPayment}
-            disabled={isProcessing || isVerifying}
+            disabled={isProcessing || isVerifying || selectedLocation === ''}
           >
             {isProcessing ? 'Verifying Payment...' : 'I have paid'}
           </button>
@@ -374,7 +375,7 @@ const handleLocationChange = (e) => {
               reference={generatePaystackReference()}
               onSuccess={handlePaystackSuccess}
               onClose={handlePaystackClose}
-              disabled={isProcessing || isVerifying}
+              disabled={isProcessing || isVerifying || selectedLocation === ''}
             />
           </div>
         ) : (
@@ -382,7 +383,7 @@ const handleLocationChange = (e) => {
             className="checkout-button disabled"
             disabled
           >
-            Select Payment Method
+             {selectedLocation === '' ? 'Select Delivery Location' : 'Select Payment Method'}
           </button>
         )}
       </div>
