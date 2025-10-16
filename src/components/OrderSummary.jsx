@@ -10,10 +10,7 @@ export default function OrderSummary({
   quantity,
   setQuantity,
   locations = [],
-  selectedLocation,
-  setSelectedLocation,
-  deliveryCost,
-  setDeliveryCost,
+
   address,
   phoneNumbers,
   notes,
@@ -32,7 +29,7 @@ export default function OrderSummary({
   };
 
   const orderCost = product?.price * quantity || 0;
-  const totalCost = orderCost + deliveryCost;
+  // const totalCost = orderCost + deliveryCost;
 
   const increaseQuantity = () => {
     console.log('Increasing quantity from', quantity, 'to', quantity + 1);
@@ -42,26 +39,9 @@ export default function OrderSummary({
     }
   };
 
-  // Handle location change
-const handleLocationChange = (e) => {
-  const locationId = e.target.value;
-  setSelectedLocation(locationId);
-
-  const selectedLoc = locations?.find(
-    (loc) => String(loc.id) === String(locationId)
-  );
-
-  if (selectedLoc) {
-    const cost = parseFloat(selectedLoc.logistics_price || 0);
-    console.log('Selected location:', selectedLoc.location, 'Cost:', cost);
-    setDeliveryCost(cost);
-  } else {
-    setDeliveryCost(0);
-  }
-};
 
 
-  const isFormValid = address.trim() && phoneNumbers.trim() && selectedLocation;
+  const isFormValid = address.trim() && phoneNumbers.trim();
 
   const handleContinueClick = () => {
     if (orderCreated) {
@@ -127,29 +107,7 @@ const handleLocationChange = (e) => {
       <div className="checkout-section">
         <h3 className="section-title">Delivery Information</h3>
         
-        {/* Location Dropdown */}
-        <div className="form-group">
-          <label htmlFor="location">
-            <MapPin size={16} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
-            Delivery Location *
-          </label>
-          <select
-            id="location"
-            value={selectedLocation}
-            onChange={handleLocationChange}
-            required
-            disabled={orderCreated}
-            className="location-select"
-          >
-            <option value="">Select delivery location</option>
-            {locations.map((location) => (
-              <option key={location.id} value={location.id}>
-                {location.location} - ₦{parseFloat(location.logistics_price).toLocaleString()}
-              </option>
-            ))}
-          </select>
-       
-        </div>
+   
 
         <div className="form-group">
           <label htmlFor="address">Delivery Address *</label>
@@ -190,8 +148,8 @@ const handleLocationChange = (e) => {
           />
         </div>
       </div>
+{/* 
 
-      {/* Cost Breakdown Section */}
       <div className="checkout-section cost-breakdown">
         <h3 className="section-title">Cost Breakdown</h3>
         <div className="cost-row">
@@ -212,9 +170,9 @@ const handleLocationChange = (e) => {
           <p className="cost-formula">
             ₦{orderCost.toLocaleString()} + ₦{deliveryCost.toLocaleString()} = ₦{totalCost.toLocaleString()}
           </p>
-        )} */}
+        )} 
       </div>
-      
+
       {/* Action button for both mobile and desktop */}
       <button
         className={`create-order-button ${!isFormValid && !orderCreated ? 'disabled' : ''}`}

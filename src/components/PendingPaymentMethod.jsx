@@ -7,27 +7,30 @@ import PaystackPayment from './PaystackButton';
 import { usePayment } from '../hooks/usePayment';
 import { usePaymentVerify } from '../hooks/usePaymentVerify';
 import '../styles/PaymentPaymentMethod.css';
-
+import '../styles/OrderSummary.css'
 import { getActiveOutlet } from '../utils/getActiveOutlets';
 import { getActiveUser } from '../utils/getActiveUser';
 import { AuthModals } from './AuthModal';
 
 export default function PaymentPaymentMethod({
   product,
-  totalCost,
   quantity,
   onPaymentComplete,
+  locations,
+  totalCost,
   selectedOrders,
 }) {
   const [paymentMethod, setPaymentMethod] = useState(null);
   const [showBankDetails, setShowBankDetails] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false); // New state for verification
-  
+     const [deliveryCost, setDeliveryCost] = useState(0);
+  const [selectedLocation, setSelectedLocation] = useState('');
   // Auth modal states
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
-  
+
+  const totalAmount = totalCost + deliveryCost;
   console.log('pyaemt', selectedOrders);
   
   const { mutateAsync: payment } = usePayment();
@@ -81,7 +84,22 @@ export default function PaymentPaymentMethod({
     setPaymentMethod('online');
     setShowBankDetails(false);
   };
+const handleLocationChange = (e) => {
+  const locationId = e.target.value;
+  setSelectedLocation(locationId);
 
+  const selectedLoc = locations?.find(
+    (loc) => String(loc.id) === String(locationId)
+  );
+
+  if (selectedLoc) {
+    const cost = parseFloat(selectedLoc.logistics_price || 0);
+    console.log('Selected location:', selectedLoc.location, 'Cost:', cost);
+    setDeliveryCost(cost);
+  } else {
+    setDeliveryCost(0);
+  }
+};
   // Handle bank payment
   const handleBankPayment = async () => {
     if (!checkAuthentication()) return;
@@ -95,7 +113,8 @@ export default function PaymentPaymentMethod({
     const payload = {
       [`sephcocco_${activeOutlet}_payment`]: {
         orders_ids: orderIds,
-        amount: totalCost,
+        amount: totalAmount,
+         delivery_location_id: selectedLocation,
         payment_method: 'bank',
         transaction_id: transactionId,
       },
@@ -135,9 +154,10 @@ export default function PaymentPaymentMethod({
       const paymentPayload = {
         [`sephcocco_${activeOutlet}_payment`]: {
           orders_ids: orderIds,
-          amount: totalCost,
+          amount: totalAmount,
           payment_method: 'online',
           transaction_id: response.reference,
+           delivery_location_id: selectedLocation,
           paystack_reference: response.reference,
           status: response.status
         }
@@ -242,15 +262,41 @@ export default function PaymentPaymentMethod({
             </div>
           </div>
         </div>
-
+    {/* Location Dropdown */}
+        <div className="form-group">
+          <label htmlFor="location">
+            {/* <MapPin size={16} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} /> */}
+            Delivery Location *
+          </label>
+          <select
+            id="location"
+            value={selectedLocation}
+            onChange={handleLocationChange}
+            required
+            className="location-select"
+          >
+            <option value="">Select delivery location</option>
+            {locations?.map((location) => (
+              <option key={location.id} value={location.id}>
+                {location.location} - ₦{parseFloat(location.logistics_price).toLocaleString()}
+              </option>
+            ))}
+          </select>
+       
+        </div>
         <div className="payment-checkout-section payment-total-section">
           <div className="payment-total-row">
             <span>Subtotal</span>
             <span>₦{parseFloat(totalCost).toLocaleString()}</span>
           </div>
+              <div className="payment-total-row">
+             <span>Delivery Cost </span>
+            <span> {deliveryCost > 0 ? `₦${deliveryCost.toLocaleString()}` : '₦0'}</span>
+          </div>
+             
           <div className="payment-total-row payment-grand-total">
             <span>Total</span>
-            <span>₦{parseFloat(totalCost).toLocaleString()}</span>
+            <span>₦{parseFloat(totalAmount).toLocaleString()}</span>
           </div>
         </div>
 
@@ -269,7 +315,7 @@ export default function PaymentPaymentMethod({
           <div className="">
             <PaystackPayment
               email={getUserEmail()}
-              amount={totalCost}
+              amount={totalAmount}
               reference={generatePaystackReference()}
               onSuccess={handlePaystackSuccess}
               onClose={handlePaystackClose}

@@ -100,6 +100,8 @@ const [selectedLocation, setSelectedLocation] = useState('');
           quantity,
           address,
           phone_number: phoneNumbers,
+         
+      
           additional_notes: notes,
         }
       };
@@ -224,10 +226,7 @@ const [selectedLocation, setSelectedLocation] = useState('');
               setNotes={setNotes}
               locations={locations}
               quantity={quantity}
-            selectedLocation={selectedLocation}
-  setSelectedLocation={setSelectedLocation}
-  deliveryCost={deliveryCost}
-  setDeliveryCost={setDeliveryCost}
+   
               address={address}
               phoneNumbers={phoneNumbers}
               notes={notes}
@@ -242,6 +241,12 @@ const [selectedLocation, setSelectedLocation] = useState('');
                 address={address}
                 quantity={quantity}
                 product={product}
+                locations={locations}
+                orderCost={orderCost}
+                         selectedLocation={selectedLocation}
+  setSelectedLocation={setSelectedLocation}
+  deliveryCost={deliveryCost}
+  setDeliveryCost={setDeliveryCost}
                 totalCost={totalCost}
                 orderId={createdOrderId}
                 onPaymentComplete={

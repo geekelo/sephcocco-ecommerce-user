@@ -1,4 +1,4 @@
-import { CheckCircle, CreditCard, Landmark, Copy, Check, AlertTriangle } from 'lucide-react'
+import { CheckCircle, CreditCard, Landmark, Copy, MapPin,Check, AlertTriangle } from 'lucide-react'
 import React, { useState, useEffect } from 'react'
 import BankDetails from './BankDetails'
 
@@ -9,9 +9,12 @@ import { getActiveOutlet } from '../utils/getActiveOutlets';
 import { getActiveUser } from '../utils/getActiveUser';
 import PaystackPayment from './PaystackButton';
 import { AuthModals } from './AuthModal';
-
-export default function PaymentMethod({address, totalCost, selectedOrders, product, quantity, orderId, onPaymentComplete, userEmail}) {
-  console.log('Payment Method Props:', { address, totalCost, selectedOrders, product, quantity, orderId });
+import '../styles/OrderSummary.css'
+export default function PaymentMethod({address, totalCost,orderCost, locations,   selectedLocation,
+  setSelectedLocation,
+  deliveryCost,
+  setDeliveryCost, selectedOrders, product, quantity, orderId, onPaymentComplete, userEmail}) {
+  console.log('Payment locations:', locations);
   
   const [paymentMethod, setPaymentMethod] = useState(null);
   const [showBankDetails, setShowBankDetails] = useState(false);
@@ -59,7 +62,24 @@ export default function PaymentMethod({address, totalCost, selectedOrders, produ
     }
     return true;
   };
-  
+    // Handle location change
+const handleLocationChange = (e) => {
+  const locationId = e.target.value;
+  setSelectedLocation(locationId);
+
+  const selectedLoc = locations?.find(
+    (loc) => String(loc.id) === String(locationId)
+  );
+
+  if (selectedLoc) {
+    const cost = parseFloat(selectedLoc.logistics_price || 0);
+    console.log('Selected location:', selectedLoc.location, 'Cost:', cost);
+    setDeliveryCost(cost);
+  } else {
+    setDeliveryCost(0);
+  }
+};
+
   const handleBankTransfer = () => {
     if (!checkAuthentication()) return;
     
@@ -105,6 +125,7 @@ export default function PaymentMethod({address, totalCost, selectedOrders, produ
       [`sephcocco_${activeOutlet}_payment`]: {
         orders_ids: orderIds,
         amount: Number(totalCost),
+         delivery_location_id: selectedLocation,
         payment_method: 'bank',
         transaction_id: transactionId 
       }
@@ -151,6 +172,7 @@ export default function PaymentMethod({address, totalCost, selectedOrders, produ
         [`sephcocco_${activeOutlet}_payment`]: {
           orders_ids: orderIds,
           amount: Number(totalCost),
+          delivery_location_id: selectedLocation,
           payment_method: 'online',
           transaction_id: response.reference,
           paystack_reference: response.reference,
@@ -294,11 +316,36 @@ export default function PaymentMethod({address, totalCost, selectedOrders, produ
             </div>
           </div>
         </div>
-
+     {/* Location Dropdown */}
+        <div className="form-group">
+          <label htmlFor="location">
+            {/* <MapPin size={16} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} /> */}
+            Delivery Location *
+          </label>
+          <select
+            id="location"
+            value={selectedLocation}
+            onChange={handleLocationChange}
+            required
+            className="location-select"
+          >
+            <option value="">Select delivery location</option>
+            {locations?.map((location) => (
+              <option key={location.id} value={location.id}>
+                {location.location} - ₦{parseFloat(location.logistics_price).toLocaleString()}
+              </option>
+            ))}
+          </select>
+       
+        </div>
         <div className="checkout-section order-total-section">
           <div className="order-total-row">
             <span>Subtotal ({orderInfo.totalItems} item{orderInfo.totalItems > 1 ? 's' : ''})</span>
-            <span>₦{parseFloat(totalCost || 0).toFixed(2)}</span>
+            <span>₦{parseFloat(orderCost || 0).toFixed(2)}</span>
+          </div>
+            <div className="order-total-row">
+            <span>Delivery Cost </span>
+            <span> {deliveryCost > 0 ? `₦${deliveryCost.toLocaleString()}` : '₦0'}</span>
           </div>
           <div className="order-total-row grand-total">
             <span>Total</span>

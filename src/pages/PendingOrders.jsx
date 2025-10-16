@@ -20,6 +20,7 @@ import { useDeleteOrder } from "../hooks/useDeleteOrder";
 import { useUpdateOrder } from "../hooks/useUpdateOrder";
 import { useGetDeliveryOrder } from "../hooks/useGetDeliveryOrder";
 import { useGetPaidOrder } from "../hooks/useGetPaidOrder";
+import { useGetLocation } from "../hooks/useGetLocation";
 
 // PendingOrdersSkeleton component
 const PendingOrdersSkeleton = ({ isMobile = false }) => {
@@ -404,7 +405,7 @@ const PendingOrders = () => {
     itemsPerPage,
     { enabled: isAuthenticated } // Only fetch if authenticated
   );
-  
+  const {data: locations, isLoading: locationsLoading} = useGetLocation( { enabled: isAuthenticated })
   const deleteOrderMutation = useDeleteOrder();
   const updateOrderMutation = useUpdateOrder();
 
@@ -622,7 +623,7 @@ const PendingOrders = () => {
     }
   };
 
-  const isLoading = isLoadingPending || isLoadingPaid || isLoadingDelivery;
+  const isLoading = isLoadingPending || isLoadingPaid || isLoadingDelivery || locationsLoading;
 if (!activeOutlet) {
   return <PendingOrdersSkeleton isMobile={isMobile} />;
 }
@@ -816,6 +817,7 @@ if (!activeOutlet) {
         <PaymentModal
           selectedOrders={pendingData?.orders?.filter(order => checkedOrders[order.id])}
           onClose={() => setIsPaymentModalOpen(false)}
+          locations={locations}
           totalCost={totalPrice} 
           onPaymentComplete={() => {
             setIsPaymentModalOpen(false);

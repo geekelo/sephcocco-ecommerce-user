@@ -68,7 +68,7 @@ export default function Product() {
     refetch: refetchCategories 
   } = useViewProductCategories(activeOutlet);
 const {data: locations, isLoading: locationsLoading, error: locationsError} = useGetLocation()
-console.log('locations',locations);
+
 
   // Add pending orders hook for refetching
   const { refetch: refetchPendingOrders } = useGetPendingOrder(
