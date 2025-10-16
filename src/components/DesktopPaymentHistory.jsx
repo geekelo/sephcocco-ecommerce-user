@@ -87,9 +87,9 @@ export const DesktopPaymentHistoryTable = ({ payments: allPayments, onFilterChan
           <thead>
             <tr>
               <th>Date</th>
-              
+                <th>Delivery Location</th>
                <th>Delivery Amount</th>
-               <th>Delivery Location</th>
+             
  <th>Item Amount</th>
                 <th>Total Amount</th>
               <th>Status</th>
@@ -101,10 +101,21 @@ export const DesktopPaymentHistoryTable = ({ payments: allPayments, onFilterChan
             {filteredPayments?.length > 0 ? (
               filteredPayments?.map((payment, index) => (
                 <tr key={payment.id || index}>
-                  <td>{new Date(payment.paymentDate || payment.date).toLocaleDateString()}</td>
-        
-                   <td>₦{payment?.deliveryAmount}</td>
-                     <td>{payment?.deliveryLocation}</td>
+               <td>
+  {new Date(payment.paymentDate || payment.date).toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true,
+  })}
+</td>
+
+           <td>{payment?.deliveryLocation || 'N/A'}</td>
+                   <td>{`₦${payment?.deliveryAmount}` || 'N/A'}</td>
+                  
                        <td>{payment?.amount - payment?.deliveryAmount || 'N/A' }</td>
                     <td>₦{payment?.amount}</td>
                   <td>

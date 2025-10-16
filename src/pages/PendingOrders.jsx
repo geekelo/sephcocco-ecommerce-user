@@ -452,14 +452,13 @@ const PendingOrders = () => {
 
   // Authentication handlers
   const handleAuthSuccess = () => {
-    console.log('✅ Authentication successful');
+    
     setIsAuthenticated(true);
     setShowLoginModal(false);
     setShowRegisterModal(false);
   };
 
   const handleCloseAuthModals = () => {
-    console.log('❌ Auth modals closed without authentication');
     setShowLoginModal(false);
     setShowRegisterModal(false);
 

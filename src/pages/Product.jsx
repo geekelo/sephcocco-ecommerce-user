@@ -70,9 +70,7 @@ export default function Product() {
   } = useViewProductCategories(activeOutlet);
 const {data: locations, isLoading: locationsLoading, error: locationsError} = useGetLocation()
     const {refetch: refetchPayment } = useViewPayment(
-      activeOutlet,
-
-      { enabled: isAuthenticated }
+      activeOutlet
     );
 
   // Add pending orders hook for refetching
