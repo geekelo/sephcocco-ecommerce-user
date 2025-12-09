@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import { useSearchParams, useParams,useNavigate } from 'react-router-dom';
+import { useSearchParams, useParams, useNavigate } from 'react-router-dom';
 import '../styles/OrderDetails.css';
 import InfoSection from '../components/InfoSection';
 import ProductInfo from '../components/ProductInfo';
 import OrderStages from '../components/OrderStages';
+import Receipt from '../components/Receipt';
 import { getActiveOutlet } from '../utils/getActiveOutlets';
 import { useGetDeliveryOrder } from '../hooks/useGetDeliveryOrder';
 import OrderDetailsSkeleton from '../components/OrderDetailsSkeleton';
 import { useTrackOrder } from '../hooks/useTrackOrder';
-import { useRiders } from '../hooks/useRiders';
+
 import { useGetPaidOrder } from '../hooks/useGetPaidOrder';
 import { useGetCompletedOrder } from '../hooks/userGetCompletedOrder';
 
@@ -30,7 +31,7 @@ const OrderDetails = () => {
     isLoading: isLoadingDelivery,
   } = useGetDeliveryOrder(activeOutlet);
 
- const {
+  const {
     data: paidData,
     isLoading: isLoadingPaid,
   } = useGetPaidOrder(activeOutlet);
@@ -41,6 +42,7 @@ const OrderDetails = () => {
   } = useGetCompletedOrder(activeOutlet);
 
   const [showTracking, setShowTracking] = useState(false);
+  const [showReceipt, setShowReceipt] = useState(false);
 
   // Find the order by ID from API response - check all order types
   const order =
@@ -48,7 +50,7 @@ const OrderDetails = () => {
     paidData?.orders?.find((o) => o.id.toString() === orderId) ||
     completedData?.orders?.find((o) => o.id.toString() === orderId);
 
-const {data: riders, isLoading: isLoadingRiders} = useRiders()
+
 
   // Fetch tracking info only when needed
   const { data: trackData, isLoading: isTrackingLoading } = useTrackOrder(
@@ -177,6 +179,7 @@ const {data: riders, isLoading: isLoadingRiders} = useRiders()
         likes={order.likes ?? 0}
         isFavorite={false}
         onTrackOrder={() => setShowTracking(true)}
+        onPrintReceipt={() => setShowReceipt(true)}
       />
 
       <OrderStages 
@@ -249,6 +252,14 @@ const {data: riders, isLoading: isLoadingRiders} = useRiders()
           Get Help
         </button>
       </div>
+
+      {/* Receipt Modal */}
+      {showReceipt && (
+        <Receipt 
+          order={order} 
+          onClose={() => setShowReceipt(false)} 
+        />
+      )}
     </div>
   );
 };

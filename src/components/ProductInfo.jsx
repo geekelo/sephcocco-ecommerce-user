@@ -5,22 +5,40 @@ import '../styles/ProductInfo.css';
 import LikeButton from './LikeButton';
 import { OrderStatusBadge } from './OrderStatusBadge';
 
-const ProductInfo = ({ name, image, totalPrice, onTrackOrder, price, rating, ratingCount, status,likes,isFavorite }) => {
+const ProductInfo = ({ 
+  name, 
+  image, 
+  totalPrice, 
+  onTrackOrder, 
+  onPrintReceipt,
+  price, 
+  rating, 
+  ratingCount, 
+  status,
+  likes,
+  isFavorite 
+}) => {
 
-    const handleTrackOrder = () => {
-        // Implement order tracking functionality
-        console.log('Track order:', order.id);
-      };
-      
-      const handleDiscardOrder = () => {
-        // Implement discard order functionality
-        console.log('Discard order:', order.id);
-      };
-    const handleLike = (isLiked) => {
-        // Here you would typically update this on the backend
-        console.log(`Product ${product.id} like status changed to: ${isLiked}`);
-      };
-    
+  const handleTrackOrder = () => {
+    // Implement order tracking functionality
+    console.log('Track order');
+  };
+  
+  const handleDiscardOrder = () => {
+    // Implement discard order functionality
+    console.log('Discard order');
+  };
+
+  const handleLike = (isLiked) => {
+    // Here you would typically update this on the backend
+    console.log(`Product like status changed to: ${isLiked}`);
+  };
+  
+  // Check if order is delivered/completed
+  const isDelivered = status?.toLowerCase() === 'delivered' || 
+                      status?.toLowerCase() === 'completed' || 
+                      status?.toLowerCase() === 'arrived';
+
   return (
     <div className="product-info-container">
       <div className="product-info-left">
@@ -35,12 +53,12 @@ const ProductInfo = ({ name, image, totalPrice, onTrackOrder, price, rating, rat
         <div className="product-status-row">
           <OrderStatusBadge status={status} />
         </div>
-                <div style={{color: '#000'}}>Unit Price: ₦{parseFloat(price).toFixed(2)}</div>
-          <div style={{color: '#000'}}>Total Price: ₦{parseFloat(totalPrice).toFixed(2)}</div>
+        <div style={{color: '#000'}}>Unit Price: ₦{parseFloat(price).toFixed(2)}</div>
+        <div style={{color: '#000'}}>Total Price: ₦{parseFloat(totalPrice).toFixed(2)}</div>
         <div className="product-rating">
           <div className="stars-container">
-          <LikeButton 
-          disabled={true}
+            <LikeButton 
+              disabled={true}
               initialLikes={likes}
               isLiked={isFavorite}
               onLike={handleLike}
@@ -48,20 +66,19 @@ const ProductInfo = ({ name, image, totalPrice, onTrackOrder, price, rating, rat
           </div>
           <span className="rating-count">({ratingCount || 0})</span>
         </div>
-        
-
-        
       </div>
+      
       <div className="order-primary-actions">
-          {/* <button className="discard-button" onClick={handleDiscardOrder}>
-            <span>Discard Order</span>
-            <ArrowRight size={16} />
-          </button> */}
-          
+        {isDelivered ? (
+          <button className="track-button" onClick={onPrintReceipt}>
+            Print Receipt
+          </button>
+        ) : (
           <button className="track-button" onClick={onTrackOrder}>
             Track Order
           </button>
-        </div>
+        )}
+      </div>
     </div>
   );
 };
