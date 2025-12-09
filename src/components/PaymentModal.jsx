@@ -6,12 +6,12 @@ import PaymentOrderSummary from './PaymentOrderSummary';
 import PaymentPaymentMethod from './PendingPaymentMethod';
 
 
-const PaymentModal = ({ selectedOrders,totalCost, onClose, onPaymentComplete }) => {
+const PaymentModal = ({ selectedOrders,locations,totalCost, onClose, onPaymentComplete }) => {
 
 
   const [quantity, setQuantity] = useState(1);
-  console.log('opddrdd',selectedOrders);
-  console.log('Total Cost:', totalCost);
+
+
   
   // If we have selected orders, set the initial quantity to the total
   useEffect(() => {
@@ -104,7 +104,7 @@ const PaymentModal = ({ selectedOrders,totalCost, onClose, onPaymentComplete }) 
           
               
               <PaymentPaymentMethod
-               
+               locations={locations}
                 quantity={quantity}
                 product={combinedProduct}
                 onPaymentComplete={handlePaymentComplete}

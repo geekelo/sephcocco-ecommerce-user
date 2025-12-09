@@ -50,7 +50,7 @@ const CompletedOrdersSkeleton = ({ isMobile = false }) => {
       variants={itemVariants}
       style={{ 
         padding: '16px',
-        width: '220px',
+        width: '320px',
         marginBottom: '12px',
         border: '1px solid #e5e7eb',
         borderRadius: '8px',

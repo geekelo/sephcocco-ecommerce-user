@@ -7,37 +7,40 @@ import PaystackPayment from './PaystackButton';
 import { usePayment } from '../hooks/usePayment';
 import { usePaymentVerify } from '../hooks/usePaymentVerify';
 import '../styles/PaymentPaymentMethod.css';
-
+import '../styles/OrderSummary.css'
 import { getActiveOutlet } from '../utils/getActiveOutlets';
 import { getActiveUser } from '../utils/getActiveUser';
 import { AuthModals } from './AuthModal';
 
 export default function PaymentPaymentMethod({
   product,
-  totalCost,
   quantity,
   onPaymentComplete,
+  locations,
+  totalCost,
   selectedOrders,
 }) {
   const [paymentMethod, setPaymentMethod] = useState(null);
   const [showBankDetails, setShowBankDetails] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false); // New state for verification
-  
+     const [deliveryCost, setDeliveryCost] = useState(0);
+  const [selectedLocation, setSelectedLocation] = useState('');
   // Auth modal states
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
-  
-  console.log('pyaemt', selectedOrders);
+
+  const totalAmount = totalCost + deliveryCost;
+ 
   
   const { mutateAsync: payment } = usePayment();
   const { mutateAsync: paymentVerify } = usePaymentVerify();
-  console.log('Total Cost:', totalCost);
+
 
   const transactionId = localStorage.getItem('pay-ref');
   const activeOutlet = getActiveOutlet();
   const activeUser = localStorage.getItem('userEmail');
-  console.log('act', activeOutlet);
+  
 
   // Prevent page close during verification
   useEffect(() => {
@@ -81,7 +84,22 @@ export default function PaymentPaymentMethod({
     setPaymentMethod('online');
     setShowBankDetails(false);
   };
+const handleLocationChange = (e) => {
+  const locationId = e.target.value;
+  setSelectedLocation(locationId);
 
+  const selectedLoc = locations?.find(
+    (loc) => String(loc.id) === String(locationId)
+  );
+
+  if (selectedLoc) {
+    const cost = parseFloat(selectedLoc.logistics_price || 0);
+    console.log('Selected location:', selectedLoc.location, 'Cost:', cost);
+    setDeliveryCost(cost);
+  } else {
+    setDeliveryCost(0);
+  }
+};
   // Handle bank payment
   const handleBankPayment = async () => {
     if (!checkAuthentication()) return;
@@ -95,7 +113,8 @@ export default function PaymentPaymentMethod({
     const payload = {
       [`sephcocco_${activeOutlet}_payment`]: {
         orders_ids: orderIds,
-        amount: totalCost,
+        amount: totalAmount,
+         delivery_location_id: selectedLocation,
         payment_method: 'bank',
         transaction_id: transactionId,
       },
@@ -135,9 +154,10 @@ export default function PaymentPaymentMethod({
       const paymentPayload = {
         [`sephcocco_${activeOutlet}_payment`]: {
           orders_ids: orderIds,
-          amount: totalCost,
+          amount: totalAmount,
           payment_method: 'online',
           transaction_id: response.reference,
+           delivery_location_id: selectedLocation,
           paystack_reference: response.reference,
           status: response.status
         }
@@ -203,6 +223,26 @@ export default function PaymentPaymentMethod({
     <>
       <div className="payment-right-column">
         <div className="payment-checkout-section payment-method-section">
+              {/* Location Dropdown */}
+        <div className="form-group">
+           <h3 className="payment-section-title">  Delivery Location</h3>
+   
+          <select
+            id="location"
+            value={selectedLocation}
+            onChange={handleLocationChange}
+            required
+            className="location-select"
+          >
+            <option value="">Select delivery location</option>
+            {locations?.map((location) => (
+              <option key={location.id} value={location.id}>
+                {location.location} - ₦{parseFloat(location.logistics_price).toLocaleString()}
+              </option>
+            ))}
+          </select>
+       
+        </div>
           <h3 className="payment-section-title">Payment Method</h3>
           <div className="payment-options">
             <div
@@ -248,9 +288,14 @@ export default function PaymentPaymentMethod({
             <span>Subtotal</span>
             <span>₦{parseFloat(totalCost).toLocaleString()}</span>
           </div>
+              <div className="payment-total-row">
+             <span>Delivery Cost </span>
+            <span> {deliveryCost > 0 ? `₦${deliveryCost.toLocaleString()}` : '₦0'}</span>
+          </div>
+             
           <div className="payment-total-row payment-grand-total">
             <span>Total</span>
-            <span>₦{parseFloat(totalCost).toLocaleString()}</span>
+            <span>₦{parseFloat(totalAmount).toLocaleString()}</span>
           </div>
         </div>
 
@@ -260,20 +305,20 @@ export default function PaymentPaymentMethod({
         {paymentMethod === 'bank' ? (
           <button
             className="payment-checkout-button"
-            disabled={isProcessing || isVerifying}
+            disabled={isProcessing || isVerifying || selectedLocation === ''}
             onClick={handleBankPayment}
           >
-            {isProcessing ? 'Verifying Payment...' : 'I have paid'}
+            {isProcessing  ? 'Verifying Payment...' : 'I have paid'}
           </button>
         ) : paymentMethod === 'online' ? (
           <div className="">
             <PaystackPayment
               email={getUserEmail()}
-              amount={totalCost}
+              amount={totalAmount}
               reference={generatePaystackReference()}
               onSuccess={handlePaystackSuccess}
               onClose={handlePaystackClose}
-              disabled={isProcessing || isVerifying}
+              disabled={isProcessing || isVerifying || selectedLocation === ''}
             />
           </div>
         ) : (
@@ -281,7 +326,7 @@ export default function PaymentPaymentMethod({
             className="payment-checkout-button payment-disabled"
             disabled
           >
-            Select Payment Method
+           {selectedLocation === '' ? 'Select Delivery Location' : 'Select Payment Method'}
           </button>
         )}
       </div>

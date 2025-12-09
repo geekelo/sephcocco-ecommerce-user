@@ -98,19 +98,52 @@ export const MobilePaymentHistoryCard = ({ payments: allPayments, onFilterChange
                 className="payment-card"
               >
                 <div className="payment-card-header">
-                  <div className="payment-amount">
-                    {formatAmount(payment.amount)}
-                  </div>
+                  {/* <div className="payment-amount">
+                   Total amount: {formatAmount(payment.amount)}
+                  </div> */}
                   <div className={`payment-status ${payment.status.toLowerCase()}`}>
                   {payment.status.toLowerCase() === 'paid' ? 'Awaiting comfirmation' : payment.status}
                   </div>
                 </div>
                 
                 <div className="payment-card-body">
+
+                     <div className="payment-detail">
+                    <span className="detail-label">Delivery Location:</span>
+                    <span className="detail-value">
+                     {payment?.deliveryLocation || 'N/A'}
+                    </span>
+                  </div>
+                     <div className="payment-detail">
+                    <span className="detail-label">Delivery Amount:</span>
+                    <span className="detail-value">
+                      {`₦${payment?.deliveryAmount}` || 'N/A'}
+                    </span>
+                  </div>
+                     <div className="payment-detail">
+                    <span className="detail-label">Item Amount:</span>
+                    <span className="detail-value">
+                      {payment?.amount - payment?.deliveryAmount || 'N/A' }
+                    </span>
+                  </div>
+                     <div className="payment-detail">
+                    <span className="detail-label">Total Amount:</span>
+                    <span className="detail-value">
+                      {formatAmount(payment.amount)}
+                    </span>
+                  </div>
                   <div className="payment-detail">
                     <span className="detail-label">Date:</span>
                     <span className="detail-value">
-                      {formatDate(payment.paymentDate || payment.date)}
+                   {new Date(payment.paymentDate || payment.date).toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true,
+  })}
                     </span>
                   </div>
                   

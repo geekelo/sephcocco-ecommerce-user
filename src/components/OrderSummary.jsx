@@ -1,4 +1,4 @@
-import { Minus, Plus, Loader2 } from 'lucide-react'
+import { Minus, Plus, Loader2, MapPin } from 'lucide-react'
 import React from 'react'
 import '../styles/OrderSummary.css'
 
@@ -9,6 +9,8 @@ export default function OrderSummary({
   setNotes,
   quantity,
   setQuantity,
+  locations = [],
+
   address,
   phoneNumbers,
   notes,
@@ -18,13 +20,17 @@ export default function OrderSummary({
   isCreatingOrder
 }) {
   console.log('dd',product);
+  console.log('locations', locations);
   
   const decreaseQuantity = () => {
     if (quantity > 1 && !orderCreated) {
       setQuantity(quantity - 1);
     }
   };
-const totalCost = product?.price * quantity || 0;
+
+  const orderCost = product?.price * quantity || 0;
+  // const totalCost = orderCost + deliveryCost;
+
   const increaseQuantity = () => {
     console.log('Increasing quantity from', quantity, 'to', quantity + 1);
     
@@ -32,6 +38,8 @@ const totalCost = product?.price * quantity || 0;
       setQuantity(quantity + 1);
     }
   };
+
+
 
   const isFormValid = address.trim() && phoneNumbers.trim();
 
@@ -58,7 +66,7 @@ const totalCost = product?.price * quantity || 0;
             <h4>{product.name}</h4>
             
             <div className="item-price-row">
-              <p className="item-price">₦{parseFloat(totalCost).toFixed(2)}</p>
+              <p className="item-price">₦{parseFloat(orderCost).toFixed(2)}</p>
               <div>
                 <p className="quantity-label">Total Quantity: <span className="quantity-value">{quantity}</span></p>
               </div>
@@ -98,6 +106,9 @@ const totalCost = product?.price * quantity || 0;
       
       <div className="checkout-section">
         <h3 className="section-title">Delivery Information</h3>
+        
+   
+
         <div className="form-group">
           <label htmlFor="address">Delivery Address *</label>
           <textarea
@@ -137,7 +148,31 @@ const totalCost = product?.price * quantity || 0;
           />
         </div>
       </div>
-      
+{/* 
+
+      <div className="checkout-section cost-breakdown">
+        <h3 className="section-title">Cost Breakdown</h3>
+        <div className="cost-row">
+          <span className="cost-label">Order Cost ({quantity} item{quantity > 1 ? 's' : ''})</span>
+          <span className="cost-value">₦{orderCost.toLocaleString()}</span>
+        </div>
+        <div className="cost-row">
+          <span className="cost-label">Delivery Cost</span>
+          <span className="cost-value">
+            {deliveryCost > 0 ? `₦${deliveryCost.toLocaleString()}` : '₦0'}
+          </span>
+        </div>
+        <div className="cost-row total-cost">
+          <span className="cost-label">Total Cost</span>
+          <span className="cost-value">₦{totalCost.toLocaleString()}</span>
+        </div>
+        {/* {selectedLocation && deliveryCost > 0 && (
+          <p className="cost-formula">
+            ₦{orderCost.toLocaleString()} + ₦{deliveryCost.toLocaleString()} = ₦{totalCost.toLocaleString()}
+          </p>
+        )} 
+      </div>
+
       {/* Action button for both mobile and desktop */}
       <button
         className={`create-order-button ${!isFormValid && !orderCreated ? 'disabled' : ''}`}

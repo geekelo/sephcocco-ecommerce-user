@@ -20,6 +20,8 @@ import { useDeleteOrder } from "../hooks/useDeleteOrder";
 import { useUpdateOrder } from "../hooks/useUpdateOrder";
 import { useGetDeliveryOrder } from "../hooks/useGetDeliveryOrder";
 import { useGetPaidOrder } from "../hooks/useGetPaidOrder";
+import { useGetLocation } from "../hooks/useGetLocation";
+import { useViewPayment } from "../hooks/useViewPayment";
 
 // PendingOrdersSkeleton component
 const PendingOrdersSkeleton = ({ isMobile = false }) => {
@@ -404,7 +406,12 @@ const PendingOrders = () => {
     itemsPerPage,
     { enabled: isAuthenticated } // Only fetch if authenticated
   );
-  
+    const {refetch: refetchPayment } = useViewPayment(
+      activeOutlet,
+
+      { enabled: isAuthenticated }
+    );
+  const {data: locations, isLoading: locationsLoading} = useGetLocation( { enabled: isAuthenticated })
   const deleteOrderMutation = useDeleteOrder();
   const updateOrderMutation = useUpdateOrder();
 
@@ -445,14 +452,13 @@ const PendingOrders = () => {
 
   // Authentication handlers
   const handleAuthSuccess = () => {
-    console.log('✅ Authentication successful');
+    
     setIsAuthenticated(true);
     setShowLoginModal(false);
     setShowRegisterModal(false);
   };
 
   const handleCloseAuthModals = () => {
-    console.log('❌ Auth modals closed without authentication');
     setShowLoginModal(false);
     setShowRegisterModal(false);
 
@@ -504,6 +510,7 @@ const PendingOrders = () => {
         refetchPending();
         refetchPaid();
         refetchDelivery();
+        refetchPayment();
       }
     });}
     catch(e){
@@ -629,7 +636,9 @@ const PendingOrders = () => {
     }
   };
 
-  const isLoading = isLoadingPending || isLoadingPaid || isLoadingDelivery;
+  const isLoading = isLoadingPending || isLoadingPaid || isLoadingDelivery || locationsLoading;
+  console.log('paid',paidData);
+  
 if (!activeOutlet) {
   return <PendingOrdersSkeleton isMobile={isMobile} />;
 }
@@ -823,6 +832,7 @@ if (!activeOutlet) {
         <PaymentModal
           selectedOrders={pendingData?.orders?.filter(order => checkedOrders[order.id])}
           onClose={() => setIsPaymentModalOpen(false)}
+          locations={locations}
           totalCost={totalPrice} 
           onPaymentComplete={() => {
             setIsPaymentModalOpen(false);
@@ -830,6 +840,7 @@ if (!activeOutlet) {
             refetchPending();
             refetchPaid();
             refetchDelivery();
+            refetchPayment();
           }}
         />
       )}

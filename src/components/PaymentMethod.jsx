@@ -1,4 +1,4 @@
-import { CheckCircle, CreditCard, Landmark, Copy, Check, AlertTriangle } from 'lucide-react'
+import { CheckCircle, CreditCard, Landmark, Copy, MapPin,Check, AlertTriangle } from 'lucide-react'
 import React, { useState, useEffect } from 'react'
 import BankDetails from './BankDetails'
 
@@ -9,9 +9,12 @@ import { getActiveOutlet } from '../utils/getActiveOutlets';
 import { getActiveUser } from '../utils/getActiveUser';
 import PaystackPayment from './PaystackButton';
 import { AuthModals } from './AuthModal';
+import '../styles/OrderSummary.css'
+export default function PaymentMethod({address, totalCost,orderCost, locations,   selectedLocation,
+  setSelectedLocation,
+  deliveryCost,
+  setDeliveryCost, selectedOrders, product, quantity, orderId, onPaymentComplete, userEmail}) {
 
-export default function PaymentMethod({address, totalCost, selectedOrders, product, quantity, orderId, onPaymentComplete, userEmail}) {
-  console.log('Payment Method Props:', { address, totalCost, selectedOrders, product, quantity, orderId });
   
   const [paymentMethod, setPaymentMethod] = useState(null);
   const [showBankDetails, setShowBankDetails] = useState(false);
@@ -25,7 +28,7 @@ export default function PaymentMethod({address, totalCost, selectedOrders, produ
   
   const activeOutlet = getActiveOutlet()
   const activeUser = localStorage.getItem('userEmail')
-  console.log('Active outlet:', activeOutlet);
+
   
   const { mutateAsync: payment } = usePayment()
   const { mutateAsync: paymentVerify } = usePaymentVerify()
@@ -59,7 +62,24 @@ export default function PaymentMethod({address, totalCost, selectedOrders, produ
     }
     return true;
   };
-  
+    // Handle location change
+const handleLocationChange = (e) => {
+  const locationId = e.target.value;
+  setSelectedLocation(locationId);
+
+  const selectedLoc = locations?.find(
+    (loc) => String(loc.id) === String(locationId)
+  );
+
+  if (selectedLoc) {
+    const cost = parseFloat(selectedLoc.logistics_price || 0);
+    console.log('Selected location:', selectedLoc.location, 'Cost:', cost);
+    setDeliveryCost(cost);
+  } else {
+    setDeliveryCost(0);
+  }
+};
+
   const handleBankTransfer = () => {
     if (!checkAuthentication()) return;
     
@@ -105,6 +125,7 @@ export default function PaymentMethod({address, totalCost, selectedOrders, produ
       [`sephcocco_${activeOutlet}_payment`]: {
         orders_ids: orderIds,
         amount: Number(totalCost),
+         delivery_location_id: selectedLocation,
         payment_method: 'bank',
         transaction_id: transactionId 
       }
@@ -151,6 +172,7 @@ export default function PaymentMethod({address, totalCost, selectedOrders, produ
         [`sephcocco_${activeOutlet}_payment`]: {
           orders_ids: orderIds,
           amount: Number(totalCost),
+          delivery_location_id: selectedLocation,
           payment_method: 'online',
           transaction_id: response.reference,
           paystack_reference: response.reference,
@@ -237,12 +259,10 @@ export default function PaymentMethod({address, totalCost, selectedOrders, produ
       <div className="order-right-column">
 
         <div className="checkout-section payment-section">
-          <h3 className="section-title">Payment Method</h3>
-          
-          <div className="order-status-info">
+            <div className="order-status-info">
             <div className="order-id-container">
-              <p className='order-id'>
-                <strong>Order ID:</strong> {orderId}
+              {/* <p className='order-id'>
+                <strong>Order Number:</strong> {orderId}
                 <button 
                   className="copy-button-order"
                   onClick={handleCopyOrderId}
@@ -250,13 +270,37 @@ export default function PaymentMethod({address, totalCost, selectedOrders, produ
                 >
                   {copied ? <Check size={16} color='#000' /> : <Copy size={16} color='#000' />}
                 </button>
-              </p>
+              </p> */}
             </div>
             <p><small>✅ Order created successfully</small></p>
             <p><small>📦 {orderInfo.displayText} (Qty: {orderInfo.totalItems})</small></p>
           </div>
+                     {/* Location Dropdown */}
+        <div className="form-group">
+               <h3 className="section-title">Delivery Location</h3>
+        
+          <select
+            id="location"
+            value={selectedLocation}
+            onChange={handleLocationChange}
+            required
+            className="location-select"
+          >
+            <option value="">Select delivery location</option>
+            {locations?.map((location) => (
+              <option key={location.id} value={location.id}>
+                {location.location} - ₦{parseFloat(location.logistics_price).toLocaleString()}
+              </option>
+            ))}
+          </select>
+       
+        </div>
+          <h3 className="section-title">Payment Method</h3>
+          
+        
           
           <div className="payment-options">
+     
             <div 
               className={`payment-option ${paymentMethod === 'bank' ? 'selected' : ''} ${isVerifying ? 'disabled' : ''}`}
               onClick={isVerifying ? undefined : handleBankTransfer}
@@ -294,11 +338,15 @@ export default function PaymentMethod({address, totalCost, selectedOrders, produ
             </div>
           </div>
         </div>
-
+ 
         <div className="checkout-section order-total-section">
           <div className="order-total-row">
             <span>Subtotal ({orderInfo.totalItems} item{orderInfo.totalItems > 1 ? 's' : ''})</span>
-            <span>₦{parseFloat(totalCost || 0).toFixed(2)}</span>
+            <span>₦{parseFloat(orderCost || 0).toFixed(2)}</span>
+          </div>
+            <div className="order-total-row">
+            <span>Delivery Cost </span>
+            <span> {deliveryCost > 0 ? `₦${deliveryCost.toLocaleString()}` : '₦0'}</span>
           </div>
           <div className="order-total-row grand-total">
             <span>Total</span>
@@ -315,7 +363,7 @@ export default function PaymentMethod({address, totalCost, selectedOrders, produ
           <button 
             className="checkout-button"
             onClick={handleBankPayment}
-            disabled={isProcessing || isVerifying}
+            disabled={isProcessing || isVerifying || selectedLocation === ''}
           >
             {isProcessing ? 'Verifying Payment...' : 'I have paid'}
           </button>
@@ -327,7 +375,7 @@ export default function PaymentMethod({address, totalCost, selectedOrders, produ
               reference={generatePaystackReference()}
               onSuccess={handlePaystackSuccess}
               onClose={handlePaystackClose}
-              disabled={isProcessing || isVerifying}
+              disabled={isProcessing || isVerifying || selectedLocation === ''}
             />
           </div>
         ) : (
@@ -335,7 +383,7 @@ export default function PaymentMethod({address, totalCost, selectedOrders, produ
             className="checkout-button disabled"
             disabled
           >
-            Select Payment Method
+             {selectedLocation === '' ? 'Select Delivery Location' : 'Select Payment Method'}
           </button>
         )}
       </div>

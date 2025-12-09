@@ -54,7 +54,7 @@
   letter-spacing: 0.5px;
 }
 
-.payment-status.success,
+.payment-status.paid,
 .payment-status.completed {
   background-color: rgba(76, 175, 80, 0.1);
   color: #4CAF50;
