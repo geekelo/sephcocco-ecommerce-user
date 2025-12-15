@@ -1,19 +1,3 @@
-<<<<<<< HEAD
-import React, { useState } from "react";
-import { ArrowLeft } from "lucide-react";
-import { useSearchParams, useParams, useNavigate } from "react-router-dom";
-import "../styles/OrderDetails.css";
-import InfoSection from "../components/InfoSection";
-import ProductInfo from "../components/ProductInfo";
-import OrderStages from "../components/OrderStages";
-import { getActiveOutlet } from "../utils/getActiveOutlets";
-import { useGetDeliveryOrder } from "../hooks/useGetDeliveryOrder";
-import OrderDetailsSkeleton from "../components/OrderDetailsSkeleton";
-import { useTrackOrder } from "../hooks/useTrackOrder";
-import { useRiders } from "../hooks/useRiders";
-import { useGetPaidOrder } from "../hooks/useGetPaidOrder";
-import { useGetCompletedOrder } from "../hooks/userGetCompletedOrder";
-=======
 import React, { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useSearchParams, useParams, useNavigate } from 'react-router-dom';
@@ -29,7 +13,6 @@ import { useTrackOrder } from '../hooks/useTrackOrder';
 
 import { useGetPaidOrder } from '../hooks/useGetPaidOrder';
 import { useGetCompletedOrder } from '../hooks/userGetCompletedOrder';
->>>>>>> 5b19e80f0d6e5ce77206cb5925618172f566e953
 
 const OrderDetails = () => {
   const { orderId } = useParams();
@@ -45,15 +28,10 @@ const OrderDetails = () => {
   const { data: deliveryData, isLoading: isLoadingDelivery } =
     useGetDeliveryOrder(activeOutlet);
 
-<<<<<<< HEAD
-  const { data: paidData, isLoading: isLoadingPaid } =
-    useGetPaidOrder(activeOutlet);
-=======
   const {
     data: paidData,
     isLoading: isLoadingPaid,
   } = useGetPaidOrder(activeOutlet);
->>>>>>> 5b19e80f0d6e5ce77206cb5925618172f566e953
 
   const { data: completedData, isLoading: isLoadingCompleted } =
     useGetCompletedOrder(activeOutlet);
@@ -67,11 +45,6 @@ const OrderDetails = () => {
     paidData?.orders?.find((o) => o.id.toString() === orderId) ||
     completedData?.orders?.find((o) => o.id.toString() === orderId);
 
-<<<<<<< HEAD
-  const { data: riders, isLoading: isLoadingRiders } = useRiders();
-=======
-
->>>>>>> 5b19e80f0d6e5ce77206cb5925618172f566e953
 
   // Fetch tracking info only when needed
   const { data: trackData, isLoading: isTrackingLoading } = useTrackOrder(
