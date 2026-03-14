@@ -225,7 +225,7 @@ const handleLocationChange = (e) => {
         <div className="payment-checkout-section payment-method-section">
               {/* Location Dropdown */}
         <div className="form-group">
-           <h3 className="payment-section-title">  Delivery Location</h3>
+           <h3 className="payment-section-title">  Delivery Location <span style={{color: 'red' }}>*</span></h3>
    
           <select
             id="location"
@@ -234,7 +234,7 @@ const handleLocationChange = (e) => {
             required
             className="location-select"
           >
-            <option value="">Select delivery location</option>
+            <option value="" >Select delivery location </option>
             {locations?.map((location) => (
               <option key={location.id} value={location.id}>
                 {location.location} - ₦{parseFloat(location.logistics_price).toLocaleString()}
@@ -299,7 +299,7 @@ const handleLocationChange = (e) => {
           </div>
         </div>
 
-        {paymentMethod === 'bank' && showBankDetails && <BankDetails />}
+        {paymentMethod === 'bank' && showBankDetails && <BankDetails transactionId={transactionId} />}
 
         {/* Conditional rendering based on payment method */}
         {paymentMethod === 'bank' ? (

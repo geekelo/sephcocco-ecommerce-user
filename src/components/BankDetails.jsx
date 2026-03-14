@@ -2,7 +2,7 @@ import React from 'react'
 import { BANK_DETAILS } from '../constants/BankDetails'
 import { motion } from 'framer-motion';
 import '../styles/BankDetails.css'
-export default function BankDetails() {
+export default function BankDetails({transactionId}) {
     
   return (
     <motion.div
@@ -31,7 +31,7 @@ export default function BankDetails() {
       </div>
     </div>
     <div className="bank-instructions">
-      <p>Please make your transfer with the order number as reference. Your order will be processed once payment is confirmed.</p>
+      <p>Please make your transfer with this <strong>"{transactionId}"</strong> number as reference. Your order will be processed once payment is confirmed.</p>
     </div>
   </motion.div>
   )
