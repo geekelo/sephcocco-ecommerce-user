@@ -195,7 +195,7 @@ const [selectedLocation, setSelectedLocation] = useState('');
             )}
             <h2>
               {orderCreated 
-                ? 'Complete Payment' 
+                ? 'Make Your Payment' 
                 : showPaymentOnMobile 
                   ? 'Create Order' 
                   : 'Order Details'
@@ -265,7 +265,7 @@ const [selectedLocation, setSelectedLocation] = useState('');
           
           {orderCreated && (
             <div className="order-created-notice">
-              <p>✅ Order created successfully! Complete payment to finalize your order.</p>
+              <p>✅ Order created successfully! Make your payment to finalize your order.</p>
               <p><small>Unpaid orders can be found in your pending orders section.</small></p>
             </div>
           )}
