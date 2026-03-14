@@ -561,38 +561,47 @@ const PaymentHistory = () => {
   // Fix: Get meta from the correct location in the API response
   const meta = payment?.meta || {};
   
-  const paymentData = isAuthenticated ? (
-    payment?.payments?.flatMap(
-      (payment) =>
-        payment.paid_orders?.map((order) => ({
-          id: payment.id,
-          customerName: order.customer?.name,
-          customerEmail: order.customer?.email,
-          orderId: order.id,
-          phoneNumber: order.customer?.phone_number,
-          orderDate: order.created_at,
-          orderStatus: order.status,
-          paymentMethod: payment.payment_method,
-          status: payment.status,
-          notes: order.notes,
-          products: order.product,
-          amount: payment.amount,
-          transactionId: payment.transaction_id,
-          paymentDate: payment.created_at,
-          deliveryAmount: payment.delivery_location?.logistics_price,
-          deliveryLocation: payment.delivery_location?.location,
-          orderNumber: order.order_number,
-          totalPrice: order.total_price,
-          // Add formatted date for filtering
-          date: new Date(payment.created_at).toLocaleDateString(),
-          // Add timestamp for sorting
-          timestamp: new Date(payment.created_at).getTime(),
-        })) || []
-    )
-    // Sort by most recent first (descending order)
-    .sort((a, b) => b.timestamp - a.timestamp) || []
-  ) : [];
+const paymentData = isAuthenticated
+  ? (payment?.payments || [])
+      .map((paymentItem) => {
+        const firstOrder = paymentItem?.paid_orders?.[0];
 
+        return {
+          id: paymentItem.id,
+          customerName: firstOrder?.customer?.name || "",
+          customerEmail: firstOrder?.customer?.email || "",
+          phoneNumber: firstOrder?.customer?.phone_number || "",
+          paymentMethod: paymentItem.payment_method,
+          status: paymentItem.status,
+          amount: Number(paymentItem.amount || 0),
+          transactionId: paymentItem.transaction_id,
+          paymentDate: paymentItem.created_at,
+          deliveryAmount: Number(paymentItem.delivery_location?.logistics_price || 0),
+          deliveryLocation: paymentItem.delivery_location?.location || "",
+          orderAmount:
+            Number(paymentItem.amount || 0) -
+            Number(paymentItem.delivery_location?.logistics_price || 0),
+
+          orders: paymentItem.paid_orders || [],
+          orderCount: paymentItem.paid_orders?.length || 0,
+          orderIds: paymentItem.paid_orders?.map((order) => order.id) || [],
+          orderNumbers: paymentItem.paid_orders?.map((order) => order.order_number) || [],
+          orderStatus: paymentItem.paid_orders?.[0]?.status || "",
+          products:
+            paymentItem.paid_orders?.map((order) => order.product).filter(Boolean) || [],
+
+          notes:
+            paymentItem.paid_orders?.map((order) => order.notes).filter(Boolean) || [],
+
+          totalPrices:
+            paymentItem.paid_orders?.map((order) => order.total_price) || [],
+
+          date: new Date(paymentItem.created_at).toLocaleDateString(),
+          timestamp: new Date(paymentItem.created_at).getTime(),
+        };
+      })
+      .sort((a, b) => b.timestamp - a.timestamp)
+  : [];
   return (
     <div className="payment-history">
       <h1 className="payment-history-title">Payment history</h1>
