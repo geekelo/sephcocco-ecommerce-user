@@ -360,24 +360,27 @@ const handleLocationChange = (e) => {
 
         {/* Conditional rendering based on payment method */}
         {paymentMethod === 'bank' ? (
-          <button 
-            className="checkout-button"
-            onClick={handleBankPayment}
-            disabled={isProcessing || isVerifying || selectedLocation === ''}
-          >
-            {isProcessing ? 'Verifying Payment...' : 'I have paid'}
-          </button>
-        ) : paymentMethod === 'online' ? (
-          <div className="paystack-button-container">
-            <PaystackPayment
-              email={getEmailForPayment()} 
-              amount={totalCost}
-              reference={generatePaystackReference()}
-              onSuccess={handlePaystackSuccess}
-              onClose={handlePaystackClose}
+          <>
+            <button 
+              className="checkout-button"
+              onClick={handleBankPayment}
               disabled={isProcessing || isVerifying || selectedLocation === ''}
-            />
-          </div>
+            >
+              {isProcessing ? 'Verifying Payment...' : 'I have paid'}
+            </button>
+            {selectedLocation === '' && <small style={{color: 'red'}}>Please select your delivery location above</small>}
+          </>
+        ) : paymentMethod === 'online' ? (
+            <div className="paystack-button-container">
+              <PaystackPayment
+                email={getEmailForPayment()} 
+                amount={totalCost}
+                reference={generatePaystackReference()}
+                onSuccess={handlePaystackSuccess}
+                onClose={handlePaystackClose}
+                disabled={isProcessing || isVerifying || selectedLocation === ''}
+              />
+            </div>
         ) : (
           <button 
             className="checkout-button disabled"
