@@ -21,6 +21,7 @@ import PaymentSuccessModal from '../components/PaymentSuccessModal';
 import { useGetPendingOrder } from "../hooks/useGetPendingOrder";
 import { useGetLocation } from '../hooks/useGetLocation';
 import { useViewPayment } from '../hooks/useViewPayment';
+import { useDebounce } from '../hooks/useDebounce';
 
 export default function Product() {
   const [activeOutlet, setActiveOutlet] = useState(getActiveOutlet());
@@ -38,12 +39,12 @@ export default function Product() {
     updateCategory,
     clearAllFilters 
   } = useSearch();
-  
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
   // Modal states
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-     
+  // const [hasRating, setHasRating] = useState(false)
   // Auth modal states
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
@@ -52,7 +53,26 @@ export default function Product() {
   
   // Fixed: Initialize checkedOrders as an object to track selected products
   const [checkedOrders, setCheckedOrders] = useState({});
-  
+    const { 
+    data: categories = [], 
+    isLoading: categoriesLoading, 
+    error: categoriesError, 
+    refetch: refetchCategories 
+  } = useViewProductCategories(activeOutlet);
+const filters = useMemo(() => {
+  const selectedCategoryObj = categories.find(
+    (cat) => cat.name === selectedCategory
+  );
+
+  const result = {
+    search_terms: debouncedSearchTerm.trim() || "",
+    category_id: selectedCategoryObj?.id || "",
+  };
+
+  console.log("combined filters:", result);
+
+  return result;
+}, [searchTerm, selectedCategory, categories]);
   // Fetch data with pagination
   const { 
     data: productsData, 
@@ -60,14 +80,9 @@ export default function Product() {
     error: productsError, 
     refetch,
     isPreviousData 
-  } = useViewAllProduct(activeOutlet, currentPage, itemsPerPage, activeUser?.id);
+  } = useViewAllProduct(activeOutlet, filters, currentPage, itemsPerPage, activeUser?.id);
   
-  const { 
-    data: categories = [], 
-    isLoading: categoriesLoading, 
-    error: categoriesError, 
-    refetch: refetchCategories 
-  } = useViewProductCategories(activeOutlet);
+
 const {data: locations, isLoading: locationsLoading, error: locationsError} = useGetLocation()
     const {refetch: refetchPayment } = useViewPayment(
       activeOutlet
@@ -207,7 +222,7 @@ const {data: locations, isLoading: locationsLoading, error: locationsError} = us
     }
     
     let result = [...products];
-    
+ 
     // Apply search
     // if (searchTerm && searchTerm.trim()) {
     //   console.log('🔍 APPLYING SEARCH for:', searchTerm);
