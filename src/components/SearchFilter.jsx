@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Search, ChevronDown, ChevronRight, Grid3X3, ArrowUpDown, ArrowDownUp, Clock, Star, Filter } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, ChevronDown, ChevronRight, Filter } from 'lucide-react';
 import '../styles/SearchFilter.css';
 
 const SearchFilter = ({
@@ -11,33 +11,32 @@ const SearchFilter = ({
   onCategoryChange = () => {},
   className = ''
 }) => {
-  // Local state for UI only
   const [searchValue, setSearchValue] = useState('');
+  const [debouncedSearchValue, setDebouncedSearchValue] = useState('');
   const [currentSort, setCurrentSort] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
   const [showCategoriesSubmenu, setShowCategoriesSubmenu] = useState(false);
 
-  // Search handler
-  const handleSearchChange = (e) => {
-    const value = e.target.value;
-    setSearchValue(value);
-    onSearch(value);
-  };
+const handleSearchChange = (e) => {
+  const value = e.target.value;
+  setSearchValue(value);
+  onSearch(value);
+};
 
-  // Sort handler
+
   const handleSortSelect = (option) => {
     if (option === 'Categories') {
       setShowCategoriesSubmenu(!showCategoriesSubmenu);
-      return; // Don't close dropdown, just toggle submenu
+      return;
     }
-    
+
     setCurrentSort(option);
-    setSelectedCategory(''); // Clear category when sorting
+    setSelectedCategory('');
     setShowDropdown(false);
     setShowCategoriesSubmenu(false);
     onSortChange(option);
-    onCategoryChange(''); // Clear category
+    onCategoryChange('');
   };
 
   const clearSort = () => {
@@ -49,18 +48,16 @@ const SearchFilter = ({
     onCategoryChange('');
   };
 
-  // Category handler
   const handleCategorySelect = (categoryName) => {
     setSelectedCategory(categoryName);
-    setCurrentSort('Categories'); // Set sort to Categories when a category is selected
+    setCurrentSort('Categories');
     setShowDropdown(false);
     setShowCategoriesSubmenu(false);
     onCategoryChange(categoryName);
-    onSortChange('Categories'); // Let parent know we're in category mode
+    onSortChange('Categories');
   };
 
-  // Close dropdown when clicking outside
-  React.useEffect(() => {
+  useEffect(() => {
     const handleClickOutside = () => {
       setShowDropdown(false);
       setShowCategoriesSubmenu(false);
@@ -72,7 +69,6 @@ const SearchFilter = ({
     }
   }, [showDropdown]);
 
-  // Get current display text
   const getDisplayText = () => {
     if (selectedCategory) return selectedCategory;
     if (currentSort) return currentSort;
@@ -86,7 +82,6 @@ const SearchFilter = ({
 
   return (
     <div className={`search-filter-wrapper ${className}`}>
-      {/* Search Input */}
       <div className="search-container">
         <Search size={16} className="search-icon" />
         <input
@@ -98,35 +93,31 @@ const SearchFilter = ({
         />
       </div>
 
-      {/* Sort Dropdown with Categories Submenu */}
       <div className="filter-dropdown" onClick={(e) => e.stopPropagation()}>
         <div className="custom-select">
           <div
             className="select-selected"
             onClick={() => setShowDropdown(!showDropdown)}
           >
-            <span className="select-text">
-              {getDisplayText()}
-            </span>
+            <span className="select-text">{getDisplayText()}</span>
             <ChevronDown
               size={14}
               className={showDropdown ? "chevron-rotated" : ""}
             />
           </div>
+
           {showDropdown && (
             <div className="select-items">
-              {/* Clear Options */}
               {(currentSort || selectedCategory) && (
                 <>
                   <div onClick={clearSort} className="clear-option">
                     Clear Sort
                   </div>
-                  <div style={{ borderBottom: '1px solid #eee', margin: '0.5rem 0' }}></div>
+                  <div style={{ borderBottom: '1px solid #eee', margin: '0.5rem 0' }} />
                 </>
               )}
 
-              {/* Sort Options */}
-              {filterOptions && filterOptions.map((option) => (
+              {filterOptions?.map((option) => (
                 <div key={option} style={{ position: 'relative' }}>
                   <div
                     onClick={() => handleSortSelect(option)}
@@ -139,33 +130,34 @@ const SearchFilter = ({
                   >
                     <span>{option}</span>
                     {option === 'Categories' && (
-                      <ChevronRight 
-                        size={14} 
-                        style={{ 
+                      <ChevronRight
+                        size={14}
+                        style={{
                           transform: showCategoriesSubmenu ? 'rotate(90deg)' : 'rotate(0deg)',
                           transition: 'transform 0.2s ease'
-                        }} 
+                        }}
                       />
                     )}
                   </div>
-                  
-                  {/* Categories Submenu */}
-                  {option === 'Categories' && showCategoriesSubmenu && categories && categories.length > 0 && (
-                    <div className="categories-submenu">
-                      {categories.map((category) => {
-                        const categoryName = category.name || category;
-                        return (
-                          <div
-                            key={categoryName}
-                            onClick={() => handleCategorySelect(categoryName)}
-                            className={selectedCategory === categoryName ? "same-as-selected" : ""}
-                          >
-                            {categoryName}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
+
+                  {option === 'Categories' &&
+                    showCategoriesSubmenu &&
+                    categories?.length > 0 && (
+                      <div className="categories-submenu">
+                        {categories.map((category) => {
+                          const categoryName = category.name || category;
+                          return (
+                            <div
+                              key={categoryName}
+                              onClick={() => handleCategorySelect(categoryName)}
+                              className={selectedCategory === categoryName ? "same-as-selected" : ""}
+                            >
+                              {categoryName}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                 </div>
               ))}
             </div>
