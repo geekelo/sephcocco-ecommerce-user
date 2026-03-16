@@ -21,6 +21,7 @@ import PaymentSuccessModal from '../components/PaymentSuccessModal';
 import { useGetPendingOrder } from "../hooks/useGetPendingOrder";
 import { useGetLocation } from '../hooks/useGetLocation';
 import { useViewPayment } from '../hooks/useViewPayment';
+import { useDebounce } from '../hooks/useDebounce';
 
 export default function Product() {
   const [activeOutlet, setActiveOutlet] = useState(getActiveOutlet());
@@ -38,12 +39,12 @@ export default function Product() {
     updateCategory,
     clearAllFilters 
   } = useSearch();
-  
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
   // Modal states
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-     
+  // const [hasRating, setHasRating] = useState(false)
   // Auth modal states
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
@@ -52,7 +53,26 @@ export default function Product() {
   
   // Fixed: Initialize checkedOrders as an object to track selected products
   const [checkedOrders, setCheckedOrders] = useState({});
-  
+    const { 
+    data: categories = [], 
+    isLoading: categoriesLoading, 
+    error: categoriesError, 
+    refetch: refetchCategories 
+  } = useViewProductCategories(activeOutlet);
+const filters = useMemo(() => {
+  const selectedCategoryObj = categories.find(
+    (cat) => cat.name === selectedCategory
+  );
+
+  const result = {
+    search_terms: debouncedSearchTerm.trim() || "",
+    category_id: selectedCategoryObj?.id || "",
+  };
+
+  console.log("combined filters:", result);
+
+  return result;
+}, [searchTerm, selectedCategory, categories]);
   // Fetch data with pagination
   const { 
     data: productsData, 
@@ -60,14 +80,9 @@ export default function Product() {
     error: productsError, 
     refetch,
     isPreviousData 
-  } = useViewAllProduct(activeOutlet, currentPage, itemsPerPage, activeUser?.id);
+  } = useViewAllProduct(activeOutlet, filters, currentPage, itemsPerPage, activeUser?.id);
   
-  const { 
-    data: categories = [], 
-    isLoading: categoriesLoading, 
-    error: categoriesError, 
-    refetch: refetchCategories 
-  } = useViewProductCategories(activeOutlet);
+
 const {data: locations, isLoading: locationsLoading, error: locationsError} = useGetLocation()
     const {refetch: refetchPayment } = useViewPayment(
       activeOutlet
@@ -207,47 +222,47 @@ const {data: locations, isLoading: locationsLoading, error: locationsError} = us
     }
     
     let result = [...products];
-    
+ 
     // Apply search
-    if (searchTerm && searchTerm.trim()) {
-      console.log('🔍 APPLYING SEARCH for:', searchTerm);
-      const search = searchTerm.toLowerCase().trim();
+    // if (searchTerm && searchTerm.trim()) {
+    //   console.log('🔍 APPLYING SEARCH for:', searchTerm);
+    //   const search = searchTerm.toLowerCase().trim();
       
-      result = result.filter(product => {
-        const name = (product?.name || '').toLowerCase();
-        const shortDesc = (product?.short_description || '').toLowerCase();
-        const longDesc = (product?.long_description || '').toLowerCase();
-        const categoryNames = product?.categories?.map(cat => (cat?.name || '').toLowerCase()).join(' ') || '';
+    //   result = result.filter(product => {
+    //     const name = (product?.name || '').toLowerCase();
+    //     const shortDesc = (product?.short_description || '').toLowerCase();
+    //     const longDesc = (product?.long_description || '').toLowerCase();
+    //     const categoryNames = product?.categories?.map(cat => (cat?.name || '').toLowerCase()).join(' ') || '';
         
-        const matches = name.includes(search) || 
-               shortDesc.includes(search) || 
-               longDesc.includes(search) || 
-               categoryNames.includes(search);
+    //     const matches = name.includes(search) || 
+    //            shortDesc.includes(search) || 
+    //            longDesc.includes(search) || 
+    //            categoryNames.includes(search);
         
-        if (matches) {
-          console.log(`✅ Product "${product?.name}" matches search`);
-        }
+    //     if (matches) {
+    //       console.log(`✅ Product "${product?.name}" matches search`);
+    //     }
         
-        return matches;
-      });
+    //     return matches;
+    //   });
       
-      console.log(`Search filtered: ${products.length} → ${result.length}`);
-    }
+    //   console.log(`Search filtered: ${products.length} → ${result.length}`);
+    // }
     
-    // Apply category filter
-    if (selectedCategory && selectedCategory.trim()) {
-      console.log('📁 APPLYING CATEGORY FILTER for:', selectedCategory);
+    // // Apply category filter
+    // if (selectedCategory && selectedCategory.trim()) {
+    //   console.log('📁 APPLYING CATEGORY FILTER for:', selectedCategory);
       
-      result = result.filter(product => {
-        const hasCategory = product?.categories?.some(cat => cat?.name === selectedCategory);
-        if (hasCategory) {
-          console.log(`✅ Product "${product?.name}" has category "${selectedCategory}"`);
-        }
-        return hasCategory;
-      });
+    //   result = result.filter(product => {
+    //     const hasCategory = product?.categories?.some(cat => cat?.name === selectedCategory);
+    //     if (hasCategory) {
+    //       console.log(`✅ Product "${product?.name}" has category "${selectedCategory}"`);
+    //     }
+    //     return hasCategory;
+    //   });
       
-      console.log(`Category filtered: result length now: ${result.length}`);
-    }
+    //   console.log(`Category filtered: result length now: ${result.length}`);
+    // }
     
     // Apply sorting
     if (sortOption && sortOption.trim()) {
@@ -263,9 +278,9 @@ const {data: locations, isLoading: locationsLoading, error: locationsError} = us
         case 'Newest First':
           result.sort((a, b) => new Date(b?.created_at || 0) - new Date(a?.created_at || 0));
           break;
-        case 'Rating':
-          result.sort((a, b) => (b?.likes || 0) - (a?.likes || 0));
-          break;
+        // case 'Rating':
+        //   result.sort((a, b) => (b?.likes || 0) - (a?.likes || 0));
+        //   break;
       }
     }
     
