@@ -1,6 +1,6 @@
 export const BANK_DETAILS = {
-    accountName: "Online Store Inc.",
-    accountNumber: "1234567890",
-    bankName: "Global Banking Ltd.",
-    routingNumber: "987654321"
+    accountName: "Sephcocco Events Management.",
+    accountNumber: "5824657066",
+    bankName: "Moniepoint Bank",
+    routingNumber: ""
   };
